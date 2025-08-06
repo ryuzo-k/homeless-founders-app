@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Homeless Founders - Global Hacker House Matching</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <title>Homeless Founders</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Space Mono', monospace;
+            background-color: #fff;
+            color: #000;
+        }
+        .simple-card {
+            background: #fff;
+            border: 1px solid #000;
+        }
+        .simple-button {
+            background: #fff;
+            color: #000;
+            border: 1px solid #000;
+            transition: all 0.2s;
+        }
+        .simple-button:hover {
+            background: #000;
+            color: #fff;
+        }
+        .simple-input {
+            border: 1px solid #000;
+            background: #fff;
+            color: #000;
+        }
+        .simple-input:focus {
+            outline: none;
+            border-color: #000;
+        }
+        .simple-nav {
+            background: #fff;
+            color: #000;
+            border-bottom: 1px solid #000;
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+    <!-- Navigation -->
+    <nav class="simple-nav">
+        <div class="container mx-auto px-4">
+            <div class="flex justify-between items-center py-4">
+                <div class="flex items-center space-x-4">
+                    <span class="text-xl font-bold">Homeless Founders</span>
+                </div>
+                <div class="flex space-x-2">
+                    <button onclick="showPage('home')" class="px-3 py-1 simple-button font-mono text-sm">Home</button>
+                    <button onclick="showPage('founder')" class="px-3 py-1 simple-button font-mono text-sm">Founders</button>
+                    <button onclick="showPage('list')" class="px-3 py-1 simple-button font-mono text-sm">Browse</button>
+                    <button onclick="showPage('house')" class="px-3 py-1 simple-button font-mono text-sm">List</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mx-auto px-4 py-8">
+        <!-- Home Page -->
+        <div id="homePage" class="page">
+            <header class="text-center mb-12">
+                <h1 class="text-4xl font-bold mb-4">Homeless Founders</h1>
+                <p class="text-lg font-mono">Connecting talented founders with hacker houses worldwide</p>
+            </header>
+
+            <!-- Stats Section -->
+            <div class="grid md:grid-cols-3 gap-8 mb-12">
+                <div class="simple-card p-6 text-center">
+                    <div class="text-4xl font-bold mb-2" id="homeRegisteredHouses">3</div>
+                    <div class="text-sm">Registered Houses</div>
+                </div>
+                <div class="simple-card p-6 text-center">
+                    <div class="text-4xl font-bold mb-2" id="homeRegisteredFounders">0</div>
+                    <div class="text-sm">Registered Founders</div>
+                </div>
+                <div class="simple-card p-6 text-center">
+                    <div class="text-4xl font-bold mb-2" id="homeActiveRegions">3</div>
+                    <div class="text-sm">Active Regions</div>
+                </div>
+            </div>
+
+            <!-- How it works -->
+            <div class="simple-card p-8 mb-12">
+                <h2 class="text-2xl font-bold text-center mb-8">How It Works</h2>
+                <div class="grid md:grid-cols-3 gap-8">
+                    <div class="text-center">
+                        <div class="text-4xl mb-4">1</div>
+                        <h3 class="text-lg font-bold mb-2">Register</h3>
+                        <p class="text-sm">Sign up as a founder or register your hacker house</p>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-4xl mb-4">2</div>
+                        <h3 class="text-lg font-bold mb-2">AI Matching</h3>
+                        <p class="text-sm">Our AI finds the perfect matches based on your profile</p>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-4xl mb-4">3</div>
+                        <h3 class="text-lg font-bold mb-2">Start Building</h3>
+                        <p class="text-sm">Move in and develop your product in a supportive environment</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CTA Buttons -->
+            <div class="grid md:grid-cols-2 gap-8">
+                <div class="simple-card p-8 text-center">
+                    <h3 class="text-xl font-bold mb-4">For Founders</h3>
+                    <p class="text-sm mb-6">Find the perfect hacker house for your startup journey</p>
+                    <button onclick="showPage('founder')" class="simple-button px-6 py-3 font-mono">
+                        Start Matching
+                    </button>
+                </div>
+                <div class="simple-card p-8 text-center">
+                    <h3 class="text-xl font-bold mb-4">For Hacker Houses</h3>
+                    <p class="text-sm mb-6">Welcome talented founders and energize your community</p>
+                    <button onclick="showPage('house')" class="simple-button px-6 py-3 font-mono">
+                        List Your House
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Founder Page -->
+        <div id="founderPage" class="page hidden">
+            <div class="max-w-2xl mx-auto simple-card p-8">
+                <h2 class="text-2xl font-bold text-center mb-8">Founder Registration</h2>
+                
+                <form id="founderForm" class="space-y-6">
+                    <div>
+                        <label for="name" class="block text-sm font-bold mb-2">Name:</label>
+                        <input type="text" id="name" name="name" required class="w-full px-3 py-2 simple-input" placeholder="Your full name">
+                    </div>
+
+                    <div>
+                        <label for="age" class="block text-sm font-bold mb-2">Age:</label>
+                        <input type="number" id="age" name="age" required min="13" max="100" class="w-full px-3 py-2 simple-input" placeholder="Your age">
+                    </div>
+
+                    <div>
+                        <label for="product" class="block text-sm font-bold mb-2">Tell us about yourself:</label>
+                        <textarea id="product" name="product" required rows="4" class="w-full px-3 py-2 simple-input" placeholder="Share your background, skills, what you're building, and what makes you interesting as a housemate..."></textarea>
+                        <p class="text-xs mt-1">* Include your interesting traits and actual background</p>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-bold mb-2">Preferred Stay Duration:</label>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label for="startDate" class="block text-sm font-bold mb-2">Start Date:</label>
+                                <input type="date" id="startDate" name="startDate" required class="w-full px-3 py-2 simple-input" onchange="updateDurationDisplay()">
+                            </div>
+                            <div>
+                                <label for="endDate" class="block text-sm font-bold mb-2">End Date:</label>
+                                <input type="date" id="endDate" name="endDate" required class="w-full px-3 py-2 simple-input" onchange="updateDurationDisplay()">
+                            </div>
+                        </div>
+                        <div class="mt-2">
+                            <div id="durationDisplay" class="text-sm mt-2">Duration: Please select dates</div>
+                            <div id="timezoneInfo" class="text-sm mt-2">* Times shown in local timezone</div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="region" class="block text-sm font-bold mb-2">Preferred Region:</label>
+                        <select id="region" name="region" required class="w-full px-3 py-2 simple-input" onchange="updateTimezone()">
+                            <option value="">Please select</option>
+                            <option value="tokyo">Tokyo (JST)</option>
+                            <option value="sf">San Francisco (PST/PDT)</option>
+                            <option value="nyc">New York (EST/EDT)</option>
+                            <option value="london">London (GMT/BST)</option>
+                            <option value="singapore">Singapore (SGT)</option>
+                        </select>
+                    </div>
+
+                    <button type="submit" class="w-full simple-button py-3 px-4 font-mono">
+                    Find My Match
+                </button>
+                </form>
+            </div>
+
+            <!-- Results Section (Hidden initially) -->
+            <div id="results" class="bg-white rounded-lg shadow-lg p-8 mt-8 hidden">
+                <h2 class="text-2xl font-semibold mb-6">Recommended Hacker Houses</h2>
+                <div id="matches"></div>
+            </div>
+
+            <!-- Consent Form (Hidden initially) -->
+            <div id="consentSection" class="hidden mt-6 p-4 simple-card">
+                <h3 class="text-lg font-bold mb-2">Parental Consent Required</h3>
+                <p class="text-sm mb-4">Since you are under 18, we need parental consent. Please upload a signed consent form.</p>
+                <input type="file" id="consentFile" accept=".pdf,.jpg,.jpeg,.png" class="w-full px-3 py-2 simple-input">
+            </div>
+        </div>
+
+        <!-- House List Page -->
+        <div id="listPage" class="page hidden">
+            <div class="max-w-6xl mx-auto">
+                <header class="text-center mb-8">
+                    <h1 class="text-3xl font-bold mb-4">Browse Hacker Houses</h1>
+                    <p>Discover amazing hacker houses around the world</p>
+                </header>
+
+                <!-- Filter Section -->
+                <div class="simple-card p-6 mb-8">
+                    <div class="grid md:grid-cols-4 gap-4">
+                        <div>
+                            <label class="block text-sm font-bold mb-2">Filter by Region:</label>
+                            <select id="filterRegion" onchange="filterHouses()" class="w-full px-3 py-2 simple-input">
+                                <option value="">All Regions</option>
+                                <option value="tokyo">Tokyo</option>
+                                <option value="sf">San Francisco</option>
+                                <option value="nyc">New York</option>
+                                <option value="london">London</option>
+                                <option value="singapore">Singapore</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-bold mb-2">Capacity:</label>
+                            <select id="filterCapacity" onchange="filterHouses()" class="w-full px-3 py-2 simple-input">
+                                <option value="">All Sizes</option>
+                                <option value="1">1 person</option>
+                                <option value="2">2 people</option>
+                                <option value="3-5">3-5 people</option>
+                                <option value="6-10">6-10 people</option>
+                                <option value="10+">10+ people</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-bold mb-2">Amenities:</label>
+                            <select id="filterFacility" onchange="filterHouses()" class="w-full px-3 py-2 simple-input">
+                                <option value="">All Amenities</option>
+                                <option value="wifi">High-speed WiFi</option>
+                                <option value="workspace">Workspace</option>
+                                <option value="kitchen">Kitchen</option>
+                                <option value="meeting">Meeting Room</option>
+                                <option value="24h">24/7 Access</option>
+                                <option value="mentoring">Mentoring</option>
+                            </select>
+                        </div>
+                        <div class="flex items-end">
+                            <button onclick="clearFilters()" class="w-full simple-button py-2 px-4 font-mono">
+                                Clear Filters
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Stats -->
+                <div class="grid md:grid-cols-3 gap-6 mb-8">
+                    <div class="simple-card p-6 text-center">
+                        <div class="text-3xl font-bold mb-2" id="totalHouses">3</div>
+                        <div class="text-sm">Registered Houses</div>
+                    </div>
+                    <div class="simple-card p-6 text-center">
+                        <div class="text-3xl font-bold mb-2" id="availableSpots">12</div>
+                        <div class="text-sm">Available Spots</div>
+                    </div>
+                    <div class="simple-card p-6 text-center">
+                        <div class="text-3xl font-bold mb-2" id="activeRegions">3</div>
+                        <div class="text-sm">Active Regions</div>
+                    </div>
+                </div>
+
+                <!-- House Grid -->
+                <div id="houseGrid" class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- Houses will be populated by JavaScript -->
+                </div>
+
+                <!-- Empty State -->
+                <div id="emptyState" class="text-center py-12 hidden">
+                    <div class="text-6xl mb-4">🔍</div>
+                    <h3 class="text-xl font-semibold text-gray-700 mb-2">No houses match your criteria</h3>
+                    <p class="text-gray-500 mb-6">Try adjusting your filters to see more results</p>
+                    <button onclick="clearFilters()" class="bg-blue-600 text-white px-6 py-3 rounded-md hover:bg-blue-700 transition duration-200">
+                        Reset Filters
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Hacker House Registration Page -->
+        <div id="housePage" class="page hidden">
+            <div class="max-w-2xl mx-auto">
+                <div class="simple-card p-8">
+                    <h2 class="text-2xl font-bold mb-6 text-center">Register Your Hacker House</h2>
+                    
+                    <form id="houseForm" class="space-y-6">
+                        <div>
+                            <label for="houseName" class="block text-sm font-bold mb-2">House Name:</label>
+                            <input type="text" id="houseName" name="houseName" required class="w-full px-3 py-2 simple-input" placeholder="e.g. SF Innovation Hub">
+                        </div>
+
+                        <div>
+                            <label for="houseLocation" class="block text-sm font-bold mb-2">Location:</label>
+                            <input type="text" id="houseLocation" name="houseLocation" required class="w-full px-3 py-2 simple-input" placeholder="e.g. San Francisco, CA">
+                        </div>
+
+                        <div>
+                            <label for="houseRegion" class="block text-sm font-bold mb-2">Region:</label>
+                            <select id="houseRegion" name="houseRegion" required class="w-full px-3 py-2 simple-input">
+                                <option value="">Please select</option>
+                                <option value="tokyo">Tokyo</option>
+                                <option value="sf">San Francisco</option>
+                                <option value="nyc">New York</option>
+                                <option value="london">London</option>
+                                <option value="singapore">Singapore</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label for="houseDescription" class="block text-sm font-bold mb-2">House Description:</label>
+                            <textarea id="houseDescription" name="houseDescription" required rows="3" class="w-full px-3 py-2 simple-input" placeholder="What makes your hacker house special? Describe the atmosphere, community, and unique features."></textarea>
+                        </div>
+
+                        <div>
+                            <label for="houseCapacity" class="block text-sm font-bold mb-2">Capacity:</label>
+                            <select id="houseCapacity" name="houseCapacity" required class="w-full px-3 py-2 simple-input">
+                                <option value="">Please select</option>
+                                <option value="1">1 person</option>
+                                <option value="2">2 people</option>
+                                <option value="3-5">3-5 people</option>
+                                <option value="6-10">6-10 people</option>
+                                <option value="10+">10+ people</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-bold mb-2">Amenities (Select all that apply):</label>
+                            <div class="grid grid-cols-2 gap-3">
+                                <label class="flex items-center text-sm">
+                                    <input type="checkbox" value="wifi" class="mr-2"> High-speed WiFi
+                                </label>
+                                <label class="flex items-center text-sm">
+                                    <input type="checkbox" value="workspace" class="mr-2"> Workspace
+                                </label>
+                                <label class="flex items-center text-sm">
+                                    <input type="checkbox" value="kitchen" class="mr-2"> Kitchen
+                                </label>
+                                <label class="flex items-center text-sm">
+                                    <input type="checkbox" value="meeting" class="mr-2"> Meeting Room
+                                </label>
+                                <label class="flex items-center text-sm">
+                                    <input type="checkbox" value="24h" class="mr-2"> 24/7 Access
+                                </label>
+                                <label class="flex items-center text-sm">
+                                    <input type="checkbox" value="mentoring" class="mr-2"> Mentoring
+                                </label>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label for="housePreferences" class="block text-sm font-bold mb-2">Ideal Founder Profile:</label>
+                            <textarea id="housePreferences" name="housePreferences" rows="3" class="w-full px-3 py-2 simple-input" placeholder="What type of founders are you looking for? Describe preferred tech backgrounds, experience levels, or personality traits."></textarea>
+                        </div>
+
+                        <div>
+                            <label for="houseEmail" class="block text-sm font-bold mb-2">Contact Email:</label>
+                            <input type="email" id="houseEmail" name="houseEmail" required class="w-full px-3 py-2 simple-input" placeholder="contact@yourhouse.com">
+                        </div>
+
+                        <button type="submit" class="w-full simple-button py-3 px-4 font-mono">
+                            Register Hacker House
+                        </button>
+                    </form>
+                </div>
+
+                <!-- House Registration Success -->
+                <div id="houseSuccess" class="simple-card p-8 mt-8 hidden">
+                    <div class="text-center">
+                        <div class="text-6xl mb-4">✅</div>
+                        <h2 class="text-2xl font-bold mb-4">Registration Complete!</h2>
+                        <p class="mb-6">Your hacker house has been successfully registered.<br>We'll connect you with matching founders as soon as they apply.</p>
+                        <button onclick="showPage('home')" class="simple-button px-6 py-3 font-mono">
+                            Back to Home
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- House Details Modal -->
+    <div id="houseModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50" onclick="closeHouseModal()">
+        <div class="simple-card max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto" onclick="event.stopPropagation()">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold">House Details</h2>
+                <button onclick="closeHouseModal()" class="text-2xl font-bold hover:bg-gray-100 w-8 h-8 flex items-center justify-center">
+                    ×
+                </button>
+            </div>
+            <div id="houseModalContent">
+                <!-- Content will be populated by JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <script src="supabase-config.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
