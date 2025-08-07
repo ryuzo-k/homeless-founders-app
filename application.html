@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Apply to Hacker Houses - Homeless Founders</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .simple-card { border: 2px solid black; }
+        .simple-input { border: 2px solid black; }
+        .simple-button { border: 2px solid black; background: white; }
+        .simple-button:hover { background: black; color: white; }
+    </style>
+</head>
+<body class="bg-white">
+    <div class="container mx-auto px-4 py-8 max-w-4xl">
+        <h1 class="text-3xl font-bold text-center mb-8">Apply to Hacker Houses</h1>
+        
+        <!-- Application Form -->
+        <div class="simple-card p-8 mb-8">
+            <h2 class="text-xl font-bold mb-6">Your Information</h2>
+            <form id="applicationForm" class="space-y-6">
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-sm font-bold mb-2">Name *</label>
+                        <input type="text" id="name" required class="w-full px-3 py-2 simple-input" placeholder="Your full name">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold mb-2">Email *</label>
+                        <input type="email" id="email" required class="w-full px-3 py-2 simple-input" placeholder="your@email.com">
+                    </div>
+                </div>
+                
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-sm font-bold mb-2">Age *</label>
+                        <input type="number" id="age" required min="16" max="100" class="w-full px-3 py-2 simple-input" placeholder="25">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold mb-2">Location *</label>
+                        <input type="text" id="location" required class="w-full px-3 py-2 simple-input" placeholder="Tokyo, Japan">
+                    </div>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-bold mb-2">Your Startup/Project *</label>
+                    <textarea id="project" required rows="3" class="w-full px-3 py-2 simple-input" placeholder="Describe what you're building..."></textarea>
+                </div>
+                
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-sm font-bold mb-2">Start Date *</label>
+                        <input type="date" id="startDate" required class="w-full px-3 py-2 simple-input">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold mb-2">End Date *</label>
+                        <input type="date" id="endDate" required class="w-full px-3 py-2 simple-input">
+                    </div>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-bold mb-2">Additional Message</label>
+                    <textarea id="message" rows="3" class="w-full px-3 py-2 simple-input" placeholder="Anything else you'd like to share..."></textarea>
+                </div>
+            </form>
+        </div>
+        
+        <!-- Hacker Houses Selection -->
+        <div class="simple-card p-8 mb-8">
+            <h2 class="text-xl font-bold mb-6">Select Hacker Houses</h2>
+            <p class="text-sm mb-4">Choose which houses you'd like to apply to. We'll send your application directly to them.</p>
+            <div id="housesList" class="space-y-4">
+                <!-- Houses will be loaded here -->
+            </div>
+        </div>
+        
+        <!-- Submit Button -->
+        <div class="text-center">
+            <button id="submitApplication" class="simple-button py-3 px-8 font-bold text-lg">
+                Send Applications
+            </button>
+        </div>
+        
+        <!-- Success Message -->
+        <div id="successMessage" class="hidden mt-8 p-6 bg-green-100 border-2 border-green-500 rounded">
+            <h3 class="text-lg font-bold text-green-800 mb-2">Applications Sent Successfully!</h3>
+            <p class="text-green-700">Your applications have been sent directly to the selected hacker houses. They will contact you at your provided email address.</p>
+        </div>
+    </div>
+    
+    <script>
+        // Load hacker houses
+        document.addEventListener('DOMContentLoaded', function() {
+            loadHackerHouses();
+            
+            document.getElementById('submitApplication').addEventListener('click', function(e) {
+                e.preventDefault();
+                submitApplications();
+            });
+        });
+        
+        function loadHackerHouses() {
+            // Sample houses - in real app, load from database
+            const houses = [
+                {
+                    name: "Tokyo Tech House",
+                    location: "Tokyo, Japan",
+                    email: "hello@tokyotech.house",
+                    description: "AI/ML focused hacker house in Shibuya"
+                },
+                {
+                    name: "SF Startup Hub",
+                    location: "San Francisco, CA",
+                    email: "apply@sfhub.co",
+                    description: "YC-style accelerator environment"
+                },
+                {
+                    name: "Berlin Builders",
+                    location: "Berlin, Germany", 
+                    email: "team@berlinbuilders.com",
+                    description: "European startup community"
+                }
+            ];
+            
+            const container = document.getElementById('housesList');
+            container.innerHTML = houses.map(house => `
+                <div class="border-2 border-gray-300 p-4 rounded">
+                    <label class="flex items-start cursor-pointer">
+                        <input type="checkbox" class="house-checkbox mt-1 mr-3" data-email="${house.email}" data-name="${house.name}">
+                        <div>
+                            <h3 class="font-bold">${house.name}</h3>
+                            <p class="text-sm text-gray-600">${house.location}</p>
+                            <p class="text-sm mt-1">${house.description}</p>
+                        </div>
+                    </label>
+                </div>
+            `).join('');
+        }
+        
+        function submitApplications() {
+            // Get form data
+            const formData = {
+                name: document.getElementById('name').value,
+                email: document.getElementById('email').value,
+                age: document.getElementById('age').value,
+                location: document.getElementById('location').value,
+                project: document.getElementById('project').value,
+                startDate: document.getElementById('startDate').value,
+                endDate: document.getElementById('endDate').value,
+                message: document.getElementById('message').value
+            };
+            
+            // Validate required fields
+            if (!formData.name || !formData.email || !formData.age || !formData.location || !formData.project || !formData.startDate || !formData.endDate) {
+                alert('Please fill in all required fields.');
+                return;
+            }
+            
+            // Get selected houses
+            const selectedHouses = Array.from(document.querySelectorAll('.house-checkbox:checked')).map(cb => ({
+                name: cb.dataset.name,
+                email: cb.dataset.email
+            }));
+            
+            if (selectedHouses.length === 0) {
+                alert('Please select at least one hacker house.');
+                return;
+            }
+            
+            // Create email content
+            const emailSubject = `Application from ${formData.name} - Homeless Founders`;
+            const emailBody = `Hi there!
+
+I'm ${formData.name} and I'd like to apply to stay at your hacker house.
+
+ABOUT ME:
+- Name: ${formData.name}
+- Email: ${formData.email}
+- Age: ${formData.age}
+- Current Location: ${formData.location}
+
+MY PROJECT:
+${formData.project}
+
+DATES:
+From: ${formData.startDate}
+To: ${formData.endDate}
+
+${formData.message ? `ADDITIONAL MESSAGE:\n${formData.message}\n\n` : ''}
+
+Please let me know if you have availability and would like to discuss further!
+
+Best regards,
+${formData.name}
+
+---
+Sent via Homeless Founders Platform`;
+            
+            // Send to each selected house
+            selectedHouses.forEach(house => {
+                const mailtoLink = `mailto:${house.email}?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody)}`;
+                window.open(mailtoLink, '_blank');
+            });
+            
+            // Show success message
+            document.getElementById('successMessage').classList.remove('hidden');
+            document.getElementById('applicationForm').style.display = 'none';
+            document.querySelector('.simple-card:nth-child(3)').style.display = 'none';
+            document.getElementById('submitApplication').style.display = 'none';
+        }
+    </script>
+</body>
+</html>

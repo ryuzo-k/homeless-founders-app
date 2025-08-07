@@ -65,10 +65,31 @@
     <div class="container mx-auto px-4 py-8">
         <!-- Home Page -->
         <div id="homePage" class="page">
-            <header class="text-center mb-12">
+            <div class="text-center mb-12">
                 <h1 class="text-4xl font-bold mb-4">Homeless Founders</h1>
-                <p class="text-lg font-mono">Connecting talented founders with hacker houses worldwide</p>
-            </header>
+                <p class="text-lg mb-6">Find your perfect hacker house and start building your startup</p>
+                <div class="max-w-2xl mx-auto text-left bg-gray-50 p-6 rounded-lg">
+                    <h2 class="text-xl font-bold mb-4">How it works:</h2>
+                    <div class="space-y-3">
+                        <div class="flex items-start">
+                            <span class="bg-blue-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold mr-3 mt-0.5">1</span>
+                            <p>Browse available hacker houses worldwide</p>
+                        </div>
+                        <div class="flex items-start">
+                            <span class="bg-blue-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold mr-3 mt-0.5">2</span>
+                            <p>Fill out your application with your project details</p>
+                        </div>
+                        <div class="flex items-start">
+                            <span class="bg-blue-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold mr-3 mt-0.5">3</span>
+                            <p>Apply to multiple houses at once - we'll send your info directly</p>
+                        </div>
+                        <div class="flex items-start">
+                            <span class="bg-blue-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold mr-3 mt-0.5">4</span>
+                            <p>Houses contact you directly to discuss details</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
             <!-- Stats Section -->
             <div class="grid md:grid-cols-3 gap-8 mb-12">
@@ -127,10 +148,14 @@
             </div>
         </div>
 
-        <!-- Founder Page -->
+        <!-- Application Page -->
         <div id="founderPage" class="page hidden">
-            <div class="max-w-2xl mx-auto simple-card p-8">
-                <h2 class="text-2xl font-bold text-center mb-8">Founder Registration</h2>
+            <div class="max-w-4xl mx-auto">
+                <h2 class="text-2xl font-bold text-center mb-8">Apply to Hacker Houses</h2>
+                
+                <!-- Application Form -->
+                <div class="simple-card p-8 mb-8">
+                    <h3 class="text-lg font-bold mb-6">Your Information</h3>
                 
                 <form id="founderForm" class="space-y-6">
                     <div>
@@ -275,18 +300,6 @@
                     </div>
 
                     <button type="submit" class="w-full simple-button py-3 px-4 font-mono">
-                        Register as Founder
-                    </button>
-                </form>
-                
-                <!-- Find My Match Button (Separate) -->
-                <button id="findMatchBtn" class="w-full simple-button py-3 px-4 font-mono mt-4" style="display:none;">
-                    Find My Match
-                </button>
-            </div>
-
-            <!-- Success Notification -->
-            <div id="successNotification" class="hidden fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50">
                 <div class="flex items-center">
                     <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
                         <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
