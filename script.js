@@ -1128,49 +1128,49 @@ function createParentalConsentForm() {
     
     container.innerHTML = `
         <div class="bg-white p-8 rounded-lg max-w-2xl max-h-[90vh] overflow-y-auto simple-card">
-            <h2 class="text-2xl font-bold mb-6">⚠️ 保護者同意書が必要です</h2>
-            <p class="mb-6 text-sm">あなたは18歳未満のため、保護者の同意が必要です。以下のフォームを保護者に記入してもらってください。</p>
+            <h2 class="text-2xl font-bold mb-6">⚠️ Parental Consent Required</h2>
+            <p class="mb-6 text-sm">Since you are under 18, parental consent is required. Please have your parent/guardian fill out the form below.</p>
             
             <form id="inlineConsentForm" class="space-y-4">
                 <div class="border-2 border-gray-300 p-4 rounded">
-                    <h3 class="font-bold mb-3">未成年者情報</h3>
+                    <h3 class="font-bold mb-3">Minor Information</h3>
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div>
-                            <label class="block text-sm font-bold mb-1">氏名</label>
+                            <label class="block text-sm font-bold mb-1">Full Name</label>
                             <input type="text" id="inlineMinorName" readonly class="w-full px-2 py-1 simple-input bg-gray-100">
                         </div>
                         <div>
-                            <label class="block text-sm font-bold mb-1">年齢</label>
+                            <label class="block text-sm font-bold mb-1">Age</label>
                             <input type="number" id="inlineMinorAge" readonly class="w-full px-2 py-1 simple-input bg-gray-100">
                         </div>
                         <div>
-                            <label class="block text-sm font-bold mb-1">メール</label>
+                            <label class="block text-sm font-bold mb-1">Email</label>
                             <input type="email" id="inlineMinorEmail" readonly class="w-full px-2 py-1 simple-input bg-gray-100">
                         </div>
                     </div>
                 </div>
                 
                 <div class="border-2 border-gray-300 p-4 rounded">
-                    <h3 class="font-bold mb-3">保護者情報</h3>
+                    <h3 class="font-bold mb-3">Parent/Guardian Information</h3>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-sm font-bold mb-1">保護者氏名 *</label>
+                            <label class="block text-sm font-bold mb-1">Parent/Guardian Full Name *</label>
                             <input type="text" id="inlineParentName" required class="w-full px-2 py-1 simple-input">
                         </div>
                         <div>
-                            <label class="block text-sm font-bold mb-1">保護者メール *</label>
+                            <label class="block text-sm font-bold mb-1">Parent/Guardian Email *</label>
                             <input type="email" id="inlineParentEmail" required class="w-full px-2 py-1 simple-input">
                         </div>
                         <div>
-                            <label class="block text-sm font-bold mb-1">電話番号 *</label>
+                            <label class="block text-sm font-bold mb-1">Phone Number *</label>
                             <input type="tel" id="inlineParentPhone" required class="w-full px-2 py-1 simple-input">
                         </div>
                         <div>
-                            <label class="block text-sm font-bold mb-1">関係 *</label>
+                            <label class="block text-sm font-bold mb-1">Relationship *</label>
                             <select id="inlineRelationship" required class="w-full px-2 py-1 simple-input">
-                                <option value="">選択してください</option>
-                                <option value="parent">保護者</option>
-                                <option value="legal-guardian">法定代理人</option>
+                                <option value="">Select relationship</option>
+                                <option value="parent">Parent</option>
+                                <option value="legal-guardian">Legal Guardian</option>
                             </select>
                         </div>
                     </div>
@@ -1179,27 +1179,27 @@ function createParentalConsentForm() {
                 <div class="space-y-3">
                     <label class="flex items-start space-x-2">
                         <input type="checkbox" id="inlineConsent1" required class="mt-1">
-                        <span class="text-sm">私は上記の未成年者がハッカーハウスプラットフォームを使用することに同意します。</span>
+                        <span class="text-sm">I consent to the above minor using the Hacker House platform.</span>
                     </label>
                     <label class="flex items-start space-x-2">
                         <input type="checkbox" id="inlineConsent2" required class="mt-1">
-                        <span class="text-sm">私はプラットフォームの利用に伴うリスクを理解し、全責任を負います。</span>
+                        <span class="text-sm">I understand the risks associated with using the platform and take full responsibility.</span>
                     </label>
                     <label class="flex items-start space-x-2">
                         <input type="checkbox" id="inlineConsent3" required class="mt-1">
-                        <span class="text-sm">私は未成年者の安全と福祉に全責任を負います。</span>
+                        <span class="text-sm">I take full responsibility for the minor's safety and welfare.</span>
                     </label>
                 </div>
                 
                 <div>
-                    <label class="block text-sm font-bold mb-1">デジタル署名 *</label>
-                    <input type="text" id="inlineDigitalSignature" required class="w-full px-2 py-1 simple-input" placeholder="保護者氏名を入力してください">
-                    <p class="text-xs text-gray-600 mt-1">保護者氏名と同じ名前を入力してください</p>
+                    <label class="block text-sm font-bold mb-1">Digital Signature *</label>
+                    <input type="text" id="inlineDigitalSignature" required class="w-full px-2 py-1 simple-input" placeholder="Enter parent/guardian full name">
+                    <p class="text-xs text-gray-600 mt-1">Please enter the same name as the parent/guardian name above</p>
                 </div>
                 
                 <div class="flex space-x-4 pt-4">
-                    <button type="button" onclick="hideParentalConsentForm()" class="flex-1 simple-button py-2 px-4">キャンセル</button>
-                    <button type="submit" class="flex-1 simple-button py-2 px-4 bg-blue-100">同意して続行</button>
+                    <button type="button" onclick="hideParentalConsentForm()" class="flex-1 simple-button py-2 px-4">Cancel</button>
+                    <button type="submit" class="flex-1 simple-button py-2 px-4 bg-blue-100">Consent & Continue</button>
                 </div>
             </form>
         </div>
@@ -1210,8 +1210,6 @@ function createParentalConsentForm() {
 
 // 保護者同意書フォームを表示する
 function showParentalConsentForm(founderData, selectedHouses) {
-    console.log('showParentalConsentForm called with:', founderData, selectedHouses);
-    
     // Store data for later use
     window.pendingApplication = {
         founderData,
@@ -1265,7 +1263,7 @@ async function handleParentalConsentSubmission(e) {
     const signature = document.getElementById('inlineDigitalSignature').value;
     
     if (parentName.toLowerCase() !== signature.toLowerCase()) {
-        alert('デジタル署名は保護者氏名と同じでなければなりません。');
+        alert('Digital signature must match the parent/guardian name exactly.');
         return;
     }
     
@@ -1295,7 +1293,7 @@ async function handleParentalConsentSubmission(e) {
         
     } catch (error) {
         console.error('Parental consent submission error:', error);
-        alert('同意書の提出に失敗しました。もう一度お試しください。');
+        alert('Failed to submit parental consent. Please try again.');
     }
 }
 
@@ -1338,7 +1336,7 @@ async function continueApplicationSubmission(founderData, selectedHouses, parent
         
     } catch (error) {
         console.error('Application submission error:', error);
-        alert('応募の提出に失敗しました。もう一度お試しください。');
+        alert('Failed to submit application. Please try again.');
     }
 }
 
@@ -1441,8 +1439,6 @@ function loadHackerHousesList() {
 
 // Founder Application Submission Function
 async function submitApplications() {
-    console.log('submitApplications called');
-    
     // Get form data
     const formData = {
         name: document.getElementById('appName').value,
@@ -1454,9 +1450,6 @@ async function submitApplications() {
         endDate: document.getElementById('appEndDate').value,
         message: document.getElementById('appMessage').value
     };
-    
-    console.log('Form data:', formData);
-    console.log('Age is:', formData.age, 'Type:', typeof formData.age);
     
     // Validate required fields
     if (!formData.name || !formData.email || !formData.age || !formData.location || !formData.project || !formData.startDate || !formData.endDate) {
@@ -1492,15 +1485,11 @@ async function submitApplications() {
         
         // Check if applicant is a minor and handle parental consent
         let parentalConsentId = null;
-        console.log('Checking if minor:', formData.age, '<', 18, '=', formData.age < 18);
         
         if (formData.age < 18) {
-            console.log('Minor detected, showing parental consent form');
             // Show parental consent form instead of sending email
             showParentalConsentForm(formData, selectedHouses);
             return;
-        } else {
-            console.log('Adult applicant, proceeding normally');
         }
         
         // Save founder to database
