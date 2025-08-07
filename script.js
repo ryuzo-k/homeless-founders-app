@@ -1370,8 +1370,10 @@ async function loadHackerHousesList() {
     
     try {
         // Try to load from database first
+        console.log('Attempting to load houses from database...');
         houses = await SupabaseDB.getAllHackerHouses();
         console.log('Loaded houses from database:', houses);
+        console.log('Number of houses loaded:', houses.length);
         
         // Transform database data to match expected format
         houses = houses.map(house => ({
@@ -1385,6 +1387,8 @@ async function loadHackerHousesList() {
         
     } catch (error) {
         console.error('Failed to load houses from database:', error);
+        console.error('Error details:', error.message);
+        console.error('Supabase client status:', supabaseClient ? 'Connected' : 'Not connected');
         // Fallback to hardcoded data
         houses = [
             {
