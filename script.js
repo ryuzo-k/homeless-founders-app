@@ -1,14 +1,22 @@
 // ページ切り替え機能
 function showPage(pageId) {
+    console.log('showPage called with:', pageId);
+    
     // すべてのページを非表示
     document.querySelectorAll('.page').forEach(page => {
         page.classList.add('hidden');
     });
     
     // 指定されたページを表示
-    const targetPage = document.getElementById(pageId + 'Page');
+    const targetPageId = pageId + 'Page';
+    const targetPage = document.getElementById(targetPageId);
+    console.log('Looking for element:', targetPageId, 'Found:', targetPage);
+    
     if (targetPage) {
         targetPage.classList.remove('hidden');
+        console.log('Page shown successfully');
+    } else {
+        console.error('Page not found:', targetPageId);
     }
     
     // ナビゲーションのアクティブ状態を更新
@@ -18,7 +26,7 @@ function showPage(pageId) {
     });
     
     // 現在のページボタンをアクティブに
-    const activeBtn = document.querySelector(`nav button[onclick="showPage('${pageId}')"]`);
+    const activeBtn = document.querySelector(`nav button[data-page="${pageId}"]`);
     if (activeBtn) {
         activeBtn.classList.remove('text-blue-600');
         activeBtn.classList.add('bg-blue-100', 'text-blue-800');
@@ -1124,6 +1132,16 @@ document.getElementById('updateHouseForm')?.addEventListener('submit', async fun
     }
 });
 
+// ナビゲーションボタンにクリックイベントを追加
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.nav-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const pageId = this.getAttribute('data-page');
+            showPage(pageId);
+        });
+    });
+});
+
 // 初期化：ホームページを表示
 document.addEventListener('DOMContentLoaded', async function() {
     showPage('home');
@@ -1301,9 +1319,14 @@ Sent via Homeless Founders Platform`;
     document.getElementById('submitApplications').style.display = 'none';
 }
 
-// ページ読み込み時にハウス一覧を読み込む
+// ページ読み込み時の初期化
 document.addEventListener('DOMContentLoaded', function() {
-    loadHackerHousesList();
+    console.log('DOM loaded, initializing...');
+    
+    // ハウス一覧を読み込む
+    setTimeout(() => {
+        loadHackerHousesList();
+    }, 100);
     
     // 応募ボタンのイベントリスナー
     const submitBtn = document.getElementById('submitApplications');
@@ -1311,6 +1334,120 @@ document.addEventListener('DOMContentLoaded', function() {
         submitBtn.addEventListener('click', function(e) {
             e.preventDefault();
             submitApplications();
+        });
+    }
+    
+    console.log('Initialization complete');
+});
+
+// showPage関数をオーバーライドしてハウス一覧を読み込む
+const originalShowPage = showPage;
+function showPage(pageId) {
+    originalShowPage(pageId);
+    
+    // ページ表示後にハウス一覧を読み込む
+    if (pageId === 'browseHouses' || pageId === 'apply') {
+        setTimeout(() => {
+            loadHackerHousesList();
+        }, 50);
+    }
+}
+
+// Edit House Functions
+function verifyHouseEmail() {
+    const email = document.getElementById('verifyEmail').value.trim();
+    
+    if (!email) {
+        alert('Please enter your email address');
+        return;
+    }
+    
+    console.log('Verifying house email:', email);
+    
+    // サンプルハウスのメールアドレスをチェック
+    const sampleHouses = [
+        {
+            email: 'contact@tokyotechhouse.com',
+            name: 'Tokyo Tech House',
+            location: 'Tokyo, Japan',
+            description: 'A vibrant community of tech innovators in the heart of Tokyo',
+            capacity: 20,
+            rent: 800
+        },
+        {
+            email: 'hello@sfstartuphub.com',
+            name: 'SF Startup Hub',
+            location: 'San Francisco, CA',
+            description: 'Silicon Valley\'s premier hacker house for ambitious founders',
+            capacity: 15,
+            rent: 1200
+        },
+        {
+            email: 'info@berlinbuilders.de',
+            name: 'Berlin Builders',
+            location: 'Berlin, Germany',
+            description: 'European tech hub fostering innovation and collaboration',
+            capacity: 18,
+            rent: 600
+        }
+    ];
+    
+    const house = sampleHouses.find(h => h.email.toLowerCase() === email.toLowerCase());
+    
+    if (house) {
+        // メール認証成功 - フォームを表示してデータを入力
+        document.getElementById('emailVerification').style.display = 'none';
+        document.getElementById('editHouseForm').style.display = 'block';
+        
+        // フォームにデータを入力
+        document.getElementById('editHouseName').value = house.name;
+        document.getElementById('editHouseLocation').value = house.location;
+        document.getElementById('editHouseDescription').value = house.description;
+        document.getElementById('editHouseCapacity').value = house.capacity;
+        document.getElementById('editHouseRent').value = house.rent;
+        
+        console.log('House data loaded successfully');
+    } else {
+        alert('Email not found. Please make sure you entered the email address you used when registering your house.');
+    }
+}
+
+function updateHouseInfo() {
+    const formData = {
+        name: document.getElementById('editHouseName').value,
+        location: document.getElementById('editHouseLocation').value,
+        description: document.getElementById('editHouseDescription').value,
+        capacity: document.getElementById('editHouseCapacity').value,
+        rent: document.getElementById('editHouseRent').value
+    };
+    
+    console.log('Updating house info:', formData);
+    
+    // 成功メッセージを表示
+    document.getElementById('editHouseForm').style.display = 'none';
+    document.getElementById('verificationStatus').style.display = 'block';
+    
+    // 実際のアプリケーションでは、ここでデータベースを更新する
+    console.log('House information updated successfully');
+}
+
+function cancelEdit() {
+    // フォームをリセットして最初の状態に戻す
+    document.getElementById('editHouseForm').style.display = 'none';
+    document.getElementById('emailVerification').style.display = 'block';
+    document.getElementById('verifyEmail').value = '';
+    
+    // または、ホームページに戻る
+    showPage('home');
+}
+
+// Update House Form Submit Event Listener
+document.addEventListener('DOMContentLoaded', function() {
+    const updateForm = document.getElementById('updateHouseForm');
+    if (updateForm) {
+        updateForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            updateHouseInfo();
         });
     }
 });
