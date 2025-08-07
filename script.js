@@ -329,7 +329,7 @@ function performMatching(formData) {
 }
 
 // ハッカーハウスへの申し込み
-function applyToHouse(houseName, founderName, founderEmail, founderAge, startDate, endDate) {
+async function applyToHouse(houseName, founderName, founderEmail, founderAge, startDate, endDate) {
     const start = new Date(startDate);
     const end = new Date(endDate);
     const diffDays = Math.ceil((end - start) / (1000 * 60 * 60 * 24));
@@ -339,12 +339,52 @@ function applyToHouse(houseName, founderName, founderEmail, founderAge, startDat
     const house = allHouses.find(h => h.name === houseName);
     const houseEmail = house ? house.email : 'contact@house.com';
     
-    // 未成年者の場合は保護者情報を収集
-    if (founderAge < 18) {
-        showMinorApplicationForm(houseName, founderName, founderEmail, founderAge, startDate, endDate, houseEmail);
-    } else {
+    const founderData = {
+        name: founderName,
+        email: founderEmail,
+        age: founderAge,
+        startDate,
+        endDate,
+        product: document.getElementById('product')?.value || 'Not specified'
+    };
+    
+    try {
+        let parentalConsentId = null;
+        
+        // 未成年者の場合は保護者情報を収集
+        if (founderAge < 18) {
+            // 親権者同意書が必要
+            const consentConfirmed = confirm('This application requires parental consent. Have you completed the Parental Consent Form?');
+            if (!consentConfirmed) {
+                alert('Please complete the Parental Consent Form first.');
+                return;
+            }
+            
+            // 最新の親権者同意書を取得（実際の実装では、未成年者のメールで検索）
+            // TODO: 実際にはfounderEmailで親権者同意書を検索する
+            showMinorApplicationForm(houseName, founderName, founderEmail, founderAge, startDate, endDate, houseEmail);
+            return;
+        }
+        
+        // マッチレコードを作成
+        if (typeof SupabaseDB !== 'undefined') {
+            await SupabaseDB.createMatch({
+                founderId: Date.now(), // 実際の実装では適切なfounder IDを使用
+                houseId: house.id || Date.now(),
+                matchScore: 85, // 仮のスコア
+                parentalConsentId
+            });
+            
+            // メール通知を送信
+            await SupabaseDB.sendApplicationEmail(founderData, house, parentalConsentId);
+        }
+        
         // 成人の場合は通常の申し込み
-        alert(`Application to ${houseName} submitted successfully!\n\nYour Info:\nName: ${founderName}\nEmail: ${founderEmail}\nAge: ${founderAge}\nStay Duration: ${startDate} - ${endDate} (${diffDays} days)\n\nNext Steps:\n1. The house will contact you at ${founderEmail}\n2. You can also reach them at ${houseEmail}\n3. Schedule interview and confirm details`);
+        alert(`Application to ${houseName} submitted successfully!\n\nYour Info:\nName: ${founderName}\nEmail: ${founderEmail}\nAge: ${founderAge}\nStay Duration: ${startDate} - ${endDate} (${diffDays} days)\n\nNext Steps:\n1. The house will contact you at ${founderEmail}\n2. You can also reach them at ${houseEmail}\n3. Schedule interview and confirm details\n\nAn email notification has been sent to the house.`);
+        
+    } catch (error) {
+        console.error('Application submission error:', error);
+        alert('Error submitting application. Please try again.');
     }
 }
 

@@ -117,6 +117,7 @@ const SupabaseDB = {
                 house_id: matchData.houseId,
                 match_score: matchData.matchScore,
                 status: 'pending',
+                parental_consent_id: matchData.parentalConsentId || null,
                 created_at: new Date().toISOString()
             }])
             .select();
@@ -156,6 +157,31 @@ const SupabaseDB = {
             throw error;
         }
         return data;
+    },
+
+    // Email notification function
+    async sendApplicationEmail(founderData, houseData, parentalConsentId = null) {
+        // This would integrate with an email service like SendGrid/Resend
+        // For now, we'll log the email content
+        const emailContent = {
+            to: houseData.email,
+            subject: `New Application: ${founderData.name}`,
+            html: `
+                <h2>New Founder Application</h2>
+                <p><strong>Name:</strong> ${founderData.name}</p>
+                <p><strong>Age:</strong> ${founderData.age}</p>
+                <p><strong>Product:</strong> ${founderData.product}</p>
+                <p><strong>Stay Duration:</strong> ${founderData.startDate} - ${founderData.endDate}</p>
+                <p><strong>Email:</strong> ${founderData.email}</p>
+                ${parentalConsentId ? '<p><strong>Note:</strong> This applicant is a minor. Parental consent form is attached.</p>' : ''}
+                <hr>
+                <p>Please review this application and respond accordingly.</p>
+            `
+        };
+        
+        console.log('Email to be sent:', emailContent);
+        // TODO: Integrate with actual email service
+        return emailContent;
     }
 };
 

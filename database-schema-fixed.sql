@@ -54,6 +54,7 @@ CREATE TABLE IF NOT EXISTS matches (
     house_id BIGINT REFERENCES hacker_houses(id) ON DELETE CASCADE,
     match_score DECIMAL(5,2) NOT NULL CHECK (match_score >= 0 AND match_score <= 100),
     status VARCHAR(20) DEFAULT 'pending' CHECK (status IN ('pending', 'accepted', 'rejected', 'completed')),
+    parental_consent_id uuid REFERENCES parental_consents(id),
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     UNIQUE(founder_id, house_id)
