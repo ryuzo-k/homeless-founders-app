@@ -63,8 +63,18 @@ const hackerHouses = [
 function simulateAIMatching(formData) {
     const { region, product } = formData;
     
-    // 地域でフィルタリング
-    let matches = hackerHouses.filter(house => house.region === region);
+    // 地域でフィルタリング + 空き状況チェック
+    let matches = hackerHouses.filter(house => {
+        // 地域マッチ
+        if (house.region !== region) return false;
+        
+        // 空き状況チェック（シンプル）
+        const capacity = parseInt(house.capacity || 10);
+        const currentOccupancy = parseInt(house.currentOccupancy || 0);
+        const availableSpots = capacity - currentOccupancy;
+        
+        return availableSpots > 0;
+    });
     
     // 自己紹介の内容に基づいてスコアリング
     const introText = product.toLowerCase();
@@ -215,6 +225,8 @@ document.addEventListener('DOMContentLoaded', function() {
 document.getElementById('founderForm').addEventListener('submit', function(e) {
     e.preventDefault();
     
+
+    
     const startDate = document.getElementById('startDate').value;
     const endDate = document.getElementById('endDate').value;
     
@@ -226,6 +238,7 @@ document.getElementById('founderForm').addEventListener('submit', function(e) {
     
     const formData = {
         name: document.getElementById('name').value,
+        email: document.getElementById('email').value,
         age: parseInt(document.getElementById('age').value),
         product: document.getElementById('product').value,
         startDate: startDate,
@@ -234,9 +247,24 @@ document.getElementById('founderForm').addEventListener('submit', function(e) {
     };
     
     // Validation
-    if (!formData.name || !formData.age || !formData.product || !formData.startDate || !formData.endDate || !formData.region) {
+    if (!formData.name || !formData.email || !formData.age || !formData.product || !formData.startDate || !formData.endDate || !formData.region) {
         alert('Please fill in all required fields');
         return;
+    }
+    
+    // 利用規約同意チェック
+    if (!document.getElementById('termsAgreement').checked) {
+        alert('Please agree to the Terms of Service to continue.');
+        return;
+    }
+    
+    // 未成年者チェック
+    if (formData.age < 18) {
+        const confirmed = confirm(`PARENTAL CONSENT REQUIRED\n\nYou are under 18 years old. You must have completed the Parental Consent Form before using this platform.\n\nHave you completed the parental consent process?`);
+        if (!confirmed) {
+            alert('Please complete the Parental Consent Form before proceeding.');
+            return;
+        }
     }
     
     // 未成年チェック
@@ -292,7 +320,7 @@ function performMatching(formData) {
                 `).join('')}
             </div>
             
-            <button onclick="applyToHouse('${house.name}', '${formData.startDate}', '${formData.endDate}')" 
+            <button onclick="applyToHouse('${house.name}', '${formData.name}', '${formData.email}', ${formData.age}, '${formData.startDate}', '${formData.endDate}')" 
                     class="w-full simple-button py-3 px-4 font-mono">
                 Apply to ${house.name}
             </button>
@@ -301,12 +329,51 @@ function performMatching(formData) {
 }
 
 // ハッカーハウスへの申し込み
-function applyToHouse(houseName, startDate, endDate) {
+function applyToHouse(houseName, founderName, founderEmail, founderAge, startDate, endDate) {
     const start = new Date(startDate);
     const end = new Date(endDate);
     const diffDays = Math.ceil((end - start) / (1000 * 60 * 60 * 24));
     
-    alert(`Application to ${houseName} submitted successfully!\n\nStay Duration: ${startDate} - ${endDate} (${diffDays} days)\n\nNext Steps:\n1. Wait for contact from the hacker house\n2. Schedule interview\n3. Confirm stay details`);
+    // ハウスの連絡先を取得
+    const allHouses = [...hackerHouses, ...registeredHouses];
+    const house = allHouses.find(h => h.name === houseName);
+    const houseEmail = house ? house.email : 'contact@house.com';
+    
+    // 未成年者の場合は保護者情報を収集
+    if (founderAge < 18) {
+        showMinorApplicationForm(houseName, founderName, founderEmail, founderAge, startDate, endDate, houseEmail);
+    } else {
+        // 成人の場合は通常の申し込み
+        alert(`Application to ${houseName} submitted successfully!\n\nYour Info:\nName: ${founderName}\nEmail: ${founderEmail}\nAge: ${founderAge}\nStay Duration: ${startDate} - ${endDate} (${diffDays} days)\n\nNext Steps:\n1. The house will contact you at ${founderEmail}\n2. You can also reach them at ${houseEmail}\n3. Schedule interview and confirm details`);
+    }
+}
+
+// 未成年者用申し込みフォーム表示
+function showMinorApplicationForm(houseName, founderName, founderEmail, founderAge, startDate, endDate, houseEmail) {
+    const parentName = prompt('Parent/Guardian Full Name (required for minors):');
+    if (!parentName) {
+        alert('Parental information is required for minors.');
+        return;
+    }
+    
+    const parentEmail = prompt('Parent/Guardian Email (required for minors):');
+    if (!parentEmail) {
+        alert('Parental email is required for minors.');
+        return;
+    }
+    
+    const parentPhone = prompt('Parent/Guardian Phone (required for minors):');
+    if (!parentPhone) {
+        alert('Parental phone is required for minors.');
+        return;
+    }
+    
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    const diffDays = Math.ceil((end - start) / (1000 * 60 * 60 * 24));
+    
+    // 未成年者の申し込み完了メッセージ（保護者情報付き）
+    alert(`Minor Application to ${houseName} submitted successfully!\n\n=== MINOR APPLICANT ===\nName: ${founderName}\nAge: ${founderAge} (MINOR - Under 18)\nEmail: ${founderEmail}\nStay Duration: ${startDate} - ${endDate} (${diffDays} days)\n\n=== PARENT/GUARDIAN INFO ===\nName: ${parentName}\nEmail: ${parentEmail}\nPhone: ${parentPhone}\n\n=== IMPORTANT NOTICE ===\nThis application includes parental information as required for minors.\nThe hacker house will contact both the minor and parent/guardian.\nParental supervision and approval is required for all arrangements.\n\nNext Steps:\n1. House will contact parent at ${parentEmail}\n2. Parent must approve all arrangements\n3. You can reach the house at ${houseEmail}`);
 }
 
 // 同意書アップロード処理
@@ -334,12 +401,15 @@ document.getElementById('consentFile').addEventListener('change', function(e) {
 document.getElementById('houseForm').addEventListener('submit', function(e) {
     e.preventDefault();
     
+
+    
     const formData = {
         name: document.getElementById('houseName').value,
         location: document.getElementById('houseLocation').value,
         region: document.getElementById('houseRegion').value,
         description: document.getElementById('houseDescription').value,
-        capacity: document.getElementById('houseCapacity').value,
+        capacity: parseInt(document.getElementById('houseCapacity').value),
+        currentOccupancy: 0, // 初期値は0
         email: document.getElementById('houseEmail').value,
         preferences: document.getElementById('housePreferences').value
     };
@@ -501,11 +571,23 @@ function displayHouseList(houses = null) {
                 </div>
             ` : ''}
             
-            <div class="flex justify-between items-center">
-                <div class="text-sm">
-                    ${house.capacity ? `Capacity: ${house.capacity}` : ''}
+            <div class="space-y-2">
+                <div class="flex justify-between items-center text-sm">
+                    <div>
+                        ${house.capacity ? `Capacity: ${house.capacity}` : ''}
+                    </div>
+                    <div class="font-mono">
+                        ${(() => {
+                            const capacity = parseInt(house.capacity || 10);
+                            const currentOccupancy = parseInt(house.currentOccupancy || 0);
+                            const availableSpots = capacity - currentOccupancy;
+                            return availableSpots > 0 ? 
+                                `🟢 ${availableSpots} spots` : 
+                                '🔴 Full';
+                        })()}
+                    </div>
                 </div>
-                <button onclick="contactHouse('${house.name}')" class="simple-button px-4 py-2 text-sm font-mono">
+                <button onclick="contactHouse('${house.name}')" class="w-full simple-button px-4 py-2 text-sm font-mono">
                     View Details
                 </button>
             </div>
@@ -811,9 +893,146 @@ async function displayHouseList(houses = null) {
     }
 }
 
+
+
+
+
+// 年齢チェック機能
+function checkAge() {
+    const age = parseInt(document.getElementById('age').value);
+    const minorWarning = document.getElementById('minorWarning');
+    
+    if (age && age < 18) {
+        minorWarning.classList.remove('hidden');
+    } else {
+        minorWarning.classList.add('hidden');
+    }
+}
+
+// ハウス編集機能
+let currentEditingHouse = null;
+
+// メール認証でハウス情報を取得
+async function verifyHouseEmail() {
+    const email = document.getElementById('verifyEmail').value.trim();
+    if (!email) {
+        alert('Please enter your email address');
+        return;
+    }
+    
+    try {
+        let house = null;
+        
+        // まずSupabaseから検索
+        if (typeof SupabaseDB !== 'undefined') {
+            const dbHouses = await SupabaseDB.getHackerHouses();
+            house = dbHouses.find(h => h.email === email);
+        }
+        
+        // Supabaseにない場合はローカル配列から検索
+        if (!house) {
+            house = hackerHouses.find(h => h.email === email);
+        }
+        
+        if (!house) {
+            alert('No house found with this email address. Please check your email or register your house first.');
+            return;
+        }
+        
+        // ハウス情報をフォームに読み込み
+        currentEditingHouse = house;
+        loadHouseForEdit(house);
+        
+        // UI切り替え
+        document.getElementById('emailVerification').classList.add('hidden');
+        document.getElementById('editHouseForm').classList.remove('hidden');
+        
+    } catch (error) {
+        console.error('Error verifying house email:', error);
+        alert('Error loading house information. Please try again.');
+    }
+}
+
+// ハウス情報をフォームに読み込み
+function loadHouseForEdit(house) {
+    document.getElementById('editHouseName').value = house.name || '';
+    document.getElementById('editHouseLocation').value = house.location || '';
+    document.getElementById('editHouseDescription').value = house.description || '';
+    document.getElementById('editHouseCapacity').value = house.capacity || '';
+}
+
+// 編集キャンセル
+function cancelEdit() {
+    currentEditingHouse = null;
+    document.getElementById('verifyEmail').value = '';
+    document.getElementById('updateHouseForm').reset();
+    document.getElementById('emailVerification').classList.remove('hidden');
+    document.getElementById('editHouseForm').classList.add('hidden');
+}
+
+// ハウス更新フォームのハンドラー
+document.getElementById('updateHouseForm')?.addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    if (!currentEditingHouse) {
+        alert('No house selected for editing');
+        return;
+    }
+    
+    const updatedData = {
+        name: document.getElementById('editHouseName').value,
+        location: document.getElementById('editHouseLocation').value,
+        description: document.getElementById('editHouseDescription').value,
+        capacity: parseInt(document.getElementById('editHouseCapacity').value)
+    };
+    
+    // バリデーション
+    if (!updatedData.name || !updatedData.location || !updatedData.description || !updatedData.capacity) {
+        alert('Please fill in all required fields');
+        return;
+    }
+    
+    try {
+        // Supabaseで更新
+        if (typeof SupabaseDB !== 'undefined') {
+            await SupabaseDB.updateHackerHouse(currentEditingHouse.email, updatedData);
+        }
+        
+        // ローカル配列も更新
+        const houseIndex = hackerHouses.findIndex(h => h.email === currentEditingHouse.email);
+        if (houseIndex !== -1) {
+            hackerHouses[houseIndex] = {
+                ...hackerHouses[houseIndex],
+                ...updatedData
+            };
+        }
+        
+        alert('House information updated successfully!');
+        
+        // フォームをリセット
+        cancelEdit();
+        
+        // ハウス一覧を更新
+        displayHouseList();
+        
+    } catch (error) {
+        console.error('Error updating house:', error);
+        alert('Error updating house information. Please try again.');
+    }
+});
+
 // 初期化：ホームページを表示
 document.addEventListener('DOMContentLoaded', async function() {
     showPage('home');
     await updateHomeStats(); // 統計情報を更新
     await displayHouseList(); // ハウス一覧も初期化
+    
+    // 年齢フィールドにイベントリスナーを追加
+    const ageField = document.getElementById('age');
+    if (ageField) {
+        ageField.addEventListener('input', checkAge);
+        ageField.addEventListener('change', checkAge);
+    }
+    
+
 });

@@ -87,6 +87,26 @@ const SupabaseDB = {
         return data;
     },
 
+    async updateHackerHouse(email, updatedData) {
+        const { data, error } = await supabase
+            .from(TABLES.HACKER_HOUSES)
+            .update({
+                name: updatedData.name,
+                location: updatedData.location,
+                description: updatedData.description,
+                capacity: updatedData.capacity,
+                updated_at: new Date().toISOString()
+            })
+            .eq('email', email)
+            .select();
+        
+        if (error) {
+            console.error('Error updating hacker house:', error);
+            throw error;
+        }
+        return data[0];
+    },
+
     // Match operations
     async createMatch(matchData) {
         const { data, error } = await supabase
@@ -125,5 +145,117 @@ const SupabaseDB = {
     }
 };
 
+// ユーザープロファイル機能
+const SupabaseProfiles = {
+    // プロファイル作成
+    async createProfile(userId, userType, fullName) {
+        const { data, error } = await supabase
+            .from('user_profiles')
+            .insert({
+                id: userId,
+                user_type: userType,
+                full_name: fullName
+            })
+            .select()
+            .single();
+        if (error) throw error;
+        return data;
+    },
+
+    // プロファイル取得
+    async getProfile(userId) {
+        const { data, error } = await supabase
+            .from('user_profiles')
+            .select('*')
+            .eq('id', userId)
+            .single();
+        if (error) throw error;
+        return data;
+    },
+
+    // プロファイル更新
+    async updateProfile(userId, updates) {
+        const { data, error } = await supabase
+            .from('user_profiles')
+            .update(updates)
+            .eq('id', userId)
+            .select()
+            .single();
+        if (error) throw error;
+        return data;
+    }
+};
+
+// 認証機能
+const SupabaseAuth = {
+    // サインアップ（ユーザータイプ付き）
+    async signUp(email, password, userType, fullName) {
+        const { data, error } = await supabase.auth.signUp({
+            email,
+            password,
+            options: {
+                data: {
+                    full_name: fullName,
+                    user_type: userType
+                }
+            }
+        });
+        if (error) throw error;
+        
+        // プロファイル作成（ユーザー確認後に自動実行される）
+        if (data.user) {
+            try {
+                await SupabaseProfiles.createProfile(data.user.id, userType, fullName);
+            } catch (profileError) {
+                console.log('Profile will be created after email confirmation');
+            }
+        }
+        
+        return data;
+    },
+
+    // Sign in with email and password
+    async signIn(email, password) {
+        const { data, error } = await supabase.auth.signInWithPassword({
+            email,
+            password
+        });
+        
+        if (error) {
+            console.error('Sign in error:', error);
+            throw error;
+        }
+        return data;
+    },
+
+    // Sign out
+    async signOut() {
+        const { error } = await supabase.auth.signOut();
+        
+        if (error) {
+            console.error('Sign out error:', error);
+            throw error;
+        }
+    },
+
+    // Get current user
+    async getCurrentUser() {
+        const { data: { user } } = await supabase.auth.getUser();
+        return user;
+    },
+
+    // Get current session
+    async getCurrentSession() {
+        const { data: { session } } = await supabase.auth.getSession();
+        return session;
+    },
+
+    // Listen to auth state changes
+    onAuthStateChange(callback) {
+        return supabase.auth.onAuthStateChange(callback);
+    }
+};
+
 // Export for use in other files
 window.SupabaseDB = SupabaseDB;
+window.SupabaseAuth = SupabaseAuth;
