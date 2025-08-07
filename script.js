@@ -1120,6 +1120,226 @@ function showSuccessNotification(message) {
     }, 3000);
 }
 
+// 保護者同意書フォームを作成する
+function createParentalConsentForm() {
+    const container = document.createElement('div');
+    container.id = 'parentalConsentContainer';
+    container.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+    
+    container.innerHTML = `
+        <div class="bg-white p-8 rounded-lg max-w-2xl max-h-[90vh] overflow-y-auto simple-card">
+            <h2 class="text-2xl font-bold mb-6">⚠️ 保護者同意書が必要です</h2>
+            <p class="mb-6 text-sm">あなたは18歳未満のため、保護者の同意が必要です。以下のフォームを保護者に記入してもらってください。</p>
+            
+            <form id="inlineConsentForm" class="space-y-4">
+                <div class="border-2 border-gray-300 p-4 rounded">
+                    <h3 class="font-bold mb-3">未成年者情報</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                            <label class="block text-sm font-bold mb-1">氏名</label>
+                            <input type="text" id="inlineMinorName" readonly class="w-full px-2 py-1 simple-input bg-gray-100">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-bold mb-1">年齢</label>
+                            <input type="number" id="inlineMinorAge" readonly class="w-full px-2 py-1 simple-input bg-gray-100">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-bold mb-1">メール</label>
+                            <input type="email" id="inlineMinorEmail" readonly class="w-full px-2 py-1 simple-input bg-gray-100">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="border-2 border-gray-300 p-4 rounded">
+                    <h3 class="font-bold mb-3">保護者情報</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-bold mb-1">保護者氏名 *</label>
+                            <input type="text" id="inlineParentName" required class="w-full px-2 py-1 simple-input">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-bold mb-1">保護者メール *</label>
+                            <input type="email" id="inlineParentEmail" required class="w-full px-2 py-1 simple-input">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-bold mb-1">電話番号 *</label>
+                            <input type="tel" id="inlineParentPhone" required class="w-full px-2 py-1 simple-input">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-bold mb-1">関係 *</label>
+                            <select id="inlineRelationship" required class="w-full px-2 py-1 simple-input">
+                                <option value="">選択してください</option>
+                                <option value="parent">保護者</option>
+                                <option value="legal-guardian">法定代理人</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="space-y-3">
+                    <label class="flex items-start space-x-2">
+                        <input type="checkbox" id="inlineConsent1" required class="mt-1">
+                        <span class="text-sm">私は上記の未成年者がハッカーハウスプラットフォームを使用することに同意します。</span>
+                    </label>
+                    <label class="flex items-start space-x-2">
+                        <input type="checkbox" id="inlineConsent2" required class="mt-1">
+                        <span class="text-sm">私はプラットフォームの利用に伴うリスクを理解し、全責任を負います。</span>
+                    </label>
+                    <label class="flex items-start space-x-2">
+                        <input type="checkbox" id="inlineConsent3" required class="mt-1">
+                        <span class="text-sm">私は未成年者の安全と福祉に全責任を負います。</span>
+                    </label>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-bold mb-1">デジタル署名 *</label>
+                    <input type="text" id="inlineDigitalSignature" required class="w-full px-2 py-1 simple-input" placeholder="保護者氏名を入力してください">
+                    <p class="text-xs text-gray-600 mt-1">保護者氏名と同じ名前を入力してください</p>
+                </div>
+                
+                <div class="flex space-x-4 pt-4">
+                    <button type="button" onclick="hideParentalConsentForm()" class="flex-1 simple-button py-2 px-4">キャンセル</button>
+                    <button type="submit" class="flex-1 simple-button py-2 px-4 bg-blue-100">同意して続行</button>
+                </div>
+            </form>
+        </div>
+    `;
+    
+    return container;
+}
+
+// 保護者同意書フォームを表示する
+function showParentalConsentForm(founderData, selectedHouses) {
+    // Store data for later use
+    window.pendingApplication = {
+        founderData,
+        selectedHouses
+    };
+    
+    // Hide application form
+    const appForm = document.getElementById('directApplicationForm');
+    if (appForm) {
+        appForm.classList.add('hidden');
+    }
+    
+    // Show parental consent form
+    let consentFormContainer = document.getElementById('parentalConsentContainer');
+    if (!consentFormContainer) {
+        consentFormContainer = createParentalConsentForm();
+        document.body.appendChild(consentFormContainer);
+    }
+    
+    // Pre-fill minor information
+    document.getElementById('inlineMinorName').value = founderData.name;
+    document.getElementById('inlineMinorEmail').value = founderData.email;
+    document.getElementById('inlineMinorAge').value = founderData.age;
+    
+    consentFormContainer.classList.remove('hidden');
+    
+    // Add form submission handler
+    document.getElementById('inlineConsentForm').addEventListener('submit', handleParentalConsentSubmission);
+}
+
+// 保護者同意書を非表示にする
+function hideParentalConsentForm() {
+    const container = document.getElementById('parentalConsentContainer');
+    if (container) {
+        container.classList.add('hidden');
+    }
+    
+    // Show application form again
+    const appForm = document.getElementById('directApplicationForm');
+    if (appForm) {
+        appForm.classList.remove('hidden');
+    }
+}
+
+// 保護者同意書提出処理
+async function handleParentalConsentSubmission(e) {
+    e.preventDefault();
+    
+    // Validate digital signature
+    const parentName = document.getElementById('inlineParentName').value;
+    const signature = document.getElementById('inlineDigitalSignature').value;
+    
+    if (parentName.toLowerCase() !== signature.toLowerCase()) {
+        alert('デジタル署名は保護者氏名と同じでなければなりません。');
+        return;
+    }
+    
+    try {
+        // Create parental consent record
+        const consentData = {
+            minor_name: document.getElementById('inlineMinorName').value,
+            minor_age: parseInt(document.getElementById('inlineMinorAge').value),
+            minor_email: document.getElementById('inlineMinorEmail').value,
+            parent_name: parentName,
+            parent_email: document.getElementById('inlineParentEmail').value,
+            parent_phone: document.getElementById('inlineParentPhone').value,
+            relationship: document.getElementById('inlineRelationship').value,
+            signature_date: new Date().toISOString().split('T')[0],
+            consent_status: 'approved'
+        };
+        
+        const consentRecord = await SupabaseDB.createOrUpdateParentalConsent(consentData);
+        console.log('Parental consent created:', consentRecord);
+        
+        // Hide consent form
+        hideParentalConsentForm();
+        
+        // Continue with application submission
+        const { founderData, selectedHouses } = window.pendingApplication;
+        await continueApplicationSubmission(founderData, selectedHouses, consentRecord.id);
+        
+    } catch (error) {
+        console.error('Parental consent submission error:', error);
+        alert('同意書の提出に失敗しました。もう一度お試しください。');
+    }
+}
+
+// 保護者同意後の応募続行処理
+async function continueApplicationSubmission(founderData, selectedHouses, parentalConsentId) {
+    try {
+        // Save founder to database
+        const founderRecord = await SupabaseDB.createFounder(founderData);
+        console.log('Founder created:', founderRecord);
+        
+        // Send email notifications to selected houses
+        const emailService = new EmailService();
+        for (const house of selectedHouses) {
+            const houseData = {
+                name: house.name,
+                email: house.email
+            };
+            
+            try {
+                await emailService.sendApplicationEmail(founderData, houseData, parentalConsentId);
+                console.log(`Email sent to ${house.name}`);
+            } catch (emailError) {
+                console.error(`Failed to send email to ${house.name}:`, emailError);
+            }
+        }
+        
+        // Show success message
+        document.getElementById('applicationSuccess').classList.remove('hidden');
+        
+        // Hide forms
+        const container = document.getElementById('parentalConsentContainer');
+        if (container) {
+            container.remove();
+        }
+        
+        if (document.getElementById('directApplicationForm')) {
+            document.getElementById('directApplicationForm').classList.add('hidden');
+            document.getElementById('housesList').classList.remove('hidden');
+        }
+        
+    } catch (error) {
+        console.error('Application submission error:', error);
+        alert('応募の提出に失敗しました。もう一度お試しください。');
+    }
+}
+
 // 直接応募フォームを表示する
 function showDirectApplicationForm(houseName, houseEmail) {
     // 選択されたハッカーハウス情報を保存
@@ -1266,34 +1486,9 @@ async function submitApplications() {
         // Check if applicant is a minor and handle parental consent
         let parentalConsentId = null;
         if (formData.age < 18) {
-            const parentEmail = document.getElementById('appParentEmail')?.value;
-            if (!parentEmail) {
-                alert('Parent/Guardian email is required for applicants under 18.');
-                return;
-            }
-            
-            try {
-                // Send parental consent email
-                const emailService = new EmailService();
-                await emailService.sendParentalConsentEmail(founderData, parentEmail);
-                console.log('Parental consent email sent to:', parentEmail);
-                
-                // Create parental consent record in database
-                const consentData = {
-                    minor_name: formData.name,
-                    minor_email: formData.email,
-                    parent_email: parentEmail,
-                    consent_status: 'pending'
-                };
-                
-                const consentRecord = await SupabaseDB.createParentalConsent(consentData);
-                parentalConsentId = consentRecord.id;
-                console.log('Parental consent record created:', consentRecord);
-            } catch (error) {
-                console.error('Failed to handle parental consent:', error);
-                alert('Failed to send parental consent email. Please try again.');
-                return;
-            }
+            // Show parental consent form instead of sending email
+            showParentalConsentForm(formData, selectedHouses);
+            return;
         }
         
         // Save founder to database

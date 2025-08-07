@@ -83,13 +83,7 @@
                         
                         <div>
                             <label class="block text-sm font-bold mb-2">Age *</label>
-                            <input type="number" id="appAge" required class="w-full px-3 py-2 simple-input" placeholder="Your age" min="15" onchange="toggleParentEmail()">
-                        </div>
-                        
-                        <div id="parentEmailField" class="hidden">
-                            <label class="block text-sm font-bold mb-2">Parent/Guardian Email *</label>
-                            <input type="email" id="appParentEmail" class="w-full px-3 py-2 simple-input" placeholder="parent@example.com">
-                            <p class="text-xs text-gray-600 mt-1">Required for applicants under 18. We will send a parental consent form to this email.</p>
+                            <input type="number" id="appAge" required class="w-full px-3 py-2 simple-input" placeholder="Your age" min="15">
                         </div>
                         
                         <div>
@@ -164,21 +158,7 @@
     <script src="script.js"></script>
     <script>
         // Load houses when page loads
-        // Toggle parent email field based on age
-        function toggleParentEmail() {
-            const age = parseInt(document.getElementById('appAge').value);
-            const parentEmailField = document.getElementById('parentEmailField');
-            const parentEmailInput = document.getElementById('appParentEmail');
-            
-            if (age && age < 18) {
-                parentEmailField.classList.remove('hidden');
-                parentEmailInput.required = true;
-            } else {
-                parentEmailField.classList.add('hidden');
-                parentEmailInput.required = false;
-                parentEmailInput.value = '';
-            }
-        }
+
         
         document.addEventListener('DOMContentLoaded', function() {
             loadHackerHousesList();
