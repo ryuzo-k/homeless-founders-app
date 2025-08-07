@@ -341,8 +341,9 @@ document.getElementById('founderForm').addEventListener('submit', async function
 function performMatching(formData) {
     const matches = simulateAIMatching(formData);
     
-    // 結果ページに切り替え
-    showPage('results');
+    // 結果ページを表示
+    document.querySelectorAll('.page').forEach(page => page.classList.add('hidden'));
+    document.getElementById('results').classList.remove('hidden');
     
     // マッチ結果を表示
     const resultsContainer = document.getElementById('matchResults');
