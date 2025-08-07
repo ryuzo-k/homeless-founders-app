@@ -2,7 +2,7 @@
 class EmailService {
     constructor() {
         // Get API key from environment or config
-        this.apiKey = process.env.RESEND_API_KEY || 'your-resend-api-key';
+        this.apiKey = process.env.RESEND_API_KEY || 're_8XoCALVe_8ut7821d5mJRN94J69FfwG5F';
         this.baseUrl = 'https://api.resend.com';
     }
 
