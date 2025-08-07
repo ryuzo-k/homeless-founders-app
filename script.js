@@ -360,7 +360,7 @@ function showMatchingResults(formData) {
     ];
     
     // マッチ結果を表示
-    const resultsContainer = document.getElementById('matchResults');
+    const resultsContainer = document.getElementById('matches');
     
     resultsContainer.innerHTML = housesToShow.map(house => `
         <div class="simple-card p-6 mb-4">
