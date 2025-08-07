@@ -8,7 +8,7 @@ class EmailService {
 
     async sendApplicationEmail(founderData, houseData, parentalConsentId = null) {
         const emailData = {
-            from: 'noreply@homeless-founders.com',
+            from: 'onboarding@resend.dev',
             to: houseData.email,
             subject: `New Application: ${founderData.name}`,
             html: this.generateApplicationEmailHTML(founderData, houseData, parentalConsentId)
@@ -39,7 +39,7 @@ class EmailService {
 
     async sendParentalConsentConfirmation(parentEmail, minorName) {
         const emailData = {
-            from: 'noreply@homeless-founders.com',
+            from: 'onboarding@resend.dev',
             to: parentEmail,
             subject: `Parental Consent Confirmation - ${minorName}`,
             html: this.generateConsentConfirmationHTML(minorName)
