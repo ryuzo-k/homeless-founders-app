@@ -339,47 +339,23 @@ document.getElementById('founderForm').addEventListener('submit', async function
     showMatchingResults(founderDataWithConsent);
 });
 
-// マッチング結果を表示する関数
+// ハッカーハウス一覧を表示
 function showMatchingResults(formData) {
     // 結果ページを表示
     document.querySelectorAll('.page').forEach(page => page.classList.add('hidden'));
     document.getElementById('results').classList.remove('hidden');
     
-    // 登録済みハッカーハウスから条件に合うものを抽出
+    // 登録済みハッカーハウスを全部表示
     const allHouses = window.hackerHouses || [];
-    const founderRegion = formData.region;
-    const founderStartDate = new Date(formData.startDate);
-    const founderEndDate = new Date(formData.endDate);
     
-    // 条件マッチング：地域が同じ、日程が重なる、定員に空きがある
-    const matchingHouses = allHouses.filter(house => {
-        // 地域マッチ
-        const regionMatch = house.location.includes(founderRegion) || founderRegion.includes(house.location.split(',')[0]);
-        
-        // 日程マッチ（簡単なチェック）
-        const dateMatch = true; // 簡略化
-        
-        // 定員チェック
-        const capacityMatch = house.capacity > 0;
-        
-        return regionMatch && dateMatch && capacityMatch;
-    });
-    
-    // マッチしない場合はサンプルを表示
-    const housesToShow = matchingHouses.length > 0 ? matchingHouses : [
+    // ハウスがない場合はサンプルを表示
+    const housesToShow = allHouses.length > 0 ? allHouses : [
         {
-            name: "Sample House 1",
-            location: founderRegion,
-            description: "Available hacker house in your region",
+            name: "Sample House",
+            location: "Tokyo, Japan",
+            description: "Please register a hacker house first",
             capacity: 5,
-            email: "sample1@example.com"
-        },
-        {
-            name: "Sample House 2", 
-            location: founderRegion,
-            description: "Another option for founders",
-            capacity: 3,
-            email: "sample2@example.com"
+            email: "sample@example.com"
         }
     ];
     
