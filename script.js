@@ -497,6 +497,12 @@ async function registerHackerHouse(houseData) {
             
             // Update local stats and house list
             await updateHomeStats();
+            
+            // Force reload of house list from database
+            if (typeof loadHackerHousesList === 'function') {
+                await loadHackerHousesList();
+            }
+            
             if (document.getElementById('houseGrid')) {
                 await displayHouseList();
             }
@@ -1376,14 +1382,34 @@ async function loadHackerHousesList() {
         console.log('Number of houses loaded:', houses.length);
         
         // Transform database data to match expected format
-        houses = houses.map(house => ({
-            name: house.name,
-            location: house.location,
-            email: house.email,
-            description: house.description,
-            capacity: house.capacity,
-            features: house.facilities ? house.facilities.split(',').map(f => f.trim()) : []
-        }));
+        houses = houses.map(house => {
+            let features = [];
+            if (house.facilities) {
+                try {
+                    // If facilities is JSON array, parse it
+                    if (typeof house.facilities === 'string' && house.facilities.startsWith('[')) {
+                        features = JSON.parse(house.facilities);
+                    } else if (Array.isArray(house.facilities)) {
+                        features = house.facilities;
+                    } else {
+                        // If it's a comma-separated string
+                        features = house.facilities.split(',').map(f => f.trim());
+                    }
+                } catch (e) {
+                    console.warn('Failed to parse facilities for house:', house.name, e);
+                    features = [];
+                }
+            }
+            
+            return {
+                name: house.name,
+                location: house.location,
+                email: house.email,
+                description: house.description,
+                capacity: house.capacity,
+                features: features
+            };
+        });
         
     } catch (error) {
         console.error('Failed to load houses from database:', error);
