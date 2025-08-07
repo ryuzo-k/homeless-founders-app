@@ -63,8 +63,8 @@ const SupabaseDB = {
                 description: houseData.description,
                 capacity: houseData.capacity,
                 email: houseData.email,
-                preferences: houseData.preferences,
-                facilities: houseData.facilities,
+                preferences: houseData.preferences || null,
+                facilities: houseData.facilities || [],
                 image: houseData.image,
                 created_at: new Date().toISOString()
             }])

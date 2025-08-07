@@ -141,17 +141,11 @@
                     description: document.getElementById('houseDescription').value,
                     capacity: parseInt(document.getElementById('houseCapacity').value),
                     currentOccupancy: 0,
-                    email: document.getElementById('houseEmail').value,
-                    preferences: document.getElementById('housePreferences').value,
-                    rent: document.getElementById('houseRent').value || 0
+                    email: document.getElementById('houseEmail').value
                 };
                 
-                // Get facilities
-                const facilities = [];
-                document.querySelectorAll('#housePage input[type="checkbox"]:checked').forEach(checkbox => {
-                    facilities.push(checkbox.value);
-                });
-                formData.facilities = facilities;
+                // Set default facilities (can be expanded later)
+                formData.facilities = [];
                 
                 // Validate
                 if (!formData.name || !formData.location || !formData.region || !formData.description || !formData.capacity || !formData.email) {
@@ -159,6 +153,7 @@
                     return;
                 }
                 
+                console.log('Submitting house data:', formData);
                 registerHackerHouse(formData);
             });
         });

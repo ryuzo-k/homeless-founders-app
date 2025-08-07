@@ -481,13 +481,17 @@ document.getElementById('houseForm').addEventListener('submit', function(e) {
 // ハッカーハウス登録処理
 async function registerHackerHouse(houseData) {
     try {
+        console.log('registerHackerHouse called with:', houseData);
+        
         // Check if Supabase is available
         if (typeof SupabaseDB !== 'undefined') {
+            console.log('SupabaseDB is available, creating house...');
             const houseWithImage = {
                 ...houseData,
                 image: getRegionEmoji(houseData.region)
             };
             
+            console.log('House data with image:', houseWithImage);
             const newHouse = await SupabaseDB.createHackerHouse(houseWithImage);
             console.log('新しいハッカーハウスがデータベースに登録されました:', newHouse);
             
@@ -497,6 +501,7 @@ async function registerHackerHouse(houseData) {
                 await displayHouseList();
             }
         } else {
+            console.log('SupabaseDB not available, using local storage fallback');
             // Fallback to local storage
             const newHouse = {
                 ...houseData,
@@ -516,11 +521,22 @@ async function registerHackerHouse(houseData) {
         }
         
         // 成功画面を表示
-        document.getElementById('houseSuccess').classList.remove('hidden');
-        document.getElementById('houseSuccess').scrollIntoView({ behavior: 'smooth' });
+        console.log('Showing success message');
+        const successElement = document.getElementById('houseSuccess');
+        const formElement = document.getElementById('houseForm');
+        
+        if (successElement) {
+            successElement.classList.remove('hidden');
+            successElement.scrollIntoView({ behavior: 'smooth' });
+        } else {
+            console.error('Success element not found');
+            alert('House registered successfully!');
+        }
         
         // フォームをリセット
-        document.getElementById('houseForm').reset();
+        if (formElement) {
+            formElement.reset();
+        }
         
     } catch (error) {
         console.error('ハッカーハウス登録エラー:', error);
