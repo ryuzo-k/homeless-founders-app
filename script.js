@@ -1153,3 +1153,164 @@ function showSuccessNotification(message) {
         notification.classList.add('hidden');
     }, 5000);
 }
+
+// ハッカーハウス一覧を読み込む
+function loadHackerHousesList() {
+    const houses = window.hackerHouses || [
+        {
+            name: "Tokyo Tech House",
+            location: "Tokyo, Japan",
+            email: "hello@tokyotech.house",
+            description: "AI/ML focused hacker house in Shibuya. Perfect for tech founders building innovative products.",
+            capacity: 8,
+            features: ["High-speed WiFi", "24/7 Access", "Mentorship", "Networking Events"]
+        },
+        {
+            name: "SF Startup Hub",
+            location: "San Francisco, CA",
+            email: "apply@sfhub.co",
+            description: "YC-style accelerator environment in the heart of Silicon Valley. Connect with investors and fellow founders.",
+            capacity: 12,
+            features: ["Investor Network", "Demo Days", "Legal Support", "Funding Prep"]
+        },
+        {
+            name: "Berlin Builders",
+            location: "Berlin, Germany", 
+            email: "team@berlinbuilders.com",
+            description: "European startup community focused on sustainable tech and social impact ventures.",
+            capacity: 6,
+            features: ["Sustainability Focus", "EU Market Access", "Co-working Space", "Community Events"]
+        }
+    ];
+    
+    // Browse Houses ページの一覧
+    const browseContainer = document.getElementById('housesList');
+    if (browseContainer) {
+        browseContainer.innerHTML = houses.map(house => `
+            <div class="simple-card p-6">
+                <h3 class="text-xl font-bold mb-2">${house.name}</h3>
+                <p class="text-sm text-gray-600 mb-3">${house.location}</p>
+                <p class="text-sm mb-4">${house.description}</p>
+                <div class="mb-4">
+                    <p class="text-xs font-bold mb-2">Features:</p>
+                    <div class="flex flex-wrap gap-1">
+                        ${house.features.map(feature => `
+                            <span class="px-2 py-1 border border-gray-300 text-xs rounded">${feature}</span>
+                        `).join('')}
+                    </div>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-sm font-bold">Capacity: ${house.capacity} founders</span>
+                    <button onclick="showPage('apply')" class="simple-button px-4 py-2 text-sm">
+                        Apply Now
+                    </button>
+                </div>
+            </div>
+        `).join('');
+    }
+    
+    // Apply ページの選択リスト
+    const applyContainer = document.getElementById('applyHousesList');
+    if (applyContainer) {
+        applyContainer.innerHTML = houses.map(house => `
+            <div class="border-2 border-gray-300 p-4 rounded">
+                <label class="flex items-start cursor-pointer">
+                    <input type="checkbox" class="house-checkbox mt-1 mr-3" data-email="${house.email}" data-name="${house.name}">
+                    <div>
+                        <h3 class="font-bold">${house.name}</h3>
+                        <p class="text-sm text-gray-600">${house.location}</p>
+                        <p class="text-sm mt-1">${house.description}</p>
+                    </div>
+                </label>
+            </div>
+        `).join('');
+    }
+}
+
+// 応募フォーム送信
+function submitApplications() {
+    // フォームデータを取得
+    const formData = {
+        name: document.getElementById('appName').value,
+        email: document.getElementById('appEmail').value,
+        age: document.getElementById('appAge').value,
+        location: document.getElementById('appLocation').value,
+        project: document.getElementById('appProject').value,
+        startDate: document.getElementById('appStartDate').value,
+        endDate: document.getElementById('appEndDate').value,
+        message: document.getElementById('appMessage').value
+    };
+    
+    // 必須フィールドのバリデーション
+    if (!formData.name || !formData.email || !formData.age || !formData.location || !formData.project || !formData.startDate || !formData.endDate) {
+        alert('Please fill in all required fields.');
+        return;
+    }
+    
+    // 選択されたハウスを取得
+    const selectedHouses = Array.from(document.querySelectorAll('.house-checkbox:checked')).map(cb => ({
+        name: cb.dataset.name,
+        email: cb.dataset.email
+    }));
+    
+    if (selectedHouses.length === 0) {
+        alert('Please select at least one hacker house.');
+        return;
+    }
+    
+    // メール内容を作成
+    const emailSubject = `Application from ${formData.name} - Homeless Founders`;
+    const emailBody = `Hi there!
+
+I'm ${formData.name} and I'd like to apply to stay at your hacker house.
+
+ABOUT ME:
+- Name: ${formData.name}
+- Email: ${formData.email}
+- Age: ${formData.age}
+- Current Location: ${formData.location}
+
+MY PROJECT:
+${formData.project}
+
+DATES:
+From: ${formData.startDate}
+To: ${formData.endDate}
+
+${formData.message ? `ADDITIONAL MESSAGE:
+${formData.message}
+
+` : ''}Please let me know if you have availability and would like to discuss further!
+
+Best regards,
+${formData.name}
+
+---
+Sent via Homeless Founders Platform`;
+    
+    // 各選択されたハウスにメール送信
+    selectedHouses.forEach(house => {
+        const mailtoLink = `mailto:${house.email}?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody)}`;
+        window.open(mailtoLink, '_blank');
+    });
+    
+    // 成功メッセージを表示
+    document.getElementById('applicationSuccess').classList.remove('hidden');
+    document.getElementById('applicationForm').style.display = 'none';
+    document.querySelector('#applyPage .simple-card:nth-child(3)').style.display = 'none';
+    document.getElementById('submitApplications').style.display = 'none';
+}
+
+// ページ読み込み時にハウス一覧を読み込む
+document.addEventListener('DOMContentLoaded', function() {
+    loadHackerHousesList();
+    
+    // 応募ボタンのイベントリスナー
+    const submitBtn = document.getElementById('submitApplications');
+    if (submitBtn) {
+        submitBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            submitApplications();
+        });
+    }
+});
