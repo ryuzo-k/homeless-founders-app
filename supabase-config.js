@@ -54,26 +54,39 @@ const SupabaseDB = {
 
     // Hacker house operations
     async createHackerHouse(houseData) {
+        console.log('createHackerHouse called with data:', houseData);
+        
+        const insertData = {
+            name: houseData.name,
+            location: houseData.location,
+            region: houseData.region,
+            description: houseData.description,
+            capacity: houseData.capacity,
+            email: houseData.email,
+            preferences: houseData.preferences || null,
+            facilities: houseData.facilities || [],
+            image: houseData.image,
+            created_at: new Date().toISOString()
+        };
+        
+        console.log('Inserting data to Supabase:', insertData);
+        
         const { data, error } = await supabase
             .from(TABLES.HACKER_HOUSES)
-            .insert([{
-                name: houseData.name,
-                location: houseData.location,
-                region: houseData.region,
-                description: houseData.description,
-                capacity: houseData.capacity,
-                email: houseData.email,
-                preferences: houseData.preferences || null,
-                facilities: houseData.facilities || [],
-                image: houseData.image,
-                created_at: new Date().toISOString()
-            }])
+            .insert([insertData])
             .select();
         
         if (error) {
-            console.error('Error creating hacker house:', error);
+            console.error('Supabase error details:', {
+                message: error.message,
+                details: error.details,
+                hint: error.hint,
+                code: error.code
+            });
             throw error;
         }
+        
+        console.log('Successfully created hacker house:', data[0]);
         return data[0];
     },
 
@@ -308,6 +321,47 @@ const SupabaseAuth = {
     }
 };
 
+// Database connection test function
+const SupabaseTest = {
+    async testConnection() {
+        try {
+            console.log('Testing Supabase connection...');
+            console.log('Supabase URL:', SUPABASE_URL);
+            console.log('Supabase client:', supabase);
+            
+            // Test basic connection
+            const { data, error } = await supabase.from('hacker_houses').select('count', { count: 'exact', head: true });
+            
+            if (error) {
+                console.error('Connection test failed:', error);
+                return { success: false, error };
+            }
+            
+            console.log('Connection successful! Table count:', data);
+            return { success: true, count: data };
+        } catch (err) {
+            console.error('Connection test error:', err);
+            return { success: false, error: err };
+        }
+    },
+    
+    async listTables() {
+        try {
+            const { data, error } = await supabase.rpc('get_table_names');
+            if (error) {
+                console.error('Failed to get table names:', error);
+                return null;
+            }
+            console.log('Available tables:', data);
+            return data;
+        } catch (err) {
+            console.error('Error listing tables:', err);
+            return null;
+        }
+    }
+};
+
 // Export for use in other files
 window.SupabaseDB = SupabaseDB;
 window.SupabaseAuth = SupabaseAuth;
+window.SupabaseTest = SupabaseTest;

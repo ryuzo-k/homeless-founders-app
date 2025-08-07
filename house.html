@@ -102,8 +102,11 @@
                         
                         <div>
                             <label class="block text-sm font-bold mb-2">Description *</label>
-                            <textarea id="houseDescription" required class="w-full px-3 py-2 simple-input h-32" placeholder="Describe your hacker house community, house rules, and what makes it special"></textarea>
-                            <p class="text-xs mt-1 text-red-600 font-bold">⚠️ Important: Please note any house rules, safety considerations, or requirements for residents in your description</p>
+                            <textarea id="houseDescription" required class="w-full px-3 py-2 simple-input h-32" placeholder="Describe your hacker house community, house rules, and what makes it special" maxlength="1000"></textarea>
+                            <div class="flex justify-between items-start mt-1">
+                                <p class="text-xs text-red-600 font-bold flex-1">⚠️ Important: Please note any house rules, safety considerations, or requirements for residents in your description</p>
+                                <p class="text-xs text-gray-500 ml-2" id="descriptionCounter">0/1000</p>
+                            </div>
                         </div>
                         
                         <div>
@@ -131,6 +134,27 @@
     <script src="script.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            // Add character counter for description
+            const descriptionField = document.getElementById('houseDescription');
+            const descriptionCounter = document.getElementById('descriptionCounter');
+            
+            if (descriptionField && descriptionCounter) {
+                descriptionField.addEventListener('input', function() {
+                    const currentLength = this.value.length;
+                    const maxLength = 1000;
+                    descriptionCounter.textContent = `${currentLength}/${maxLength}`;
+                    
+                    // Change color when approaching limit
+                    if (currentLength > maxLength * 0.9) {
+                        descriptionCounter.className = 'text-xs text-red-500 ml-2';
+                    } else if (currentLength > maxLength * 0.8) {
+                        descriptionCounter.className = 'text-xs text-yellow-500 ml-2';
+                    } else {
+                        descriptionCounter.className = 'text-xs text-gray-500 ml-2';
+                    }
+                });
+            }
+            
             // Add form submit listener
             document.getElementById('houseForm').addEventListener('submit', function(e) {
                 e.preventDefault();
@@ -139,7 +163,7 @@
                     location: document.getElementById('houseLocation').value,
                     region: document.getElementById('houseRegion').value,
                     description: document.getElementById('houseDescription').value,
-                    capacity: parseInt(document.getElementById('houseCapacity').value),
+                    capacity: document.getElementById('houseCapacity').value,
                     currentOccupancy: 0,
                     email: document.getElementById('houseEmail').value
                 };
