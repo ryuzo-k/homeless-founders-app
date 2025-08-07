@@ -34,6 +34,7 @@
     <!-- Supabase JS -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
     <script src="supabase-config.js"></script>
+    <script src="email-service.js"></script>
 </head>
 <body>
     <div class="container mx-auto px-4 py-8 max-w-4xl">
@@ -226,7 +227,17 @@
                     signature_date: signatureDate
                 });
 
-                alert(`Parental Consent Submitted Successfully!\n\nMinor: ${minorName}\nParent Email: ${parentEmail}\n\nA confirmation will be sent to the parent's email address.\n\nThe minor may now use the platform under parental supervision.`);
+                // Send confirmation email to parent
+                try {
+                    if (typeof EmailService !== 'undefined') {
+                        const emailService = new EmailService();
+                        await emailService.sendParentalConsentConfirmation(parentEmail, minorName);
+                    }
+                } catch (emailError) {
+                    console.error('Confirmation email failed:', emailError);
+                }
+                
+                alert(`Parental Consent Submitted Successfully!\n\nMinor: ${minorName}\nParent Email: ${parentEmail}\n\nA confirmation email has been sent to ${parentEmail}.\n\nThe minor may now use the platform under parental supervision.`);
                 this.reset();
             } catch (err) {
                 console.error('Consent submission error:', err);

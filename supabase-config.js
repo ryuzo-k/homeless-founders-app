@@ -161,27 +161,37 @@ const SupabaseDB = {
 
     // Email notification function
     async sendApplicationEmail(founderData, houseData, parentalConsentId = null) {
-        // This would integrate with an email service like SendGrid/Resend
-        // For now, we'll log the email content
-        const emailContent = {
-            to: houseData.email,
-            subject: `New Application: ${founderData.name}`,
-            html: `
-                <h2>New Founder Application</h2>
-                <p><strong>Name:</strong> ${founderData.name}</p>
-                <p><strong>Age:</strong> ${founderData.age}</p>
-                <p><strong>Product:</strong> ${founderData.product}</p>
-                <p><strong>Stay Duration:</strong> ${founderData.startDate} - ${founderData.endDate}</p>
-                <p><strong>Email:</strong> ${founderData.email}</p>
-                ${parentalConsentId ? '<p><strong>Note:</strong> This applicant is a minor. Parental consent form is attached.</p>' : ''}
-                <hr>
-                <p>Please review this application and respond accordingly.</p>
-            `
-        };
-        
-        console.log('Email to be sent:', emailContent);
-        // TODO: Integrate with actual email service
-        return emailContent;
+        try {
+            // Use EmailService if available, otherwise fallback to logging
+            if (typeof EmailService !== 'undefined') {
+                const emailService = new EmailService();
+                return await emailService.sendApplicationEmail(founderData, houseData, parentalConsentId);
+            } else {
+                // Fallback to console logging
+                const emailContent = {
+                    to: houseData.email,
+                    subject: `New Application: ${founderData.name}`,
+                    html: `
+                        <h2>New Founder Application</h2>
+                        <p><strong>Name:</strong> ${founderData.name}</p>
+                        <p><strong>Age:</strong> ${founderData.age}</p>
+                        <p><strong>Product:</strong> ${founderData.product}</p>
+                        <p><strong>Stay Duration:</strong> ${founderData.startDate} - ${founderData.endDate}</p>
+                        <p><strong>Email:</strong> ${founderData.email}</p>
+                        ${parentalConsentId ? '<p><strong>Note:</strong> This applicant is a minor. Parental consent form is attached.</p>' : ''}
+                        <hr>
+                        <p>Please review this application and respond accordingly.</p>
+                    `
+                };
+                
+                console.log('Email to be sent:', emailContent);
+                return emailContent;
+            }
+        } catch (error) {
+            console.error('Email sending failed:', error);
+            // Don't throw error to avoid breaking the application flow
+            return null;
+        }
     }
 };
 
