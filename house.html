@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>List Your House - Homeless Founders</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Space Mono', monospace;
+            background-color: #fff;
+            color: #000;
+        }
+        .simple-card {
+            background: #fff;
+            border: 1px solid #000;
+        }
+        .simple-button {
+            background: #fff;
+            color: #000;
+            border: 1px solid #000;
+            transition: all 0.2s;
+        }
+        .simple-button:hover {
+            background: #000;
+            color: #fff;
+        }
+        .simple-input {
+            border: 1px solid #000;
+            background: #fff;
+            color: #000;
+        }
+        .simple-input:focus {
+            outline: none;
+            border-color: #000;
+        }
+        .simple-nav {
+            background: #fff;
+            color: #000;
+            border-bottom: 1px solid #000;
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+    <!-- Navigation -->
+    <nav class="simple-nav">
+        <div class="container mx-auto px-4">
+            <div class="flex justify-between items-center py-4">
+                <div class="flex items-center space-x-4">
+                    <span class="text-xl font-bold">Homeless Founders</span>
+                </div>
+                <div class="flex space-x-2">
+                    <a href="/index.html" class="px-3 py-1 simple-button font-mono text-sm">Home</a>
+                    <a href="/browse-houses.html" class="px-3 py-1 simple-button font-mono text-sm">Browse Houses</a>
+                    <a href="/apply.html" class="px-3 py-1 simple-button font-mono text-sm">Apply</a>
+                    <a href="/house.html" class="px-3 py-1 simple-button font-mono text-sm bg-blue-100 text-blue-800">List Your House</a>
+                    <a href="/edit-house.html" class="px-3 py-1 simple-button font-mono text-sm">Edit House</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mx-auto px-4 py-8">
+        <!-- House Registration Page -->
+        <div id="housePage" class="page">
+            <div class="max-w-2xl mx-auto">
+                <h2 class="text-2xl font-bold text-center mb-8">List Your Hacker House</h2>
+                
+                <div class="simple-card p-8">
+                    <form id="houseForm" class="space-y-6">
+                        <div>
+                            <label class="block text-sm font-bold mb-2">House Name *</label>
+                            <input type="text" id="houseName" required class="w-full px-3 py-2 simple-input" placeholder="e.g. Tokyo Tech House">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-bold mb-2">Location *</label>
+                            <input type="text" id="houseLocation" required class="w-full px-3 py-2 simple-input" placeholder="City, Country">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-bold mb-2">Contact Email *</label>
+                            <input type="email" id="houseEmail" required class="w-full px-3 py-2 simple-input" placeholder="contact@yourhouse.com">
+                            <p class="text-xs mt-1">This email will be used for editing your house information later</p>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-bold mb-2">Region *</label>
+                            <select id="houseRegion" required class="w-full px-3 py-2 simple-input">
+                                <option value="">Select a region</option>
+                                <option value="tokyo">Tokyo</option>
+                                <option value="sf">San Francisco</option>
+                                <option value="nyc">New York City</option>
+                                <option value="london">London</option>
+                                <option value="singapore">Singapore</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-bold mb-2">Description *</label>
+                            <textarea id="houseDescription" required class="w-full px-3 py-2 simple-input h-24" placeholder="Describe your hacker house community"></textarea>
+                        </div>
+                        
+                        <div class="grid md:grid-cols-2 gap-6">
+                            <div>
+                                <label class="block text-sm font-bold mb-2">Capacity *</label>
+                                <input type="number" id="houseCapacity" required class="w-full px-3 py-2 simple-input" placeholder="Number of founders" min="1">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-bold mb-2">Monthly Rent (USD)</label>
+                                <input type="number" id="houseRent" class="w-full px-3 py-2 simple-input" placeholder="e.g. 800" min="0">
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-bold mb-2">Preferences</label>
+                            <textarea id="housePreferences" class="w-full px-3 py-2 simple-input h-24" placeholder="What type of founders are you looking for?"></textarea>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-bold mb-2">Facilities</label>
+                            <div class="grid grid-cols-2 gap-2">
+                                <label class="flex items-center">
+                                    <input type="checkbox" value="wifi" class="mr-2">
+                                    <span>High-speed WiFi</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="checkbox" value="printer" class="mr-2">
+                                    <span>Printer/Scanner</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="checkbox" value="meeting" class="mr-2">
+                                    <span>Meeting Rooms</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="checkbox" value="kitchen" class="mr-2">
+                                    <span>Kitchen</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="checkbox" value="storage" class="mr-2">
+                                    <span>Storage Space</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="checkbox" value="parking" class="mr-2">
+                                    <span>Parking</span>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="text-center">
+                            <button type="submit" class="simple-button px-6 py-3 font-mono">Register House</button>
+                        </div>
+                    </form>
+                </div>
+                
+                <!-- Success Message -->
+                <div id="houseSuccess" class="simple-card p-8 text-center hidden">
+                    <h3 class="text-xl font-bold mb-4">House Registered!</h3>
+                    <p class="mb-6">Your hacker house has been successfully registered. Founders can now apply to stay with you.</p>
+                    <button onclick="location.reload()" class="simple-button px-6 py-3 font-mono">Register Another House</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add form submit listener
+            document.getElementById('houseForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                const formData = {
+                    name: document.getElementById('houseName').value,
+                    location: document.getElementById('houseLocation').value,
+                    region: document.getElementById('houseRegion').value,
+                    description: document.getElementById('houseDescription').value,
+                    capacity: parseInt(document.getElementById('houseCapacity').value),
+                    currentOccupancy: 0,
+                    email: document.getElementById('houseEmail').value,
+                    preferences: document.getElementById('housePreferences').value,
+                    rent: document.getElementById('houseRent').value || 0
+                };
+                
+                // Get facilities
+                const facilities = [];
+                document.querySelectorAll('#housePage input[type="checkbox"]:checked').forEach(checkbox => {
+                    facilities.push(checkbox.value);
+                });
+                formData.facilities = facilities;
+                
+                // Validate
+                if (!formData.name || !formData.location || !formData.region || !formData.description || !formData.capacity || !formData.email) {
+                    alert('Please fill in all required fields');
+                    return;
+                }
+                
+                registerHackerHouse(formData);
+            });
+        });
+    </script>
+</body>
+</html>

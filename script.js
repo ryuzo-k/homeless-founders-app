@@ -1,37 +1,5 @@
 // ページ切り替え機能
-function showPage(pageId) {
-    console.log('showPage called with:', pageId);
-    
-    // すべてのページを非表示
-    document.querySelectorAll('.page').forEach(page => {
-        page.classList.add('hidden');
-    });
-    
-    // 指定されたページを表示
-    const targetPageId = pageId + 'Page';
-    const targetPage = document.getElementById(targetPageId);
-    console.log('Looking for element:', targetPageId, 'Found:', targetPage);
-    
-    if (targetPage) {
-        targetPage.classList.remove('hidden');
-        console.log('Page shown successfully');
-    } else {
-        console.error('Page not found:', targetPageId);
-    }
-    
-    // ナビゲーションのアクティブ状態を更新
-    document.querySelectorAll('nav button').forEach(btn => {
-        btn.classList.remove('bg-blue-100', 'text-blue-800');
-        btn.classList.add('text-blue-600');
-    });
-    
-    // 現在のページボタンをアクティブに
-    const activeBtn = document.querySelector(`nav button[data-page="${pageId}"]`);
-    if (activeBtn) {
-        activeBtn.classList.remove('text-blue-600');
-        activeBtn.classList.add('bg-blue-100', 'text-blue-800');
-    }
-}
+
 
 // 登録されたハッカーハウスのデータ
 let registeredHouses = [];
@@ -1132,28 +1100,6 @@ document.getElementById('updateHouseForm')?.addEventListener('submit', async fun
     }
 });
 
-// ナビゲーションボタンにクリックイベントを追加
-function attachNavButtonListeners() {
-    document.querySelectorAll('.nav-btn').forEach(btn => {
-        if (!btn.dataset.listenerAttached) {
-            btn.addEventListener('click', function() {
-                const pageId = this.getAttribute('data-page');
-                showPage(pageId);
-            });
-            btn.dataset.listenerAttached = 'true';
-        }
-    });
-}
-
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', attachNavButtonListeners);
-} else {
-    // DOMContentLoaded already fired
-    attachNavButtonListeners();
-}
-
-// 初期化：ホームページを表示
-document.addEventListener('DOMContentLoaded', async function() {
     showPage('home');
     await updateHomeStats(); // 統計情報を更新
     await displayHouseList(); // ハウス一覧も初期化
@@ -1350,18 +1296,7 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log('Initialization complete');
 });
 
-// showPage関数をオーバーライドしてハウス一覧を読み込む
-const originalShowPage = showPage;
-function showPage(pageId) {
-    originalShowPage(pageId);
-    
-    // ページ表示後にハウス一覧を読み込む
-    if (pageId === 'browseHouses' || pageId === 'apply') {
-        setTimeout(() => {
-            loadHackerHousesList();
-        }, 50);
-    }
-}
+
 
 // Edit House Functions
 function verifyHouseEmail() {
