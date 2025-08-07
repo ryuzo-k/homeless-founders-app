@@ -3,7 +3,8 @@ const SUPABASE_URL = 'https://ezwledxluhlwjnafgtxk.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV6d2xlZHhsdWhsd2puYWZndHhrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ0NjY5NDcsImV4cCI6MjA3MDA0Mjk0N30.4AniVUMd1hIPrZ5a_9IgOKezbJqZDDsY-7ThmnhKJ2U';
 
 // Initialize Supabase client
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const { createClient } = supabase;
+const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 // Database table names
 const TABLES = {
@@ -17,7 +18,7 @@ const TABLES = {
 const SupabaseDB = {
     // Founder operations
     async createFounder(founderData) {
-        const { data, error } = await supabase
+        const { data, error } = await supabaseClientClient
             .from(TABLES.FOUNDERS)
             .insert([{
                 name: founderData.name,
@@ -40,7 +41,7 @@ const SupabaseDB = {
     },
 
     async getFounders() {
-        const { data, error } = await supabase
+        const { data, error } = await supabaseClient
             .from(TABLES.FOUNDERS)
             .select('*')
             .order('created_at', { ascending: false });
@@ -71,7 +72,7 @@ const SupabaseDB = {
         
         console.log('Inserting data to Supabase:', insertData);
         
-        const { data, error } = await supabase
+        const { data, error } = await supabaseClient
             .from(TABLES.HACKER_HOUSES)
             .insert([insertData])
             .select();
@@ -91,7 +92,7 @@ const SupabaseDB = {
     },
 
     async getHackerHouses() {
-        const { data, error } = await supabase
+        const { data, error } = await supabaseClient
             .from(TABLES.HACKER_HOUSES)
             .select('*')
             .order('created_at', { ascending: false });
@@ -104,7 +105,7 @@ const SupabaseDB = {
     },
 
     async updateHackerHouse(email, updatedData) {
-        const { data, error } = await supabase
+        const { data, error } = await supabaseClient
             .from(TABLES.HACKER_HOUSES)
             .update({
                 name: updatedData.name,
@@ -125,7 +126,7 @@ const SupabaseDB = {
 
     // Match operations
     async createMatch(matchData) {
-        const { data, error } = await supabase
+        const { data, error } = await supabaseClient
             .from(TABLES.MATCHES)
             .insert([{
                 founder_id: matchData.founderId,
@@ -145,7 +146,7 @@ const SupabaseDB = {
     },
 
     async getMatches() {
-        const { data, error } = await supabase
+        const { data, error } = await supabaseClient
             .from(TABLES.MATCHES)
             .select(`
                 *,
@@ -162,7 +163,7 @@ const SupabaseDB = {
     },
     // Parental consent operations
     async createParentalConsent(consentData) {
-        const { data, error } = await supabase
+        const { data, error } = await supabaseClient
             .from(TABLES.PARENTAL_CONSENTS)
             .insert([{ ...consentData, created_at: new Date().toISOString() }])
             .select()
@@ -214,7 +215,7 @@ const SupabaseDB = {
 const SupabaseProfiles = {
     // プロファイル作成
     async createProfile(userId, userType, fullName) {
-        const { data, error } = await supabase
+        const { data, error } = await supabaseClient
             .from('user_profiles')
             .insert({
                 id: userId,
@@ -229,7 +230,7 @@ const SupabaseProfiles = {
 
     // プロファイル取得
     async getProfile(userId) {
-        const { data, error } = await supabase
+        const { data, error } = await supabaseClient
             .from('user_profiles')
             .select('*')
             .eq('id', userId)
@@ -240,7 +241,7 @@ const SupabaseProfiles = {
 
     // プロファイル更新
     async updateProfile(userId, updates) {
-        const { data, error } = await supabase
+        const { data, error } = await supabaseClient
             .from('user_profiles')
             .update(updates)
             .eq('id', userId)
@@ -255,7 +256,7 @@ const SupabaseProfiles = {
 const SupabaseAuth = {
     // サインアップ（ユーザータイプ付き）
     async signUp(email, password, userType, fullName) {
-        const { data, error } = await supabase.auth.signUp({
+        const { data, error } = await supabaseClient.auth.signUp({
             email,
             password,
             options: {
@@ -281,7 +282,7 @@ const SupabaseAuth = {
 
     // Sign in with email and password
     async signIn(email, password) {
-        const { data, error } = await supabase.auth.signInWithPassword({
+        const { data, error } = await supabaseClient.auth.signInWithPassword({
             email,
             password
         });
@@ -295,7 +296,7 @@ const SupabaseAuth = {
 
     // Sign out
     async signOut() {
-        const { error } = await supabase.auth.signOut();
+        const { error } = await supabaseClient.auth.signOut();
         
         if (error) {
             console.error('Sign out error:', error);
@@ -305,13 +306,13 @@ const SupabaseAuth = {
 
     // Get current user
     async getCurrentUser() {
-        const { data: { user } } = await supabase.auth.getUser();
+        const { data: { user } } = await supabaseClient.auth.getUser();
         return user;
     },
 
     // Get current session
     async getCurrentSession() {
-        const { data: { session } } = await supabase.auth.getSession();
+        const { data: { session } } = await supabaseClient.auth.getSession();
         return session;
     },
 
@@ -330,7 +331,7 @@ const SupabaseTest = {
             console.log('Supabase client:', supabase);
             
             // Test basic connection
-            const { data, error } = await supabase.from('hacker_houses').select('count', { count: 'exact', head: true });
+            const { data, error } = await supabaseClient.from('hacker_houses').select('count', { count: 'exact', head: true });
             
             if (error) {
                 console.error('Connection test failed:', error);
@@ -347,7 +348,7 @@ const SupabaseTest = {
     
     async listTables() {
         try {
-            const { data, error } = await supabase.rpc('get_table_names');
+            const { data, error } = await supabaseClient.rpc('get_table_names');
             if (error) {
                 console.error('Failed to get table names:', error);
                 return null;

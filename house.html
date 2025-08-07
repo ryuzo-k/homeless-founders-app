@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>List Your House - Homeless Founders</title>
+    <!-- Supabase JS -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
@@ -131,6 +133,10 @@
         </div>
     </div>
 
+    <!-- Supabase JS -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase-config.js"></script>
+    <script src="email-service.js"></script>
     <script src="script.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
@@ -158,6 +164,16 @@
             // Add form submit listener
             document.getElementById('houseForm').addEventListener('submit', function(e) {
                 e.preventDefault();
+                console.log('Form submitted, collecting data...');
+                
+                // Log individual field values
+                console.log('houseName:', document.getElementById('houseName').value);
+                console.log('houseLocation:', document.getElementById('houseLocation').value);
+                console.log('houseRegion:', document.getElementById('houseRegion').value);
+                console.log('houseDescription:', document.getElementById('houseDescription').value);
+                console.log('houseCapacity:', document.getElementById('houseCapacity').value);
+                console.log('houseEmail:', document.getElementById('houseEmail').value);
+                
                 const formData = {
                     name: document.getElementById('houseName').value,
                     location: document.getElementById('houseLocation').value,
@@ -172,8 +188,19 @@
                 formData.facilities = [];
                 
                 // Validate
-                if (!formData.name || !formData.location || !formData.region || !formData.description || !formData.capacity || !formData.email) {
-                    alert('Please fill in all required fields');
+                console.log('Validating form data:', formData);
+                
+                const missingFields = [];
+                if (!formData.name) missingFields.push('House Name');
+                if (!formData.location) missingFields.push('Location');
+                if (!formData.region) missingFields.push('Region');
+                if (!formData.description) missingFields.push('Description');
+                if (!formData.capacity) missingFields.push('Capacity');
+                if (!formData.email) missingFields.push('Contact Email');
+                
+                if (missingFields.length > 0) {
+                    console.log('Missing fields:', missingFields);
+                    alert('Please fill in all required fields: ' + missingFields.join(', '));
                     return;
                 }
                 
