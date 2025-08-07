@@ -108,6 +108,26 @@ const SupabaseDB = {
         return data;
     },
 
+    // Get all hacker houses
+    async getAllHackerHouses() {
+        try {
+            const { data, error } = await supabaseClient
+                .from('hacker_houses')
+                .select('*')
+                .order('created_at', { ascending: false });
+
+            if (error) {
+                console.error('Supabase error fetching hacker houses:', error);
+                throw error;
+            }
+
+            return data || [];
+        } catch (error) {
+            console.error('Error fetching hacker houses:', error);
+            throw error;
+        }
+    },
+
     // Hacker house operations
     async createHackerHouse(houseData) {
         console.log('createHackerHouse called with data:', houseData);

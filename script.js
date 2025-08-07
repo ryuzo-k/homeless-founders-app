@@ -1365,33 +1365,54 @@ function showDirectApplicationForm(houseName, houseEmail) {
 }
 
 // ハッカーハウス一覧を読み込む
-function loadHackerHousesList() {
-    const houses = window.hackerHouses || [
-        {
-            name: "Tokyo Tech House",
-            location: "Tokyo, Japan",
-            email: "hello@tokyotech.house",
-            description: "AI/ML focused hacker house in Shibuya. Perfect for tech founders building innovative products.",
-            capacity: 8,
-            features: ["High-speed WiFi", "24/7 Access", "Mentorship", "Networking Events"]
-        },
-        {
-            name: "SF Startup Hub",
-            location: "San Francisco, CA",
-            email: "apply@sfhub.co",
-            description: "YC-style accelerator environment in the heart of Silicon Valley. Connect with investors and fellow founders.",
-            capacity: 12,
-            features: ["Investor Network", "Demo Days", "Legal Support", "Funding Prep"]
-        },
-        {
-            name: "Berlin Builders",
-            location: "Berlin, Germany", 
-            email: "team@berlinbuilders.com",
-            description: "European startup community focused on sustainable tech and social impact ventures.",
-            capacity: 6,
-            features: ["Sustainability Focus", "EU Market Access", "Co-working Space", "Community Events"]
-        }
-    ];
+async function loadHackerHousesList() {
+    let houses = [];
+    
+    try {
+        // Try to load from database first
+        houses = await SupabaseDB.getAllHackerHouses();
+        console.log('Loaded houses from database:', houses);
+        
+        // Transform database data to match expected format
+        houses = houses.map(house => ({
+            name: house.name,
+            location: house.location,
+            email: house.email,
+            description: house.description,
+            capacity: house.capacity,
+            features: house.facilities ? house.facilities.split(',').map(f => f.trim()) : []
+        }));
+        
+    } catch (error) {
+        console.error('Failed to load houses from database:', error);
+        // Fallback to hardcoded data
+        houses = [
+            {
+                name: "Tokyo Tech House",
+                location: "Tokyo, Japan",
+                email: "hello@tokyotech.house",
+                description: "AI/ML focused hacker house in Shibuya. Perfect for tech founders building innovative products.",
+                capacity: 8,
+                features: ["High-speed WiFi", "24/7 Access", "Mentorship", "Networking Events"]
+            },
+            {
+                name: "SF Startup Hub",
+                location: "San Francisco, CA",
+                email: "apply@sfhub.co",
+                description: "YC-style accelerator environment in the heart of Silicon Valley. Connect with investors and fellow founders.",
+                capacity: 12,
+                features: ["Investor Network", "Demo Days", "Legal Support", "Funding Prep"]
+            },
+            {
+                name: "Berlin Builders",
+                location: "Berlin, Germany", 
+                email: "team@berlinbuilders.com",
+                description: "European startup community focused on sustainable tech and social impact ventures.",
+                capacity: 6,
+                features: ["Sustainability Focus", "EU Market Access", "Co-working Space", "Community Events"]
+            }
+        ];
+    }
     
     // Browse Houses ページの一覧
     const browseContainer = document.getElementById('housesList');
@@ -1538,8 +1559,8 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log('DOM loaded, initializing...');
     
     // ハウス一覧を読み込む
-    setTimeout(() => {
-        loadHackerHousesList();
+    setTimeout(async () => {
+        await loadHackerHousesList();
     }, 100);
     
     // 応募ボタンのイベントリスナー

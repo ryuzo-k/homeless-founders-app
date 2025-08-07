@@ -160,8 +160,8 @@
         // Load houses when page loads
 
         
-        document.addEventListener('DOMContentLoaded', function() {
-            loadHackerHousesList();
+        document.addEventListener('DOMContentLoaded', async function() {
+            await loadHackerHousesList();
             
             // Add back to houses list functionality
             const backButton = document.createElement('button');
