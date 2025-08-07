@@ -9,7 +9,8 @@ const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 const TABLES = {
     FOUNDERS: 'founders',
     HACKER_HOUSES: 'hacker_houses',
-    MATCHES: 'matches'
+    MATCHES: 'matches',
+    PARENTAL_CONSENTS: 'parental_consents'
 };
 
 // Supabase database functions
@@ -139,6 +140,19 @@ const SupabaseDB = {
         
         if (error) {
             console.error('Error fetching matches:', error);
+            throw error;
+        }
+        return data;
+    },
+    // Parental consent operations
+    async createParentalConsent(consentData) {
+        const { data, error } = await supabase
+            .from(TABLES.PARENTAL_CONSENTS)
+            .insert([{ ...consentData, created_at: new Date().toISOString() }])
+            .select()
+            .single();
+        if (error) {
+            console.error('Error creating parental consent:', error);
             throw error;
         }
         return data;

@@ -31,6 +31,9 @@
             background-color: #f3f4f6;
         }
     </style>
+    <!-- Supabase JS -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+    <script src="supabase-config.js"></script>
 </head>
 <body>
     <div class="container mx-auto px-4 py-8 max-w-4xl">
@@ -180,7 +183,7 @@
         // Set today's date as default
         document.getElementById('signatureDate').valueAsDate = new Date();
         
-        document.getElementById('consentForm').addEventListener('submit', function(e) {
+        document.getElementById('consentForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
             // Validate digital signature matches parent name
@@ -198,8 +201,37 @@
             
             alert(`Parental Consent Submitted Successfully!\n\nMinor: ${minorName}\nParent Email: ${parentEmail}\n\nA confirmation will be sent to the parent's email address.\n\nThe minor may now use the platform under parental supervision.`);
             
-            // In a real implementation, this would send the data to a server
-            console.log('Consent form data:', new FormData(this));
+            // Collect additional form fields
+            const minorAge = document.getElementById('minorAge').value;
+            const minorEmail = document.getElementById('minorEmail').value;
+            const parentPhone = document.getElementById('parentPhone').value;
+            const relationship = document.getElementById('relationship').value;
+            const emergencyName = document.getElementById('emergencyName').value;
+            const emergencyPhone = document.getElementById('emergencyPhone').value;
+            const emergencyRelationship = document.getElementById('emergencyRelationship').value;
+            const signatureDate = document.getElementById('signatureDate').value;
+
+            try {
+                await SupabaseDB.createParentalConsent({
+                    minor_name: minorName,
+                    minor_age: minorAge,
+                    minor_email: minorEmail,
+                    parent_name: parentName,
+                    parent_email: parentEmail,
+                    parent_phone: parentPhone,
+                    relationship,
+                    emergency_name: emergencyName,
+                    emergency_phone: emergencyPhone,
+                    emergency_relationship: emergencyRelationship,
+                    signature_date: signatureDate
+                });
+
+                alert(`Parental Consent Submitted Successfully!\n\nMinor: ${minorName}\nParent Email: ${parentEmail}\n\nA confirmation will be sent to the parent's email address.\n\nThe minor may now use the platform under parental supervision.`);
+                this.reset();
+            } catch (err) {
+                console.error('Consent submission error:', err);
+                alert('Error submitting consent form. Please try again.');
+            }
         });
     </script>
 </body>

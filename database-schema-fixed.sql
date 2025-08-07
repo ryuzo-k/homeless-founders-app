@@ -30,6 +30,23 @@ CREATE TABLE IF NOT EXISTS hacker_houses (
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
+-- Create parental_consents table
+CREATE TABLE IF NOT EXISTS parental_consents (
+    id uuid DEFAULT uuid_generate_v4() PRIMARY KEY,
+    minor_name text NOT NULL,
+    minor_age int NOT NULL,
+    minor_email text NOT NULL,
+    parent_name text NOT NULL,
+    parent_email text NOT NULL,
+    parent_phone text,
+    relationship text,
+    emergency_name text,
+    emergency_phone text,
+    emergency_relationship text,
+    signature_date date,
+    created_at timestamptz DEFAULT now()
+);
+
 -- Create matches table
 CREATE TABLE IF NOT EXISTS matches (
     id BIGSERIAL PRIMARY KEY,
