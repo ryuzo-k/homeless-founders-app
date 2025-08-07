@@ -222,7 +222,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 // フォーム送信処理
-document.getElementById('founderForm').addEventListener('submit', function(e) {
+document.getElementById('founderForm').addEventListener('submit', async function(e) {
     e.preventDefault();
     
 
@@ -258,27 +258,79 @@ document.getElementById('founderForm').addEventListener('submit', function(e) {
         return;
     }
     
-    // 未成年者チェック
+    // 未成年者チェックと親権者同意書処理
+    let parentalConsentId = null;
     if (formData.age < 18) {
-        const confirmed = confirm(`PARENTAL CONSENT REQUIRED\n\nYou are under 18 years old. You must have completed the Parental Consent Form before using this platform.\n\nHave you completed the parental consent process?`);
-        if (!confirmed) {
-            alert('Please complete the Parental Consent Form before proceeding.');
+        // 親権者同意書のバリデーション
+        const parentName = document.getElementById('parentName').value;
+        const parentEmail = document.getElementById('parentEmail').value;
+        const parentPhone = document.getElementById('parentPhone').value;
+        const relationship = document.getElementById('relationship').value;
+        const emergencyName = document.getElementById('emergencyName').value;
+        const emergencyPhone = document.getElementById('emergencyPhone').value;
+        const digitalSignature = document.getElementById('digitalSignature').value;
+        
+        // 必須フィールドのチェック
+        if (!parentName || !parentEmail || !parentPhone || !relationship || !emergencyName || !emergencyPhone || !digitalSignature) {
+            alert('Please complete all parental consent fields.');
+            return;
+        }
+        
+        // デジタル署名のチェック
+        if (parentName.toLowerCase() !== digitalSignature.toLowerCase()) {
+            alert('Digital signature must match the parent/guardian name exactly.');
+            return;
+        }
+        
+        // 同意チェックボックスのチェック
+        const consentBoxes = ['consent1', 'consent2', 'consent3', 'consent4'];
+        for (const boxId of consentBoxes) {
+            if (!document.getElementById(boxId).checked) {
+                alert('Please check all parental consent boxes.');
+                return;
+            }
+        }
+        
+        try {
+            // 親権者同意書をSupabaseに保存
+            if (typeof SupabaseDB !== 'undefined') {
+                const consentData = {
+                    minor_name: formData.name,
+                    minor_age: formData.age,
+                    minor_email: formData.email,
+                    parent_name: parentName,
+                    parent_email: parentEmail,
+                    parent_phone: parentPhone,
+                    relationship,
+                    emergency_name: emergencyName,
+                    emergency_phone: emergencyPhone,
+                    signature_date: new Date().toISOString().split('T')[0]
+                };
+                
+                const consentRecord = await SupabaseDB.createParentalConsent(consentData);
+                parentalConsentId = consentRecord.id;
+                
+                // 親に確認メールを送信
+                if (typeof EmailService !== 'undefined') {
+                    const emailService = new EmailService();
+                    await emailService.sendParentalConsentConfirmation(parentEmail, formData.name);
+                }
+                
+                alert('Parental consent saved successfully! A confirmation email has been sent to the parent.');
+            }
+        } catch (error) {
+            console.error('Error saving parental consent:', error);
+            alert('Error saving parental consent. Please try again.');
             return;
         }
     }
     
-    // 未成年チェック
-    if (formData.age < 18) {
-        document.getElementById('consentForm').classList.remove('hidden');
-        document.getElementById('consentForm').scrollIntoView({ behavior: 'smooth' });
-        return;
-    }
-    
-    // 創設者を登録
-    registerFounder(formData);
+    // 創設者を登録（親権者同意書IDを含む）
+    const founderDataWithConsent = { ...formData, parentalConsentId };
+    await registerFounder(founderDataWithConsent);
     
     // マッチング実行
-    performMatching(formData);
+    performMatching(founderDataWithConsent);
 });
 function performMatching(formData) {
     const matches = simulateAIMatching(formData);
@@ -320,7 +372,7 @@ function performMatching(formData) {
                 `).join('')}
             </div>
             
-            <button onclick="applyToHouse('${house.name}', '${formData.name}', '${formData.email}', ${formData.age}, '${formData.startDate}', '${formData.endDate}')" 
+            <button onclick="applyToHouse('${house.name}', ${JSON.stringify(formData).replace(/"/g, '&quot;')})" 
                     class="w-full simple-button py-3 px-4 font-mono">
                 Apply to ${house.name}
             </button>
@@ -329,9 +381,10 @@ function performMatching(formData) {
 }
 
 // ハッカーハウスへの申し込み
-async function applyToHouse(houseName, founderName, founderEmail, founderAge, startDate, endDate) {
-    const start = new Date(startDate);
-    const end = new Date(endDate);
+async function applyToHouse(houseName, founderDataStr) {
+    const founderData = JSON.parse(founderDataStr);
+    const start = new Date(founderData.startDate);
+    const end = new Date(founderData.endDate);
     const diffDays = Math.ceil((end - start) / (1000 * 60 * 60 * 24));
     
     // ハウスの連絡先を取得
@@ -339,31 +392,18 @@ async function applyToHouse(houseName, founderName, founderEmail, founderAge, st
     const house = allHouses.find(h => h.name === houseName);
     const houseEmail = house ? house.email : 'contact@house.com';
     
-    const founderData = {
-        name: founderName,
-        email: founderEmail,
-        age: founderAge,
-        startDate,
-        endDate,
-        product: document.getElementById('product')?.value || 'Not specified'
-    };
-    
     try {
         let parentalConsentId = null;
         
-        // 未成年者の場合は保護者情報を収集
+        // 未成年者の場合は親権者同意書を取得
         if (founderAge < 18) {
-            // 親権者同意書が必要
-            const consentConfirmed = confirm('This application requires parental consent. Have you completed the Parental Consent Form?');
-            if (!consentConfirmed) {
-                alert('Please complete the Parental Consent Form first.');
+            // 親権者同意書が存在するかチェック
+            if (!founderData.parentalConsentId) {
+                alert('Parental consent is required for minors. Please complete the registration process first.');
                 return;
             }
             
-            // 最新の親権者同意書を取得（実際の実装では、未成年者のメールで検索）
-            // TODO: 実際にはfounderEmailで親権者同意書を検索する
-            showMinorApplicationForm(houseName, founderName, founderEmail, founderAge, startDate, endDate, houseEmail);
-            return;
+            parentalConsentId = founderData.parentalConsentId;
         }
         
         // マッチレコードを作成
@@ -380,7 +420,7 @@ async function applyToHouse(houseName, founderName, founderEmail, founderAge, st
         }
         
         // 成人の場合は通常の申し込み
-        alert(`Application to ${houseName} submitted successfully!\n\nYour Info:\nName: ${founderName}\nEmail: ${founderEmail}\nAge: ${founderAge}\nStay Duration: ${startDate} - ${endDate} (${diffDays} days)\n\nNext Steps:\n1. The house will contact you at ${founderEmail}\n2. You can also reach them at ${houseEmail}\n3. Schedule interview and confirm details\n\nAn email notification has been sent to the house.`);
+        alert(`Application to ${houseName} submitted successfully!\n\nYour Info:\nName: ${founderData.name}\nEmail: ${founderData.email}\nAge: ${founderData.age}\nStay Duration: ${founderData.startDate} - ${founderData.endDate} (${diffDays} days)\n\nNext Steps:\n1. The house will contact you at ${founderData.email}\n2. You can also reach them at ${houseEmail}\n3. Schedule interview and confirm details\n\nAn email notification has been sent to the house.`);
         
     } catch (error) {
         console.error('Application submission error:', error);
@@ -940,12 +980,12 @@ async function displayHouseList(houses = null) {
 // 年齢チェック機能
 function checkAge() {
     const age = parseInt(document.getElementById('age').value);
-    const minorWarning = document.getElementById('minorWarning');
+    const parentalConsentSection = document.getElementById('parentalConsentSection');
     
     if (age && age < 18) {
-        minorWarning.classList.remove('hidden');
+        parentalConsentSection.classList.remove('hidden');
     } else {
-        minorWarning.classList.add('hidden');
+        parentalConsentSection.classList.add('hidden');
     }
 }
 

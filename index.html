@@ -192,9 +192,85 @@
                             <span class="text-sm">I have read and agree to the <a href="terms.html" target="_blank" class="underline font-bold">Terms of Service</a>. I understand that this platform is for introductions only and I assume all risks.</span>
                         </label>
                         
-                        <div id="minorWarning" class="hidden p-3 border-2 border-red-500 bg-red-50">
-                            <p class="text-sm font-bold text-red-700">⚠️ PARENTAL CONSENT REQUIRED</p>
-                            <p class="text-sm text-red-600">Users under 18 must have parental consent. Please complete the <a href="parental-consent.html" target="_blank" class="underline font-bold">Parental Consent Form</a> before proceeding.</p>
+                        <!-- Parental Consent Form (shown for minors) -->
+                        <div id="parentalConsentSection" class="hidden space-y-4 p-4 border-2 border-orange-500 bg-orange-50">
+                            <h3 class="text-lg font-bold text-orange-800">⚠️ Parental Consent Required</h3>
+                            <p class="text-sm text-orange-700">Since you are under 18, we need parental consent before you can proceed.</p>
+                            
+                            <!-- Parent/Guardian Information -->
+                            <div class="space-y-3">
+                                <h4 class="font-bold text-sm">Parent/Guardian Information</h4>
+                                
+                                <div>
+                                    <label for="parentName" class="block text-sm font-bold mb-1">Parent/Guardian Full Name:</label>
+                                    <input type="text" id="parentName" class="w-full px-3 py-2 simple-input" placeholder="Parent's full name">
+                                </div>
+                                
+                                <div>
+                                    <label for="parentEmail" class="block text-sm font-bold mb-1">Parent/Guardian Email:</label>
+                                    <input type="email" id="parentEmail" class="w-full px-3 py-2 simple-input" placeholder="parent@email.com">
+                                </div>
+                                
+                                <div>
+                                    <label for="parentPhone" class="block text-sm font-bold mb-1">Parent/Guardian Phone:</label>
+                                    <input type="tel" id="parentPhone" class="w-full px-3 py-2 simple-input" placeholder="Phone number">
+                                </div>
+                                
+                                <div>
+                                    <label for="relationship" class="block text-sm font-bold mb-1">Relationship to Minor:</label>
+                                    <select id="relationship" class="w-full px-3 py-2 simple-input">
+                                        <option value="">Select relationship</option>
+                                        <option value="parent">Parent</option>
+                                        <option value="legal-guardian">Legal Guardian</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <!-- Emergency Contact -->
+                            <div class="space-y-3">
+                                <h4 class="font-bold text-sm">Emergency Contact</h4>
+                                
+                                <div>
+                                    <label for="emergencyName" class="block text-sm font-bold mb-1">Emergency Contact Name:</label>
+                                    <input type="text" id="emergencyName" class="w-full px-3 py-2 simple-input" placeholder="Emergency contact name">
+                                </div>
+                                
+                                <div>
+                                    <label for="emergencyPhone" class="block text-sm font-bold mb-1">Emergency Contact Phone:</label>
+                                    <input type="tel" id="emergencyPhone" class="w-full px-3 py-2 simple-input" placeholder="Emergency phone">
+                                </div>
+                            </div>
+                            
+                            <!-- Consent Checkboxes -->
+                            <div class="space-y-2">
+                                <h4 class="font-bold text-sm">Parental Consent</h4>
+                                
+                                <label class="flex items-start space-x-2">
+                                    <input type="checkbox" id="consent1" class="mt-1">
+                                    <span class="text-xs">I am the parent/legal guardian and have authority to provide this consent.</span>
+                                </label>
+                                
+                                <label class="flex items-start space-x-2">
+                                    <input type="checkbox" id="consent2" class="mt-1">
+                                    <span class="text-xs">I give permission for my child to use this platform to seek accommodation.</span>
+                                </label>
+                                
+                                <label class="flex items-start space-x-2">
+                                    <input type="checkbox" id="consent3" class="mt-1">
+                                    <span class="text-xs">I understand this is a matching platform only and I am responsible for supervising all arrangements.</span>
+                                </label>
+                                
+                                <label class="flex items-start space-x-2">
+                                    <input type="checkbox" id="consent4" class="mt-1">
+                                    <span class="text-xs">I will personally verify the safety and appropriateness of any accommodation.</span>
+                                </label>
+                            </div>
+                            
+                            <!-- Digital Signature -->
+                            <div>
+                                <label for="digitalSignature" class="block text-sm font-bold mb-1">Digital Signature (Type parent's full name):</label>
+                                <input type="text" id="digitalSignature" class="w-full px-3 py-2 simple-input" placeholder="Parent's full legal name">
+                            </div>
                         </div>
                     </div>
 

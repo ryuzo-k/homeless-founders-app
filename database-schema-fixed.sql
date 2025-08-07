@@ -5,11 +5,13 @@
 CREATE TABLE IF NOT EXISTS founders (
     id BIGSERIAL PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
-    age INTEGER NOT NULL CHECK (age >= 16 AND age <= 100),
+    email VARCHAR(255) NOT NULL,
+    age INTEGER NOT NULL CHECK (age >= 13 AND age <= 100),
     product TEXT NOT NULL,
     start_date DATE NOT NULL,
     end_date DATE NOT NULL,
     region VARCHAR(50) NOT NULL,
+    parental_consent_id uuid REFERENCES parental_consents(id),
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );

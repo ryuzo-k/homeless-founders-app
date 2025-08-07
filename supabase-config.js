@@ -22,10 +22,12 @@ const SupabaseDB = {
             .insert([{
                 name: founderData.name,
                 age: founderData.age,
+                email: founderData.email,
                 product: founderData.product,
                 start_date: founderData.startDate,
                 end_date: founderData.endDate,
                 region: founderData.region,
+                parental_consent_id: founderData.parentalConsentId || null,
                 created_at: new Date().toISOString()
             }])
             .select();
