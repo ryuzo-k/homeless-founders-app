@@ -98,7 +98,7 @@ class EmailService {
     }
 
     generateParentalConsentEmailHTML(founderData) {
-        const consentUrl = `${window.location.origin}/parental-consent.html?founder=${encodeURIComponent(founderData.name)}&email=${encodeURIComponent(founderData.email)}`;
+        const consentUrl = `https://ryuzo-k.github.io/homeless-founders-app/parental-consent.html?founder=${encodeURIComponent(founderData.name)}&email=${encodeURIComponent(founderData.email)}&age=${founderData.age}`;
         
         return `
             <!DOCTYPE html>

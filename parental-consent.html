@@ -184,6 +184,27 @@
         // Set today's date as default
         document.getElementById('signatureDate').valueAsDate = new Date();
         
+        // Auto-fill form from URL parameters
+        function fillFormFromURL() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const founderName = urlParams.get('founder');
+            const founderEmail = urlParams.get('email');
+            const founderAge = urlParams.get('age');
+            
+            if (founderName) {
+                document.getElementById('minorName').value = founderName;
+            }
+            if (founderEmail) {
+                document.getElementById('minorEmail').value = founderEmail;
+            }
+            if (founderAge) {
+                document.getElementById('minorAge').value = founderAge;
+            }
+        }
+        
+        // Fill form when page loads
+        document.addEventListener('DOMContentLoaded', fillFormFromURL);
+        
         document.getElementById('consentForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
@@ -213,9 +234,10 @@
             const signatureDate = document.getElementById('signatureDate').value;
 
             try {
-                await SupabaseDB.createParentalConsent({
+                // Check if consent record already exists and update it, or create new one
+                const consentData = {
                     minor_name: minorName,
-                    minor_age: minorAge,
+                    minor_age: parseInt(minorAge),
                     minor_email: minorEmail,
                     parent_name: parentName,
                     parent_email: parentEmail,
@@ -224,8 +246,11 @@
                     emergency_name: emergencyName,
                     emergency_phone: emergencyPhone,
                     emergency_relationship: emergencyRelationship,
-                    signature_date: signatureDate
-                });
+                    signature_date: signatureDate,
+                    consent_status: 'approved'
+                };
+                
+                await SupabaseDB.createOrUpdateParentalConsent(consentData);
 
                 // Send confirmation email to parent
                 try {

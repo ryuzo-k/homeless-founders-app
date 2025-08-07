@@ -37,6 +37,40 @@ const SupabaseDB = {
         }
     },
 
+    // Create or update parental consent record
+    async createOrUpdateParentalConsent(consentData) {
+        try {
+            // First try to find existing record
+            const { data: existing, error: findError } = await supabaseClient
+                .from('parental_consents')
+                .select('*')
+                .eq('minor_email', consentData.minor_email)
+                .single();
+
+            if (existing) {
+                // Update existing record
+                const { data, error } = await supabaseClient
+                    .from('parental_consents')
+                    .update(consentData)
+                    .eq('id', existing.id)
+                    .select()
+                    .single();
+
+                if (error) {
+                    console.error('Supabase error updating parental consent:', error);
+                    throw error;
+                }
+                return data;
+            } else {
+                // Create new record
+                return await this.createParentalConsent(consentData);
+            }
+        } catch (error) {
+            console.error('Error creating/updating parental consent:', error);
+            throw error;
+        }
+    },
+
     // Founder operations
     async createFounder(founderData) {
         const { data, error } = await supabaseClient
