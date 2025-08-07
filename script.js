@@ -335,8 +335,21 @@ document.getElementById('founderForm').addEventListener('submit', async function
     const founderDataWithConsent = { ...formData, parentalConsentId };
     await registerFounder(founderDataWithConsent);
     
-    // マッチング実行 - 直接実行
-    showMatchingResults(founderDataWithConsent);
+    // 登録完了メッセージを表示（マッチングは手動で実行）
+    alert('Registration completed! Now click "Find My Match" to see available hacker houses.');
+    
+    // Find My Matchボタンを表示し、データを保存
+    document.getElementById('findMatchBtn').style.display = 'block';
+    window.currentFounderData = founderDataWithConsent;
+});
+
+// Find My Matchボタンのイベントリスナー
+document.getElementById('findMatchBtn').addEventListener('click', function() {
+    if (window.currentFounderData) {
+        showMatchingResults(window.currentFounderData);
+    } else {
+        alert('Please register as a founder first.');
+    }
 });
 
 // ハッカーハウス一覧を表示
