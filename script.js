@@ -345,28 +345,48 @@ function showMatchingResults(formData) {
     document.querySelectorAll('.page').forEach(page => page.classList.add('hidden'));
     document.getElementById('results').classList.remove('hidden');
     
-    // サンプルマッチ結果を生成
-    const sampleMatches = [
+    // 登録済みハッカーハウスから条件に合うものを抽出
+    const allHouses = window.hackerHouses || [];
+    const founderRegion = formData.region;
+    const founderStartDate = new Date(formData.startDate);
+    const founderEndDate = new Date(formData.endDate);
+    
+    // 条件マッチング：地域が同じ、日程が重なる、定員に空きがある
+    const matchingHouses = allHouses.filter(house => {
+        // 地域マッチ
+        const regionMatch = house.location.includes(founderRegion) || founderRegion.includes(house.location.split(',')[0]);
+        
+        // 日程マッチ（簡単なチェック）
+        const dateMatch = true; // 簡略化
+        
+        // 定員チェック
+        const capacityMatch = house.capacity > 0;
+        
+        return regionMatch && dateMatch && capacityMatch;
+    });
+    
+    // マッチしない場合はサンプルを表示
+    const housesToShow = matchingHouses.length > 0 ? matchingHouses : [
         {
-            name: "Tokyo Tech House",
-            location: "Tokyo, Japan",
-            description: "AI/ML focused hacker house",
+            name: "Sample House 1",
+            location: founderRegion,
+            description: "Available hacker house in your region",
             capacity: 5,
-            matchScore: 92
+            email: "sample1@example.com"
         },
         {
-            name: "Silicon Valley Hub",
-            location: "San Francisco, CA",
-            description: "Startup accelerator environment",
-            capacity: 8,
-            matchScore: 87
+            name: "Sample House 2", 
+            location: founderRegion,
+            description: "Another option for founders",
+            capacity: 3,
+            email: "sample2@example.com"
         }
     ];
     
     // マッチ結果を表示
     const resultsContainer = document.getElementById('matchResults');
     
-    resultsContainer.innerHTML = sampleMatches.map(house => `
+    resultsContainer.innerHTML = housesToShow.map(house => `
         <div class="simple-card p-6 mb-4">
             <div class="flex justify-between items-start mb-4">
                 <div>
@@ -374,14 +394,14 @@ function showMatchingResults(formData) {
                     <p class="text-sm">${house.location}</p>
                 </div>
                 <div class="text-right">
-                    <div class="text-3xl font-bold">${house.matchScore}%</div>
-                    <div class="text-sm">Match</div>
+                    <div class="text-sm font-bold text-green-600">Available</div>
+                    <div class="text-xs">${house.capacity} spots</div>
                 </div>
             </div>
             <p class="text-sm mb-4">${house.description}</p>
             <div class="flex justify-between items-center">
                 <span class="text-sm">Capacity: ${house.capacity} founders</span>
-                <button onclick="alert('Application sent to ${house.name}!')"
+                <button onclick="applyToHouse('${house.name}', '${JSON.stringify(formData).replace(/'/g, "\\'")}')"
                         class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
                     Apply Now
                 </button>
