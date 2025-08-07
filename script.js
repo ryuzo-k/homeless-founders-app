@@ -1263,12 +1263,37 @@ async function submitApplications() {
             region: 'other' // Default region, could be improved with a region selector
         };
         
-        // Check if applicant is a minor
+        // Check if applicant is a minor and handle parental consent
         let parentalConsentId = null;
         if (formData.age < 18) {
-            // In a real implementation, you would retrieve the parental consent ID
-            // For now, we'll just note that it's needed
-            console.log('Minor applicant - parental consent required');
+            const parentEmail = document.getElementById('appParentEmail')?.value;
+            if (!parentEmail) {
+                alert('Parent/Guardian email is required for applicants under 18.');
+                return;
+            }
+            
+            try {
+                // Send parental consent email
+                const emailService = new EmailService();
+                await emailService.sendParentalConsentEmail(founderData, parentEmail);
+                console.log('Parental consent email sent to:', parentEmail);
+                
+                // Create parental consent record in database
+                const consentData = {
+                    minor_name: formData.name,
+                    minor_email: formData.email,
+                    parent_email: parentEmail,
+                    consent_status: 'pending'
+                };
+                
+                const consentRecord = await SupabaseDB.createParentalConsent(consentData);
+                parentalConsentId = consentRecord.id;
+                console.log('Parental consent record created:', consentRecord);
+            } catch (error) {
+                console.error('Failed to handle parental consent:', error);
+                alert('Failed to send parental consent email. Please try again.');
+                return;
+            }
         }
         
         // Save founder to database

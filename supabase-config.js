@@ -16,9 +16,30 @@ const TABLES = {
 
 // Supabase database functions
 const SupabaseDB = {
+    // Create a new parental consent record
+    async createParentalConsent(consentData) {
+        try {
+            const { data, error } = await supabaseClient
+                .from('parental_consents')
+                .insert([consentData])
+                .select()
+                .single();
+
+            if (error) {
+                console.error('Supabase error creating parental consent:', error);
+                throw error;
+            }
+
+            return data;
+        } catch (error) {
+            console.error('Error creating parental consent:', error);
+            throw error;
+        }
+    },
+
     // Founder operations
     async createFounder(founderData) {
-        const { data, error } = await supabaseClientClient
+        const { data, error } = await supabaseClient
             .from(TABLES.FOUNDERS)
             .insert([{
                 name: founderData.name,

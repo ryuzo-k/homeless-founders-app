@@ -6,6 +6,35 @@ class EmailService {
         this.baseUrl = 'https://api.resend.com';
     }
 
+    async sendParentalConsentEmail(founderData, parentEmail) {
+        const emailData = {
+            from: 'onboarding@resend.dev',
+            to: parentEmail,
+            subject: `Parental Consent Required: ${founderData.name}'s Hacker House Application`,
+            html: this.generateParentalConsentEmailHTML(founderData)
+        };
+
+        try {
+            const response = await fetch(`${this.baseUrl}/emails`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${this.apiKey}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(emailData)
+            });
+
+            if (!response.ok) {
+                throw new Error(`Email API error: ${response.status}`);
+            }
+
+            return await response.json();
+        } catch (error) {
+            console.error('Failed to send parental consent email:', error);
+            throw error;
+        }
+    }
+
     async sendApplicationEmail(founderData, houseData, parentalConsentId = null) {
         const emailData = {
             from: 'onboarding@resend.dev',
@@ -66,6 +95,74 @@ class EmailService {
             console.error('Consent confirmation email failed:', error);
             throw error;
         }
+    }
+
+    generateParentalConsentEmailHTML(founderData) {
+        const consentUrl = `${window.location.origin}/parental-consent.html?founder=${encodeURIComponent(founderData.name)}&email=${encodeURIComponent(founderData.email)}`;
+        
+        return `
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset="utf-8">
+                <style>
+                    body { font-family: monospace; background: white; color: black; }
+                    .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+                    .header { border: 2px solid black; padding: 20px; margin-bottom: 20px; }
+                    .content { border: 2px solid black; padding: 20px; }
+                    .button { display: inline-block; padding: 10px 20px; background: black; color: white; text-decoration: none; margin: 10px 0; }
+                    .warning { background: #fff3cd; border: 2px solid #ffc107; padding: 15px; margin: 15px 0; }
+                </style>
+            </head>
+            <body>
+                <div class="container">
+                    <div class="header">
+                        <h1>⚠️ Parental Consent Required</h1>
+                    </div>
+                    
+                    <div class="content">
+                        <p>Dear Parent/Guardian,</p>
+                        
+                        <p>Your child <strong>${founderData.name}</strong> (age ${founderData.age}) has applied to stay at hacker houses through our Homeless Founders platform.</p>
+                        
+                        <div class="warning">
+                            <h3>⚠️ IMPORTANT: Parental consent is required</h3>
+                            <p>Since your child is under 18, we need your explicit consent before they can proceed with any applications.</p>
+                        </div>
+                        
+                        <h3>Application Details:</h3>
+                        <ul>
+                            <li><strong>Name:</strong> ${founderData.name}</li>
+                            <li><strong>Age:</strong> ${founderData.age}</li>
+                            <li><strong>Email:</strong> ${founderData.email}</li>
+                            <li><strong>Project:</strong> ${founderData.product}</li>
+                            <li><strong>Dates:</strong> ${founderData.startDate} to ${founderData.endDate}</li>
+                        </ul>
+                        
+                        <h3>Next Steps:</h3>
+                        <ol>
+                            <li>Click the button below to provide consent</li>
+                            <li>Fill out the parental consent form</li>
+                            <li>We will verify your consent</li>
+                            <li>Your child can then proceed with applications</li>
+                        </ol>
+                        
+                        <div style="text-align: center; margin: 30px 0;">
+                            <a href="${consentUrl}" class="button">Provide Parental Consent</a>
+                        </div>
+                        
+                        <p><strong>Questions?</strong> Please contact us at support@homelessfounders.com</p>
+                        
+                        <p>Best regards,<br>Homeless Founders Team</p>
+                    </div>
+                    
+                    <div style="margin-top: 20px; text-align: center; font-size: 12px; color: #666;">
+                        <p>This email was sent automatically by Homeless Founders platform.</p>
+                    </div>
+                </div>
+            </body>
+            </html>
+        `;
     }
 
     generateApplicationEmailHTML(founderData, houseData, parentalConsentId) {
