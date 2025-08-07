@@ -1120,6 +1120,30 @@ function showSuccessNotification(message) {
     }, 3000);
 }
 
+// 直接応募フォームを表示する
+function showDirectApplicationForm(houseName, houseEmail) {
+    // 選択されたハッカーハウス情報を保存
+    window.selectedHouse = {
+        name: houseName,
+        email: houseEmail
+    };
+    
+    // フォームタイトルを更新
+    const titleElement = document.getElementById('selectedHouseName');
+    if (titleElement) {
+        titleElement.textContent = houseName;
+    }
+    
+    // フォームを表示、ハウス一覧を非表示
+    const formContainer = document.getElementById('directApplicationForm');
+    const housesContainer = document.getElementById('housesList');
+    
+    if (formContainer && housesContainer) {
+        formContainer.classList.remove('hidden');
+        housesContainer.classList.add('hidden');
+    }
+}
+
 // ハッカーハウス一覧を読み込む
 function loadHackerHousesList() {
     const houses = window.hackerHouses || [
@@ -1167,8 +1191,8 @@ function loadHackerHousesList() {
                 </div>
                 <div class="flex justify-between items-center">
                     <span class="text-sm font-bold">Capacity: ${house.capacity} founders</span>
-                    <button onclick="showPage('apply')" class="simple-button px-4 py-2 text-sm">
-                        Apply Now
+                    <button onclick="showDirectApplicationForm('${house.name}', '${house.email}')" class="simple-button px-4 py-2 text-sm">
+                        Apply to This House
                     </button>
                 </div>
             </div>
@@ -1219,23 +1243,12 @@ async function submitApplications() {
         email: cb.dataset.email
     }));
     
-    // If no houses are selected (direct application), send to all houses
-    if (selectedHouses.length === 0) {
-        const allHouses = window.hackerHouses || [
-            {
-                name: "Tokyo Tech House",
-                email: "hello@tokyotech.house"
-            },
-            {
-                name: "SF Startup Hub",
-                email: "apply@sfhub.co"
-            },
-            {
-                name: "Berlin Builders",
-                email: "team@berlinbuilders.com"
-            }
-        ];
-        selectedHouses = allHouses;
+    // If no houses are selected (direct application), use the selected house
+    if (selectedHouses.length === 0 && window.selectedHouse) {
+        selectedHouses = [window.selectedHouse];
+    } else if (selectedHouses.length === 0) {
+        alert('Please select at least one hacker house to apply to.');
+        return;
     }
     
     try {

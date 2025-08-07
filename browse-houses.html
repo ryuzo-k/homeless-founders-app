@@ -68,15 +68,9 @@
             <div class="max-w-6xl mx-auto">
                 <h2 class="text-2xl font-bold text-center mb-8">Available Hacker Houses</h2>
                 
-                <div class="mb-6 text-center">
-                    <button id="toggleForm" class="simple-button px-6 py-3 font-mono">
-                        Apply Directly
-                    </button>
-                </div>
-                
                 <!-- Direct Application Form (hidden by default) -->
                 <div id="directApplicationForm" class="simple-card p-8 max-w-2xl mx-auto mb-8 hidden">
-                    <h2 class="text-2xl font-bold text-center mb-6">Apply to Hacker Houses</h2>
+                    <h2 class="text-2xl font-bold text-center mb-6">Apply to <span id="selectedHouseName">Hacker House</span></h2>
                     <form id="directAppForm" class="space-y-6">
                         <div>
                             <label class="block text-sm font-bold mb-2">Full Name *</label>
@@ -168,22 +162,19 @@
         document.addEventListener('DOMContentLoaded', function() {
             loadHackerHousesList();
             
-            // Add toggle functionality
-            const toggleButton = document.getElementById('toggleForm');
-            const formContainer = document.getElementById('directApplicationForm');
-            const housesContainer = document.getElementById('housesList');
+            // Add back to houses list functionality
+            const backButton = document.createElement('button');
+            backButton.textContent = '← Back to Houses';
+            backButton.className = 'simple-button px-4 py-2 text-sm mb-4';
+            backButton.onclick = function() {
+                document.getElementById('directApplicationForm').classList.add('hidden');
+                document.getElementById('housesList').classList.remove('hidden');
+            };
             
-            toggleButton.addEventListener('click', function() {
-                if (formContainer.classList.contains('hidden')) {
-                    formContainer.classList.remove('hidden');
-                    housesContainer.classList.add('hidden');
-                    toggleButton.textContent = 'Browse Houses';
-                } else {
-                    formContainer.classList.add('hidden');
-                    housesContainer.classList.remove('hidden');
-                    toggleButton.textContent = 'Apply Directly';
-                }
-            });
+            const formContainer = document.getElementById('directApplicationForm');
+            if (formContainer) {
+                formContainer.insertBefore(backButton, formContainer.firstChild);
+            }
             
             // Add form submission handler
             document.getElementById('directAppForm').addEventListener('submit', function(e) {
