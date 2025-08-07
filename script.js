@@ -1133,14 +1133,24 @@ document.getElementById('updateHouseForm')?.addEventListener('submit', async fun
 });
 
 // ナビゲーションボタンにクリックイベントを追加
-document.addEventListener('DOMContentLoaded', function() {
+function attachNavButtonListeners() {
     document.querySelectorAll('.nav-btn').forEach(btn => {
-        btn.addEventListener('click', function() {
-            const pageId = this.getAttribute('data-page');
-            showPage(pageId);
-        });
+        if (!btn.dataset.listenerAttached) {
+            btn.addEventListener('click', function() {
+                const pageId = this.getAttribute('data-page');
+                showPage(pageId);
+            });
+            btn.dataset.listenerAttached = 'true';
+        }
     });
-});
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', attachNavButtonListeners);
+} else {
+    // DOMContentLoaded already fired
+    attachNavButtonListeners();
+}
 
 // 初期化：ホームページを表示
 document.addEventListener('DOMContentLoaded', async function() {
