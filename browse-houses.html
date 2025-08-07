@@ -47,11 +47,11 @@
     <!-- Navigation -->
     <nav class="simple-nav">
         <div class="container mx-auto px-4">
-            <div class="flex justify-between items-center py-4">
-                <div class="flex items-center space-x-4">
+            <div class="flex flex-col sm:flex-row justify-between items-center py-4">
+                <div class="flex items-center space-x-4 mb-4 sm:mb-0">
                     <span class="text-xl font-bold">Homeless Founders</span>
                 </div>
-                <div class="flex space-x-2">
+                <div class="flex flex-wrap justify-center gap-2">
                     <a href="/index.html" class="px-3 py-1 simple-button font-mono text-sm">Home</a>
                     <a href="/browse-houses.html" class="px-3 py-1 simple-button font-mono text-sm bg-blue-100 text-blue-800">Browse Houses</a>
                     <a href="/apply.html" class="px-3 py-1 simple-button font-mono text-sm">Apply</a>
@@ -69,11 +69,87 @@
                 <h2 class="text-2xl font-bold text-center mb-8">Available Hacker Houses</h2>
                 
                 <div class="mb-6 text-center">
-                    <a href="/apply.html" class="simple-button px-6 py-3 font-mono">
-                        Apply to Houses
-                    </a>
+                    <button id="toggleForm" class="simple-button px-6 py-3 font-mono">
+                        Apply Directly
+                    </button>
                 </div>
                 
+                <!-- Direct Application Form (hidden by default) -->
+                <div id="directApplicationForm" class="simple-card p-8 max-w-2xl mx-auto mb-8 hidden">
+                    <h2 class="text-2xl font-bold text-center mb-6">Apply to Hacker Houses</h2>
+                    <form id="directAppForm" class="space-y-6">
+                        <div>
+                            <label class="block text-sm font-bold mb-2">Full Name *</label>
+                            <input type="text" id="appName" required class="w-full px-3 py-2 simple-input" placeholder="Your name">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-bold mb-2">Email *</label>
+                            <input type="email" id="appEmail" required class="w-full px-3 py-2 simple-input" placeholder="your.email@example.com">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-bold mb-2">Age *</label>
+                            <input type="number" id="appAge" required class="w-full px-3 py-2 simple-input" placeholder="Your age" min="15">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-bold mb-2">Preferred Location *</label>
+                            <select id="appLocation" required class="w-full px-3 py-2 simple-input">
+                                <option value="">Select your preferred region</option>
+                                <option value="tokyo">Tokyo</option>
+                                <option value="sf">San Francisco</option>
+                                <option value="nyc">New York City</option>
+                                <option value="london">London</option>
+                                <option value="singapore">Singapore</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-bold mb-2">Self-Introduction *</label>
+                            <textarea id="appProject" required class="w-full px-3 py-2 simple-input h-32" placeholder="Tell us about yourself, your startup idea, and why you want to join a hacker house"></textarea>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-bold mb-2">Additional Message</label>
+                            <textarea id="appMessage" class="w-full px-3 py-2 simple-input h-24" placeholder="Any additional information you'd like to share with the hacker houses"></textarea>
+                        </div>
+                        
+                        <div class="grid grid-cols-2 gap-6">
+                            <div>
+                                <label class="block text-sm font-bold mb-2">Start Date *</label>
+                                <input type="date" id="appStartDate" required class="w-full px-3 py-2 simple-input">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-bold mb-2">End Date *</label>
+                                <input type="date" id="appEndDate" required class="w-full px-3 py-2 simple-input">
+                            </div>
+                        </div>
+                        
+                        <div id="durationDisplay" class="text-sm"></div>
+                        
+                        <div class="flex items-center">
+                            <input type="checkbox" id="termsAgreement" class="mr-2">
+                            <label for="termsAgreement" class="text-sm">I agree to the Terms of Service *</label>
+                        </div>
+                        <div class="text-xs text-gray-600 mt-1">
+                            By agreeing, you acknowledge that this platform is not liable for any damages or issues that may arise during your stay
+                        </div>
+                        
+                        <div class="text-center">
+                            <button type="submit" class="simple-button px-6 py-3 font-mono">Submit Application</button>
+                        </div>
+                    </form>
+                    
+                    <div id="applicationSuccess" class="text-center hidden">
+                        <h3 class="text-xl font-bold mb-4">Application Submitted!</h3>
+                        <p class="mb-6">Your application has been sent to all hacker houses. They will contact you directly if interested.</p>
+                        <button onclick="location.reload()" class="simple-button px-6 py-3 font-mono">Submit Another Application</button>
+                    </div>
+                </div>
+                
+                <!-- Houses List -->
                 <div id="housesList" class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                     <!-- Houses will be loaded here -->
                 </div>
@@ -86,6 +162,65 @@
         // Load houses when page loads
         document.addEventListener('DOMContentLoaded', function() {
             loadHackerHousesList();
+            
+            // Add toggle functionality
+            const toggleButton = document.getElementById('toggleForm');
+            const formContainer = document.getElementById('directApplicationForm');
+            const housesContainer = document.getElementById('housesList');
+            
+            toggleButton.addEventListener('click', function() {
+                if (formContainer.classList.contains('hidden')) {
+                    formContainer.classList.remove('hidden');
+                    housesContainer.classList.add('hidden');
+                    toggleButton.textContent = 'Browse Houses';
+                } else {
+                    formContainer.classList.add('hidden');
+                    housesContainer.classList.remove('hidden');
+                    toggleButton.textContent = 'Apply Directly';
+                }
+            });
+            
+            // Add form submission handler
+            document.getElementById('directAppForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                // Check if terms are agreed
+                if (!document.getElementById('termsAgreement').checked) {
+                    alert('Please agree to the Terms of Service');
+                    return;
+                }
+                
+                // Call the existing submitApplications function
+                submitApplications();
+            });
+            
+            // Add date validation and duration calculation
+            const startDateInput = document.getElementById('appStartDate');
+            const endDateInput = document.getElementById('appEndDate');
+            const durationDisplay = document.getElementById('durationDisplay');
+            
+            if (startDateInput && endDateInput && durationDisplay) {
+                function calculateDuration() {
+                    const startDate = new Date(startDateInput.value);
+                    const endDate = new Date(endDateInput.value);
+                    
+                    if (startDate && endDate && !isNaN(startDate) && !isNaN(endDate)) {
+                        const timeDiff = endDate.getTime() - startDate.getTime();
+                        const daysDiff = Math.ceil(timeDiff / (1000 * 3600 * 24));
+                        
+                        if (daysDiff < 0) {
+                            durationDisplay.textContent = 'End date must be after start date';
+                            durationDisplay.className = 'text-sm text-red-500';
+                        } else {
+                            durationDisplay.textContent = `Duration: ${daysDiff} days`;
+                            durationDisplay.className = 'text-sm';
+                        }
+                    }
+                }
+                
+                startDateInput.addEventListener('change', calculateDuration);
+                endDateInput.addEventListener('change', calculateDuration);
+            }
         });
     </script>
 </body>

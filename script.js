@@ -1,6 +1,3 @@
-// ページ切り替え機能
-
-
 // 登録されたハッカーハウスのデータ
 let registeredHouses = [];
 
@@ -180,144 +177,119 @@ function updateDurationDisplay() {
 
 // 日付入力のイベントリスナー
 document.addEventListener('DOMContentLoaded', function() {
-    const startDateInput = document.getElementById('startDate');
-    const endDateInput = document.getElementById('endDate');
+    const startDateInput = document.getElementById('appStartDate');
+    const endDateInput = document.getElementById('appEndDate');
     
-    // 今日の日付を最小値として設定
-    const today = new Date().toISOString().split('T')[0];
-    startDateInput.min = today;
-    endDateInput.min = today;
-    
-    // 開始日が変更されたら終了日の最小値を更新
-    startDateInput.addEventListener('change', function() {
-        endDateInput.min = this.value;
-        updateDurationDisplay();
-    });
-    
-    endDateInput.addEventListener('change', updateDurationDisplay);
-});
-
-// フォーム送信処理
-document.getElementById('founderForm').addEventListener('submit', async function(e) {
-    e.preventDefault();
-    
-
-    
-    const startDate = document.getElementById('startDate').value;
-    const endDate = document.getElementById('endDate').value;
-    
-    // Date validation
-    if (!updateDurationDisplay()) {
-        alert('Please select a valid stay duration');
-        return;
+    if (startDateInput && endDateInput) {
+        startDateInput.addEventListener('change', function() {
+            endDateInput.min = this.value;
+            updateDurationDisplay();
+        });
+        
+        endDateInput.addEventListener('change', updateDurationDisplay);
     }
     
-    const formData = {
-        name: document.getElementById('name').value,
-        email: document.getElementById('email').value,
-        age: parseInt(document.getElementById('age').value),
-        product: document.getElementById('product').value,
-        startDate: startDate,
-        endDate: endDate,
-        region: document.getElementById('region').value
-    };
-    
-    // Validation
-    if (!formData.name || !formData.email || !formData.age || !formData.product || !formData.startDate || !formData.endDate || !formData.region) {
-        alert('Please fill in all required fields');
-        return;
-    }
-    
-    // 利用規約同意チェック
-    if (!document.getElementById('termsAgreement').checked) {
-        alert('Please agree to the Terms of Service to continue.');
-        return;
-    }
-    
-    // 未成年者チェックと親権者同意書処理
-    let parentalConsentId = null;
-    if (formData.age < 18) {
-        // 親権者同意書のバリデーション
-        const parentName = document.getElementById('parentName').value;
-        const parentEmail = document.getElementById('parentEmail').value;
-        const parentPhone = document.getElementById('parentPhone').value;
-        const relationship = document.getElementById('relationship').value;
-        const emergencyName = document.getElementById('emergencyName').value;
-        const emergencyPhone = document.getElementById('emergencyPhone').value;
-        const digitalSignature = document.getElementById('digitalSignature').value;
-        
-        // 必須フィールドのチェック
-        if (!parentName || !parentEmail || !parentPhone || !relationship || !emergencyName || !emergencyPhone || !digitalSignature) {
-            alert('Please complete all parental consent fields.');
-            return;
-        }
-        
-        // デジタル署名のチェック
-        if (parentName.toLowerCase() !== digitalSignature.toLowerCase()) {
-            alert('Digital signature must match the parent/guardian name exactly.');
-            return;
-        }
-        
-        // 同意チェックボックスのチェック
-        const consentBoxes = ['consent1', 'consent2', 'consent3', 'consent4'];
-        for (const boxId of consentBoxes) {
-            if (!document.getElementById(boxId).checked) {
-                alert('Please check all parental consent boxes.');
+    const applicationForm = document.getElementById('applicationForm');
+    if (applicationForm) {
+        applicationForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const age = parseInt(document.getElementById('appAge').value);
+            const termsAgreed = document.getElementById('termsAgreement').checked;
+            
+            if (!termsAgreed) {
+                alert('You must agree to the Terms of Service to register.');
                 return;
             }
-        }
-        
-        try {
-            // 親権者同意書をSupabaseに保存
-            if (typeof SupabaseDB !== 'undefined') {
-                const consentData = {
-                    minor_name: formData.name,
-                    minor_age: formData.age,
-                    minor_email: formData.email,
-                    parent_name: parentName,
-                    parent_email: parentEmail,
-                    parent_phone: parentPhone,
-                    relationship,
-                    emergency_name: emergencyName,
-                    emergency_phone: emergencyPhone,
-                    signature_date: new Date().toISOString().split('T')[0]
-                };
-                
-                const consentRecord = await SupabaseDB.createParentalConsent(consentData);
-                parentalConsentId = consentRecord.id;
-                
-                // 親に確認メールを送信（エラーが出ても処理を続行）
-                try {
-                    if (typeof EmailService !== 'undefined') {
-                        const emailService = new EmailService();
-                        await emailService.sendParentalConsentConfirmation(parentEmail, formData.name);
-                        alert('Parental consent saved successfully! A confirmation email has been sent to the parent.');
-                    } else {
-                        alert('Parental consent saved successfully!');
-                    }
-                } catch (emailError) {
-                    console.error('Email sending failed:', emailError);
-                    alert('Parental consent saved successfully! (Email notification failed, but data is saved)');
-                }
+            
+            if (age < 18) {
+                alert('Since you are under 18, you will need parental consent to apply. This feature is still being implemented.');
+                return;
             }
-        } catch (error) {
-            console.error('Error saving parental consent:', error);
-            alert('Error saving parental consent. Please try again.');
-            return;
-        }
+            
+            const formData = {
+                gender: document.getElementById('appGender').value,
+                name: document.getElementById('appName').value,
+                email: document.getElementById('appEmail').value,
+                age: document.getElementById('appAge').value,
+                location: document.getElementById('appLocation').value,
+                introduction: document.getElementById('appIntroduction').value,
+                startDate: document.getElementById('appStartDate').value,
+                endDate: document.getElementById('appEndDate').value
+            };
+            
+            // フォームデータを保存
+            window.currentFounderData = formData;
+            
+            // データをコンソールに表示
+            console.log('Founder data:', formData);
+            
+            // フォームを非表示にして成功メッセージを表示
+            applicationForm.style.display = 'none';
+            document.getElementById('applicationSuccess').style.display = 'block';
+            
+            try {
+                await submitApplication(formData);
+            } catch (error) {
+                console.error('Error submitting application:', error);
+            }
+        });
     }
     
-    // 創設者を登録（親権者同意書IDを含む）
-    const founderDataWithConsent = { ...formData, parentalConsentId };
-    await registerFounder(founderDataWithConsent);
-    
-    // 登録完了メッセージを表示（マッチングは手動で実行）
-    showSuccessNotification('Registration completed! Now click "Find My Match" to see available hacker houses.');
-    
-    // Find My Matchボタンを表示し、データを保存
-    document.getElementById('findMatchBtn').style.display = 'block';
-    window.currentFounderData = founderDataWithConsent;
+    const houseForm = document.getElementById('houseForm');
+    if (houseForm) {
+        houseForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+             
+            const formData = {
+                name: document.getElementById('houseName').value,
+                location: document.getElementById('houseLocation').value,
+                email: document.getElementById('houseEmail').value,
+                region: document.getElementById('houseRegion').value,
+                description: document.getElementById('houseDescription').value,
+                capacity: document.getElementById('houseCapacity').value
+            };
+            
+            if (!formData.name || !formData.location || !formData.email || !formData.region || !formData.description || !formData.capacity) {
+                alert('Please fill in all required fields');
+                return;
+            }
+            
+            try {
+                // ハッカーハウスを登録
+                await registerHackerHouse(formData);
+            } catch (error) {
+                console.error('Error registering house:', error);
+            }
+        });
+    }
 });
+
+// Founder Application Functions
+async function submitApplication(formData) {
+    console.log('Submitting application:', formData);
+    
+    // Here you would typically send the data to your backend
+    // For now, we'll just show a success message
+    document.getElementById('applicationForm').style.display = 'none';
+    document.getElementById('applicationSuccess').style.display = 'block';
+    
+    // In a real implementation, you would send the application data to your backend here
+    // For example, using fetch or axios to send a POST request
+}
+
+// House Registration Functions
+async function registerHackerHouse(formData) {
+    console.log('Registering hacker house:', formData);
+    
+    // Here you would typically send the data to your backend
+    // For now, we'll just show a success message
+    document.getElementById('houseForm').style.display = 'none';
+    document.getElementById('houseSuccess').style.display = 'block';
+    
+    // In a real implementation, you would send the house data to your backend here
+    // For example, using fetch or axios to send a POST request
+}
 
 // Find My Matchボタンのイベントリスナー
 document.getElementById('findMatchBtn').addEventListener('click', function() {
@@ -330,13 +302,10 @@ document.getElementById('findMatchBtn').addEventListener('click', function() {
 
 // ハッカーハウス一覧を表示
 function showMatchingResults(formData) {
-    // 結果セクションを表示（ページは切り替えない）
     document.getElementById('results').classList.remove('hidden');
     
-    // 登録済みハッカーハウスを全部表示
     const allHouses = window.hackerHouses || [];
     
-    // ハウスがない場合はサンプルを表示
     const housesToShow = allHouses.length > 0 ? allHouses : [
         {
             name: "Sample House",
@@ -347,7 +316,6 @@ function showMatchingResults(formData) {
         }
     ];
     
-    // マッチ結果を表示
     const resultsContainer = document.getElementById('matches');
     
     resultsContainer.innerHTML = housesToShow.map(house => `
@@ -1101,31 +1069,39 @@ document.getElementById('updateHouseForm')?.addEventListener('submit', async fun
 });
 
     showPage('home');
-    await updateHomeStats(); // 統計情報を更新
-    await displayHouseList(); // ハウス一覧も初期化
-    
+    // Wrap await calls in an async IIFE
+    (async () => {
+        await updateHomeStats(); // 統計情報を更新
+        await displayHouseList(); // ハウス一覧も初期化
+    })();
     // 年齢フィールドにイベントリスナーを追加
     const ageField = document.getElementById('age');
     if (ageField) {
         ageField.addEventListener('input', checkAge);
         ageField.addEventListener('change', checkAge);
     }
-    
 
-});
+    // ...
+
+    showPage('home');
+    // Wrap await calls in an async IIFE
+    (async () => {
+        await updateHomeStats(); // 統計情報を更新
+        await displayHouseList(); // ハウス一覧も初期化
+    })();
+
+    // ...
 
 // 成功通知を表示する関数
 function showSuccessNotification(message) {
     const notification = document.getElementById('successNotification');
-    const messageElement = document.getElementById('successMessage');
-    
-    messageElement.textContent = message;
+    notification.textContent = message;
     notification.classList.remove('hidden');
     
-    // 5秒後に自動で非表示
+    // 3秒後に通知を非表示にする
     setTimeout(() => {
         notification.classList.add('hidden');
-    }, 5000);
+    }, 3000);
 }
 
 // ハッカーハウス一覧を読み込む
@@ -1201,13 +1177,13 @@ function loadHackerHousesList() {
     }
 }
 
-// 応募フォーム送信
-function submitApplications() {
-    // フォームデータを取得
+// Founder Application Submission Function
+async function submitApplications() {
+    // Get form data
     const formData = {
         name: document.getElementById('appName').value,
         email: document.getElementById('appEmail').value,
-        age: document.getElementById('appAge').value,
+        age: parseInt(document.getElementById('appAge').value),
         location: document.getElementById('appLocation').value,
         project: document.getElementById('appProject').value,
         startDate: document.getElementById('appStartDate').value,
@@ -1215,64 +1191,96 @@ function submitApplications() {
         message: document.getElementById('appMessage').value
     };
     
-    // 必須フィールドのバリデーション
+    // Validate required fields
     if (!formData.name || !formData.email || !formData.age || !formData.location || !formData.project || !formData.startDate || !formData.endDate) {
         alert('Please fill in all required fields.');
         return;
     }
     
-    // 選択されたハウスを取得
-    const selectedHouses = Array.from(document.querySelectorAll('.house-checkbox:checked')).map(cb => ({
+    // Get selected houses
+    let selectedHouses = Array.from(document.querySelectorAll('.house-checkbox:checked')).map(cb => ({
         name: cb.dataset.name,
         email: cb.dataset.email
     }));
     
+    // If no houses are selected (direct application), send to all houses
     if (selectedHouses.length === 0) {
-        alert('Please select at least one hacker house.');
-        return;
+        const allHouses = window.hackerHouses || [
+            {
+                name: "Tokyo Tech House",
+                email: "hello@tokyotech.house"
+            },
+            {
+                name: "SF Startup Hub",
+                email: "apply@sfhub.co"
+            },
+            {
+                name: "Berlin Builders",
+                email: "team@berlinbuilders.com"
+            }
+        ];
+        selectedHouses = allHouses;
     }
     
-    // メール内容を作成
-    const emailSubject = `Application from ${formData.name} - Homeless Founders`;
-    const emailBody = `Hi there!
-
-I'm ${formData.name} and I'd like to apply to stay at your hacker house.
-
-ABOUT ME:
-- Name: ${formData.name}
-- Email: ${formData.email}
-- Age: ${formData.age}
-- Current Location: ${formData.location}
-
-MY PROJECT:
-${formData.project}
-
-DATES:
-From: ${formData.startDate}
-To: ${formData.endDate}
-
-${formData.message ? `ADDITIONAL MESSAGE:
-${formData.message}
-
-` : ''}Please let me know if you have availability and would like to discuss further!
-
-Best regards,
-${formData.name}
-
----
-Sent via Homeless Founders Platform`;
-    
-    // 各選択されたハウスにメール送信
-    selectedHouses.forEach(house => {
-        const mailtoLink = `mailto:${house.email}?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody)}`;
-        window.open(mailtoLink, '_blank');
-    });
-    
-    // 成功メッセージを表示
-    document.getElementById('applicationSuccess').classList.remove('hidden');
-    document.getElementById('applicationForm').style.display = 'none';
-    document.querySelector('#applyPage .simple-card:nth-child(3)').style.display = 'none';
-    document.getElementById('submitApplications').style.display = 'none';
+    try {
+        // Create founder record in database
+        const founderData = {
+            name: formData.name,
+            email: formData.email,
+            age: formData.age,
+            product: formData.project,
+            startDate: formData.startDate,
+            endDate: formData.endDate,
+            region: 'other' // Default region, could be improved with a region selector
+        };
+        
+        // Check if applicant is a minor
+        let parentalConsentId = null;
+        if (formData.age < 18) {
+            // In a real implementation, you would retrieve the parental consent ID
+            // For now, we'll just note that it's needed
+            console.log('Minor applicant - parental consent required');
+        }
+        
+        // Save founder to database
+        const founderRecord = await SupabaseDB.createFounder(founderData);
+        console.log('Founder created:', founderRecord);
+        
+        // Send email notifications to selected houses
+        const emailService = new EmailService();
+        for (const house of selectedHouses) {
+            // In a real implementation, you would retrieve the actual house data from the database
+            const houseData = {
+                name: house.name,
+                email: house.email
+            };
+            
+            try {
+                await emailService.sendApplicationEmail(founderData, houseData, parentalConsentId);
+                console.log(`Email sent to ${house.name}`);
+            } catch (emailError) {
+                console.error(`Failed to send email to ${house.name}:`, emailError);
+            }
+        }
+        
+        // Show success message
+        document.getElementById('applicationSuccess').classList.remove('hidden');
+        // Hide form if on apply page
+        if (document.getElementById('applicationForm')) {
+            document.getElementById('applicationForm').style.display = 'none';
+            document.querySelector('#applyPage .simple-card:nth-child(3)').style.display = 'none';
+            document.getElementById('submitApplications').style.display = 'none';
+        }
+        // Hide form if on browse houses page
+        if (document.getElementById('directApplicationForm')) {
+            document.getElementById('directApplicationForm').classList.add('hidden');
+            document.getElementById('housesList').classList.remove('hidden');
+            document.getElementById('toggleForm').textContent = 'Apply Directly';
+        }
+    } catch (error) {
+        console.error('Application submission error:', error);
+        alert('Error submitting application. Please try again.');
+    }
 }
 
 // ページ読み込み時の初期化

@@ -47,11 +47,11 @@
     <!-- Navigation -->
     <nav class="simple-nav">
         <div class="container mx-auto px-4">
-            <div class="flex justify-between items-center py-4">
-                <div class="flex items-center space-x-4">
+            <div class="flex flex-col sm:flex-row justify-between items-center py-4">
+                <div class="flex items-center space-x-4 mb-4 sm:mb-0">
                     <span class="text-xl font-bold">Homeless Founders</span>
                 </div>
-                <div class="flex space-x-2">
+                <div class="flex flex-wrap justify-center gap-2">
                     <a href="/index.html" class="px-3 py-1 simple-button font-mono text-sm">Home</a>
                     <a href="/browse-houses.html" class="px-3 py-1 simple-button font-mono text-sm">Browse Houses</a>
                     <a href="/apply.html" class="px-3 py-1 simple-button font-mono text-sm">Apply</a>
@@ -77,13 +77,14 @@
                         
                         <div>
                             <label class="block text-sm font-bold mb-2">Location *</label>
-                            <input type="text" id="houseLocation" required class="w-full px-3 py-2 simple-input" placeholder="City, Country">
+                            <input type="text" id="houseLocation" required class="w-full px-3 py-2 simple-input" placeholder="Full address">
+                            <p class="text-xs mt-1">This will be kept private until a founder is approved to stay</p>
                         </div>
                         
                         <div>
                             <label class="block text-sm font-bold mb-2">Contact Email *</label>
                             <input type="email" id="houseEmail" required class="w-full px-3 py-2 simple-input" placeholder="contact@yourhouse.com">
-                            <p class="text-xs mt-1">This email will be used for editing your house information later</p>
+                            <p class="text-xs mt-1">Founders will send their applications to this email</p>
                         </div>
                         
                         <div>
@@ -101,53 +102,14 @@
                         
                         <div>
                             <label class="block text-sm font-bold mb-2">Description *</label>
-                            <textarea id="houseDescription" required class="w-full px-3 py-2 simple-input h-24" placeholder="Describe your hacker house community"></textarea>
-                        </div>
-                        
-                        <div class="grid md:grid-cols-2 gap-6">
-                            <div>
-                                <label class="block text-sm font-bold mb-2">Capacity *</label>
-                                <input type="number" id="houseCapacity" required class="w-full px-3 py-2 simple-input" placeholder="Number of founders" min="1">
-                            </div>
-                            <div>
-                                <label class="block text-sm font-bold mb-2">Monthly Rent (USD)</label>
-                                <input type="number" id="houseRent" class="w-full px-3 py-2 simple-input" placeholder="e.g. 800" min="0">
-                            </div>
+                            <textarea id="houseDescription" required class="w-full px-3 py-2 simple-input h-32" placeholder="Describe your hacker house community, house rules, and what makes it special"></textarea>
+                            <p class="text-xs mt-1 text-red-600 font-bold">⚠️ Important: Please note any house rules, safety considerations, or requirements for residents in your description</p>
                         </div>
                         
                         <div>
-                            <label class="block text-sm font-bold mb-2">Preferences</label>
-                            <textarea id="housePreferences" class="w-full px-3 py-2 simple-input h-24" placeholder="What type of founders are you looking for?"></textarea>
-                        </div>
-                        
-                        <div>
-                            <label class="block text-sm font-bold mb-2">Facilities</label>
-                            <div class="grid grid-cols-2 gap-2">
-                                <label class="flex items-center">
-                                    <input type="checkbox" value="wifi" class="mr-2">
-                                    <span>High-speed WiFi</span>
-                                </label>
-                                <label class="flex items-center">
-                                    <input type="checkbox" value="printer" class="mr-2">
-                                    <span>Printer/Scanner</span>
-                                </label>
-                                <label class="flex items-center">
-                                    <input type="checkbox" value="meeting" class="mr-2">
-                                    <span>Meeting Rooms</span>
-                                </label>
-                                <label class="flex items-center">
-                                    <input type="checkbox" value="kitchen" class="mr-2">
-                                    <span>Kitchen</span>
-                                </label>
-                                <label class="flex items-center">
-                                    <input type="checkbox" value="storage" class="mr-2">
-                                    <span>Storage Space</span>
-                                </label>
-                                <label class="flex items-center">
-                                    <input type="checkbox" value="parking" class="mr-2">
-                                    <span>Parking</span>
-                                </label>
-                            </div>
+                            <label class="block text-sm font-bold mb-2">Capacity *</label>
+                            <input type="number" id="houseCapacity" required class="w-full px-3 py-2 simple-input" placeholder="Number of founders" min="1">
+                            <p class="text-xs mt-1">Maximum number of founders that can stay at once</p>
                         </div>
                         
                         <div class="text-center">

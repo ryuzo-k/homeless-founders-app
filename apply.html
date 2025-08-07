@@ -47,11 +47,11 @@
     <!-- Navigation -->
     <nav class="simple-nav">
         <div class="container mx-auto px-4">
-            <div class="flex justify-between items-center py-4">
-                <div class="flex items-center space-x-4">
+            <div class="flex flex-col sm:flex-row justify-between items-center py-4">
+                <div class="flex items-center space-x-4 mb-4 sm:mb-0">
                     <span class="text-xl font-bold">Homeless Founders</span>
                 </div>
-                <div class="flex space-x-2">
+                <div class="flex flex-wrap justify-center gap-2">
                     <a href="/index.html" class="px-3 py-1 simple-button font-mono text-sm">Home</a>
                     <a href="/browse-houses.html" class="px-3 py-1 simple-button font-mono text-sm">Browse Houses</a>
                     <a href="/apply.html" class="px-3 py-1 simple-button font-mono text-sm bg-blue-100 text-blue-800">Apply</a>
@@ -74,59 +74,92 @@
                     <form id="applicationForm" class="space-y-6">
                         <div class="grid md:grid-cols-2 gap-6">
                             <div>
-                                <label class="block text-sm font-bold mb-2">Name *</label>
-                                <input type="text" id="appName" required class="w-full px-3 py-2 simple-input" placeholder="Your full name">
+                                <label class="block text-sm font-bold mb-2">Gender *</label>
+                                <select id="appGender" required class="w-full px-3 py-2 simple-input">
+                                    <option value="">Select your gender</option>
+                                    <option value="male">Male</option>
+                                    <option value="female">Female</option>
+                                    <option value="other">Other</option>
+                                    <option value="prefer-not-to-say">Prefer not to say</option>
+                                </select>
                             </div>
+                            
                             <div>
-                                <label class="block text-sm font-bold mb-2">Email *</label>
-                                <input type="email" id="appEmail" required class="w-full px-3 py-2 simple-input" placeholder="your@email.com">
+                                <label class="block text-sm font-bold mb-2">Your Name *</label>
+                                <input type="text" id="appName" required class="w-full px-3 py-2 simple-input" placeholder="Enter your full name">
                             </div>
-                        </div>
-                        
-                        <div class="grid md:grid-cols-2 gap-6">
-                            <div>
-                                <label class="block text-sm font-bold mb-2">Age *</label>
-                                <input type="number" id="appAge" required class="w-full px-3 py-2 simple-input" placeholder="Your age" min="1">
-                            </div>
+                            
                             <div>
                                 <label class="block text-sm font-bold mb-2">Location *</label>
-                                <input type="text" id="appLocation" required class="w-full px-3 py-2 simple-input" placeholder="City, Country">
+                                <input type="text" id="location" required class="w-full px-3 py-2 simple-input" placeholder="City, Country">
                             </div>
-                        </div>
-                        
-                        <div>
-                            <label class="block text-sm font-bold mb-2">Project/Product Description *</label>
-                            <textarea id="appProject" required class="w-full px-3 py-2 simple-input h-32" placeholder="Describe your project or product you're building"></textarea>
-                        </div>
-                        
-                        <div class="grid md:grid-cols-2 gap-6">
+                            
                             <div>
-                                <label class="block text-sm font-bold mb-2">Start Date *</label>
-                                <input type="date" id="appStartDate" required class="w-full px-3 py-2 simple-input">
+                                <label class="block text-sm font-bold mb-2">Email Address *</label>
+                                <input type="email" id="appEmail" required class="w-full px-3 py-2 simple-input" placeholder="your.email@example.com">
                             </div>
+                            
+                            <div class="grid grid-cols-2 gap-6">
+                                <div>
+                                    <label class="block text-sm font-bold mb-2">Age *</label>
+                                    <input type="number" id="appAge" required class="w-full px-3 py-2 simple-input" placeholder="Enter your age" min="15" max="100">
+                                    <p class="text-xs mt-1">If you're under 18, parental consent will be required</p>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-bold mb-2">Preferred Location *</label>
+                                    <select id="appLocation" required class="w-full px-3 py-2 simple-input">
+                                        <option value="">Select your preferred region</option>
+                                        <option value="tokyo">Tokyo</option>
+                                        <option value="sf">San Francisco</option>
+                                        <option value="nyc">New York City</option>
+                                        <option value="london">London</option>
+                                        <option value="singapore">Singapore</option>
+                                        <option value="other">Other</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
                             <div>
-                                <label class="block text-sm font-bold mb-2">End Date *</label>
-                                <input type="date" id="appEndDate" required class="w-full px-3 py-2 simple-input">
-                                <div id="appDurationDisplay" class="text-sm mt-1"></div>
+                                <label class="block text-sm font-bold mb-2">Self-Introduction *</label>
+                                <textarea id="appProject" required class="w-full px-3 py-2 simple-input h-32" placeholder="Tell us about yourself, your startup idea, and why you want to join a hacker house"></textarea>
                             </div>
-                        </div>
+                            
+                            <div class="grid grid-cols-2 gap-6">
+                                <div>
+                                    <label class="block text-sm font-bold mb-2">Start Date *</label>
+                                    <input type="date" id="appStartDate" required class="w-full px-3 py-2 simple-input">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-bold mb-2">End Date *</label>
+                                    <input type="date" id="appEndDate" required class="w-full px-3 py-2 simple-input">
+                                </div>
+                            </div>
+                            
+                            <div id="durationDisplay" class="text-sm"></div>
+                            
+                            <div>
+                                <label class="block text-sm font-bold mb-2">Additional Message</label>
+                                <textarea id="appMessage" class="w-full px-3 py-2 simple-input h-24" placeholder="Any additional information you'd like to share with the hacker houses"></textarea>
+                            </div>
+                            
+                            <div class="flex items-center">
+                                <input type="checkbox" id="termsAgreement" class="mr-2">
+                                <label for="termsAgreement" class="text-sm">I agree to the Terms of Service *</label>
+                            </div>
+                            <div class="text-xs text-gray-600 mt-1">
+                                By agreeing, you acknowledge that this platform is not liable for any damages or issues that may arise during your stay
+                            </div>
+                            
+                            <div class="text-center">
+                                <button type="submit" class="simple-button px-6 py-3 font-mono">Apply Now</button>
+                            </div>
+                        </form>
                         
-                        <div>
-                            <label class="block text-sm font-bold mb-2">Message to Houses</label>
-                            <textarea id="appMessage" class="w-full px-3 py-2 simple-input h-24" placeholder="Any additional information you'd like to share"></textarea>
+                        <div id="applicationSuccess" class="hidden mt-6 p-4 bg-green-100 text-green-800 rounded-lg text-center">
+                            <h2 class="text-xl font-bold mb-2">Application Submitted!</h2>
+                            <p>Thank you for your application. Hacker houses will contact you directly.</p>
                         </div>
-                        
-                        <div class="text-center">
-                            <button type="submit" class="simple-button px-6 py-3 font-mono">Submit Applications</button>
-                        </div>
-                    </form>
-                </div>
-                
-                <!-- Success Message -->
-                <div id="applicationSuccess" class="simple-card p-8 text-center hidden">
-                    <h3 class="text-xl font-bold mb-4">Applications Submitted!</h3>
-                    <p class="mb-6">Your applications have been sent to the selected houses. They will contact you directly.</p>
-                    <button onclick="location.reload()" class="simple-button px-6 py-3 font-mono">Submit Another Application</button>
+                    </div>
                 </div>
                 
                 <!-- Houses List -->
