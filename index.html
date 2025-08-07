@@ -6,9 +6,6 @@
     <title>Homeless Founders - Global Hacker House Matching</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <title>Homeless Founders</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     <style>
         body {
@@ -56,9 +53,10 @@
                 </div>
                 <div class="flex space-x-2">
                     <button onclick="showPage('home')" class="px-3 py-1 simple-button font-mono text-sm">Home</button>
-                    <button onclick="showPage('founder')" class="px-3 py-1 simple-button font-mono text-sm">Founders</button>
-                    <button onclick="showPage('list')" class="px-3 py-1 simple-button font-mono text-sm">Browse</button>
-                    <button onclick="showPage('house')" class="px-3 py-1 simple-button font-mono text-sm">List</button>
+                    <button onclick="showPage('founder')" class="px-3 py-1 simple-button font-mono text-sm">Find House</button>
+                    <button onclick="showPage('list')" class="px-3 py-1 simple-button font-mono text-sm">Browse Houses</button>
+                    <button onclick="showPage('house')" class="px-3 py-1 simple-button font-mono text-sm">List Your House</button>
+                    <button onclick="showPage('editHouse')" class="px-3 py-1 simple-button font-mono text-sm">Edit House</button>
                 </div>
             </div>
         </div>
@@ -141,6 +139,12 @@
                     </div>
 
                     <div>
+                        <label for="email" class="block text-sm font-bold mb-2">Email:</label>
+                        <input type="email" id="email" name="email" required class="w-full px-3 py-2 simple-input" placeholder="your@email.com">
+                        <p class="text-xs mt-1">* Houses will contact you directly via this email</p>
+                    </div>
+
+                    <div>
                         <label for="age" class="block text-sm font-bold mb-2">Age:</label>
                         <input type="number" id="age" name="age" required min="13" max="100" class="w-full px-3 py-2 simple-input" placeholder="Your age">
                     </div>
@@ -179,6 +183,19 @@
                             <option value="london">London (GMT/BST)</option>
                             <option value="singapore">Singapore (SGT)</option>
                         </select>
+                    </div>
+
+                    <!-- Terms Agreement -->
+                    <div class="space-y-3">
+                        <label class="flex items-start space-x-3">
+                            <input type="checkbox" id="termsAgreement" required class="mt-1">
+                            <span class="text-sm">I have read and agree to the <a href="terms.html" target="_blank" class="underline font-bold">Terms of Service</a>. I understand that this platform is for introductions only and I assume all risks.</span>
+                        </label>
+                        
+                        <div id="minorWarning" class="hidden p-3 border-2 border-red-500 bg-red-50">
+                            <p class="text-sm font-bold text-red-700">⚠️ PARENTAL CONSENT REQUIRED</p>
+                            <p class="text-sm text-red-600">Users under 18 must have parental consent. Please complete the <a href="parental-consent.html" target="_blank" class="underline font-bold">Parental Consent Form</a> before proceeding.</p>
+                        </div>
                     </div>
 
                     <button type="submit" class="w-full simple-button py-3 px-4 font-mono">
@@ -324,15 +341,9 @@
                         </div>
 
                         <div>
-                            <label for="houseCapacity" class="block text-sm font-bold mb-2">Capacity:</label>
-                            <select id="houseCapacity" name="houseCapacity" required class="w-full px-3 py-2 simple-input">
-                                <option value="">Please select</option>
-                                <option value="1">1 person</option>
-                                <option value="2">2 people</option>
-                                <option value="3-5">3-5 people</option>
-                                <option value="6-10">6-10 people</option>
-                                <option value="10+">10+ people</option>
-                            </select>
+                            <label for="houseCapacity" class="block text-sm font-bold mb-2">Maximum Capacity:</label>
+                            <input type="number" id="houseCapacity" name="houseCapacity" required min="1" max="50" class="w-full px-3 py-2 simple-input" placeholder="e.g. 8">
+                            <p class="text-xs mt-1">Maximum people you can accommodate at once</p>
                         </div>
 
                         <div>
@@ -388,6 +399,8 @@
                 </div>
             </div>
         </div>
+
+
     </div>
 
     <!-- House Details Modal -->
@@ -403,8 +416,79 @@
                 <!-- Content will be populated by JavaScript -->
             </div>
         </div>
+
+        <!-- Edit House Page -->
+        <div id="editHousePage" class="page hidden">
+            <div class="max-w-2xl mx-auto simple-card p-8">
+                <h2 class="text-2xl font-bold text-center mb-8">Edit Your House</h2>
+                
+                <!-- Email Verification -->
+                <div id="emailVerification" class="space-y-4">
+                    <div>
+                        <label for="verifyEmail" class="block text-sm font-bold mb-2">Enter your house's registered email:</label>
+                        <input type="email" id="verifyEmail" required class="w-full px-3 py-2 simple-input" placeholder="your@email.com">
+                        <p class="text-xs mt-1">This must match the email you used when registering your house</p>
+                    </div>
+                    <button onclick="verifyHouseEmail()" class="w-full simple-button py-3 px-4 font-mono">
+                        Verify & Load House Info
+                    </button>
+                </div>
+
+                <!-- Edit Form (Hidden initially) -->
+                <div id="editHouseForm" class="hidden space-y-6">
+                    <div class="border-t-2 border-black pt-6">
+                        <h3 class="text-lg font-bold mb-4">Update House Information</h3>
+                        
+                        <form id="updateHouseForm" class="space-y-4">
+                            <div>
+                                <label for="editHouseName" class="block text-sm font-bold mb-2">House Name:</label>
+                                <input type="text" id="editHouseName" required class="w-full px-3 py-2 simple-input">
+                            </div>
+
+                            <div>
+                                <label for="editHouseLocation" class="block text-sm font-bold mb-2">Location:</label>
+                                <input type="text" id="editHouseLocation" required class="w-full px-3 py-2 simple-input">
+                            </div>
+
+                            <div>
+                                <label for="editHouseDescription" class="block text-sm font-bold mb-2">Description:</label>
+                                <textarea id="editHouseDescription" required rows="3" class="w-full px-3 py-2 simple-input"></textarea>
+                            </div>
+
+                            <div>
+                                <label for="editHouseCapacity" class="block text-sm font-bold mb-2">Maximum Capacity:</label>
+                                <input type="number" id="editHouseCapacity" required min="1" max="50" class="w-full px-3 py-2 simple-input">
+                            </div>
+
+                            <div class="flex space-x-4">
+                                <button type="submit" class="flex-1 simple-button py-3 px-4 font-mono">
+                                    Update House
+                                </button>
+                                <button type="button" onclick="cancelEdit()" class="flex-1 simple-button py-3 px-4 font-mono">
+                                    Cancel
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
+    <!-- Footer -->
+    <footer class="border-t-2 border-black mt-16 py-8">
+        <div class="container mx-auto px-4 text-center">
+            <div class="flex flex-wrap justify-center space-x-6 text-sm">
+                <a href="terms.html" target="_blank" class="underline hover:no-underline">Terms of Service</a>
+                <a href="parental-consent.html" target="_blank" class="underline hover:no-underline">Parental Consent (Under 18)</a>
+                <span>Contact: legal@homelessfounders.com</span>
+            </div>
+            <p class="text-xs mt-4 opacity-75">© 2025 Homeless Founders. Platform for introductions only. Users assume all risks.</p>
+        </div>
+    </footer>
+
+    <!-- Supabase -->
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <script src="supabase-config.js"></script>
     <script src="script.js"></script>
 </body>
