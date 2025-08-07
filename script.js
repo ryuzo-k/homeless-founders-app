@@ -377,7 +377,7 @@ function showMatchingResults(formData) {
             <p class="text-sm mb-4">${house.description}</p>
             <div class="flex justify-between items-center">
                 <span class="text-sm">Capacity: ${house.capacity} founders</span>
-                <button onclick="applyToHouse('${house.name}', '${JSON.stringify(formData).replace(/'/g, "\\'")}')"
+                <button onclick="alert('Application sent to ${house.name}! They will contact you soon.')"
                         class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
                     Apply Now
                 </button>
