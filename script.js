@@ -1210,6 +1210,8 @@ function createParentalConsentForm() {
 
 // 保護者同意書フォームを表示する
 function showParentalConsentForm(founderData, selectedHouses) {
+    console.log('showParentalConsentForm called with:', founderData, selectedHouses);
+    
     // Store data for later use
     window.pendingApplication = {
         founderData,
@@ -1439,6 +1441,8 @@ function loadHackerHousesList() {
 
 // Founder Application Submission Function
 async function submitApplications() {
+    console.log('submitApplications called');
+    
     // Get form data
     const formData = {
         name: document.getElementById('appName').value,
@@ -1450,6 +1454,9 @@ async function submitApplications() {
         endDate: document.getElementById('appEndDate').value,
         message: document.getElementById('appMessage').value
     };
+    
+    console.log('Form data:', formData);
+    console.log('Age is:', formData.age, 'Type:', typeof formData.age);
     
     // Validate required fields
     if (!formData.name || !formData.email || !formData.age || !formData.location || !formData.project || !formData.startDate || !formData.endDate) {
@@ -1485,10 +1492,15 @@ async function submitApplications() {
         
         // Check if applicant is a minor and handle parental consent
         let parentalConsentId = null;
+        console.log('Checking if minor:', formData.age, '<', 18, '=', formData.age < 18);
+        
         if (formData.age < 18) {
+            console.log('Minor detected, showing parental consent form');
             // Show parental consent form instead of sending email
             showParentalConsentForm(formData, selectedHouses);
             return;
+        } else {
+            console.log('Adult applicant, proceeding normally');
         }
         
         // Save founder to database
