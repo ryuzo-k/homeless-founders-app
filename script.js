@@ -310,13 +310,19 @@ document.getElementById('founderForm').addEventListener('submit', async function
                 const consentRecord = await SupabaseDB.createParentalConsent(consentData);
                 parentalConsentId = consentRecord.id;
                 
-                // 親に確認メールを送信
-                if (typeof EmailService !== 'undefined') {
-                    const emailService = new EmailService();
-                    await emailService.sendParentalConsentConfirmation(parentEmail, formData.name);
+                // 親に確認メールを送信（エラーが出ても処理を続行）
+                try {
+                    if (typeof EmailService !== 'undefined') {
+                        const emailService = new EmailService();
+                        await emailService.sendParentalConsentConfirmation(parentEmail, formData.name);
+                        alert('Parental consent saved successfully! A confirmation email has been sent to the parent.');
+                    } else {
+                        alert('Parental consent saved successfully!');
+                    }
+                } catch (emailError) {
+                    console.error('Email sending failed:', emailError);
+                    alert('Parental consent saved successfully! (Email notification failed, but data is saved)');
                 }
-                
-                alert('Parental consent saved successfully! A confirmation email has been sent to the parent.');
             }
         } catch (error) {
             console.error('Error saving parental consent:', error);
@@ -415,8 +421,13 @@ async function applyToHouse(houseName, founderDataStr) {
                 parentalConsentId
             });
             
-            // メール通知を送信
-            await SupabaseDB.sendApplicationEmail(founderData, house, parentalConsentId);
+            // メール通知を送信（エラーが出ても処理を続行）
+            try {
+                await SupabaseDB.sendApplicationEmail(founderData, house, parentalConsentId);
+            } catch (emailError) {
+                console.error('Application email failed:', emailError);
+                // メール送信が失敗しても申し込みは続行
+            }
         }
         
         // 成人の場合は通常の申し込み
