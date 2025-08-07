@@ -338,6 +338,8 @@ document.getElementById('founderForm').addEventListener('submit', async function
     // マッチング実行
     performMatching(founderDataWithConsent);
 });
+
+// グローバルスコープに移動
 function performMatching(formData) {
     const matches = simulateAIMatching(formData);
     
