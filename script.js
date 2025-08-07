@@ -336,7 +336,7 @@ document.getElementById('founderForm').addEventListener('submit', async function
     await registerFounder(founderDataWithConsent);
     
     // 登録完了メッセージを表示（マッチングは手動で実行）
-    alert('Registration completed! Now click "Find My Match" to see available hacker houses.');
+    showSuccessNotification('Registration completed! Now click "Find My Match" to see available hacker houses.');
     
     // Find My Matchボタンを表示し、データを保存
     document.getElementById('findMatchBtn').style.display = 'block';
@@ -354,8 +354,7 @@ document.getElementById('findMatchBtn').addEventListener('click', function() {
 
 // ハッカーハウス一覧を表示
 function showMatchingResults(formData) {
-    // 結果ページを表示
-    document.querySelectorAll('.page').forEach(page => page.classList.add('hidden'));
+    // 結果セクションを表示（ページは切り替えない）
     document.getElementById('results').classList.remove('hidden');
     
     // 登録済みハッカーハウスを全部表示
@@ -1140,3 +1139,17 @@ document.addEventListener('DOMContentLoaded', async function() {
     
 
 });
+
+// 成功通知を表示する関数
+function showSuccessNotification(message) {
+    const notification = document.getElementById('successNotification');
+    const messageElement = document.getElementById('successMessage');
+    
+    messageElement.textContent = message;
+    notification.classList.remove('hidden');
+    
+    // 5秒後に自動で非表示
+    setTimeout(() => {
+        notification.classList.add('hidden');
+    }, 5000);
+}
