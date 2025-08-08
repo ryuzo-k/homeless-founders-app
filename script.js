@@ -375,12 +375,12 @@ function showMatchingResults(formData) {
                 </div>
                 <div class="text-right">
                     <div class="text-sm font-bold text-green-600">Available</div>
-                    <div class="text-xs">${house.capacity} spots</div>
+
                 </div>
             </div>
             <p class="text-sm mb-4">${house.description}</p>
             <div class="flex justify-between items-center">
-                <span class="text-sm">Capacity: ${house.capacity} founders</span>
+
                 <button onclick="alert('Application sent to ${house.name}! They will contact you soon.')"
                         class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
                     Apply Now
@@ -649,17 +649,10 @@ async function displayHouseList(houses = null) {
             <div class="space-y-2">
                 <div class="flex justify-between items-center text-sm">
                     <div>
-                        ${house.capacity ? `Capacity: ${house.capacity}` : ''}
+                        <!-- Capacity info removed -->
                     </div>
                     <div class="font-mono">
-                        ${(() => {
-                            const capacity = parseInt(house.capacity || 10);
-                            const currentOccupancy = parseInt(house.currentOccupancy || 0);
-                            const availableSpots = capacity - currentOccupancy;
-                            return availableSpots > 0 ? 
-                                `🟢 ${availableSpots} spots` : 
-                                '🔴 Full';
-                        })()}
+                        <!-- Availability status removed -->
                     </div>
                 </div>
                 <button onclick="contactHouse('${house.name}')" class="w-full simple-button px-4 py-2 text-sm font-mono">
@@ -749,10 +742,7 @@ function contactHouse(houseName) {
             </div>
             
             <div class="grid md:grid-cols-2 gap-4">
-                <div>
-                    <h4 class="font-bold mb-2">Capacity</h4>
-                    <p class="text-sm">${house.capacity || 'Not specified'}</p>
-                </div>
+
                 <div>
                     <h4 class="font-bold mb-2">Contact</h4>
                     <p class="text-sm">${house.email || 'Email not provided'}</p>
@@ -909,7 +899,7 @@ async function displayHouseList(houses = null) {
                 
                 <div class="flex justify-between items-center">
                     <div class="text-sm">
-                        ${house.capacity ? `Capacity: ${house.capacity}` : ''}
+
                     </div>
                     <button onclick="contactHouse('${house.name}')" class="simple-button px-4 py-2 text-sm font-mono">
                         View Details
@@ -1333,7 +1323,7 @@ async function continueApplicationSubmission(founderData, selectedHouses, parent
         
     } catch (error) {
         console.error('Application submission error:', error);
-        alert('Application saved locally. Please contact houses directly with their email addresses.');
+        alert('⚠️ メール送信に失敗しました。ハッカーハウスに直接連絡してください。');
     }
 }
 
@@ -1450,7 +1440,7 @@ async function loadHackerHousesList() {
                 <p class="text-sm text-gray-600 mb-3">${house.location}</p>
                 <p class="text-sm mb-4">${house.description}</p>
                 <div class="flex justify-between items-center">
-                    <span class="text-sm font-bold">Capacity: ${house.capacity} founders</span>
+
                     <button onclick="showDirectApplicationForm('${house.name}', '${house.email}')" class="simple-button px-4 py-2 text-sm">
                         Apply to This House
                     </button>
@@ -1591,7 +1581,7 @@ async function submitApplications() {
         }
     } catch (error) {
         console.error('Application submission error:', error);
-        alert('Application saved locally. Please contact houses directly with their email addresses.');
+        alert('⚠️ メール送信に失敗しました。ハッカーハウスに直接連絡してください。');
     }
 }
 
