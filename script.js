@@ -10,7 +10,7 @@ const hackerHouses = [
         name: "Tokyo Innovation Hub",
         location: "Shibuya, Tokyo",
         description: "A cutting-edge hacker house in the heart of Tokyo's startup district",
-        features: ["24/7 Access", "High-speed WiFi", "Coworking Space"],
+
         image: "🏙️",
         region: "tokyo"
     },
@@ -18,7 +18,7 @@ const hackerHouses = [
         name: "SF Tech House",
         location: "SOMA, San Francisco",
         description: "Premier tech house in the heart of Silicon Valley",
-        features: ["VC Networking", "Mentor Program", "Investor Events"],
+
         image: "🌉",
         region: "sf"
     },
@@ -26,7 +26,7 @@ const hackerHouses = [
         name: "NYC Creative Collective",
         location: "Brooklyn, New York",
         description: "Where creative founders gather to build the future",
-        features: ["Art Studio", "Rooftop Terrace", "Subway Access"],
+
         image: "🗽",
         region: "nyc"
     }
@@ -461,13 +461,6 @@ document.getElementById('houseForm').addEventListener('submit', function(e) {
         preferences: document.getElementById('housePreferences').value
     };
     
-    // 設備の取得
-    const facilities = [];
-    document.querySelectorAll('#housePage input[type="checkbox"]:checked').forEach(checkbox => {
-        facilities.push(checkbox.value);
-    });
-    formData.facilities = facilities;
-    
     // バリデーション
     if (!formData.name || !formData.location || !formData.region || !formData.description || !formData.capacity || !formData.email) {
         alert('Please fill in all required fields');
@@ -486,6 +479,7 @@ async function registerHackerHouse(houseData) {
         // Check if Supabase is available
         if (typeof SupabaseDB !== 'undefined') {
             console.log('SupabaseDB is available, creating house...');
+            
             const houseWithImage = {
                 ...houseData,
                 image: getRegionEmoji(houseData.region)
@@ -493,7 +487,6 @@ async function registerHackerHouse(houseData) {
             
             console.log('House data with image:', houseWithImage);
             const newHouse = await SupabaseDB.createHackerHouse(houseWithImage);
-            console.log('新しいハッカーハウスがデータベースに登録されました:', newHouse);
             
             // Update local stats only
             await updateHomeStats();
@@ -615,23 +608,7 @@ async function displayHouseList(houses = null) {
             
             <p class="text-sm mb-4">${house.description}</p>
             
-            ${house.features ? `
-                <div class="flex flex-wrap gap-1 mb-4">
-                    ${house.features.slice(0, 3).map(feature => `
-                        <span class="border border-black px-2 py-1 text-xs">${feature}</span>
-                    `).join('')}
-                    ${house.features.length > 3 ? `<span class="text-xs">+${house.features.length - 3} more</span>` : ''}
-                </div>
-            ` : ''}
-            
-            ${house.facilities ? `
-                <div class="flex flex-wrap gap-1 mb-4">
-                    ${house.facilities.slice(0, 3).map(facility => `
-                        <span class="border border-black px-2 py-1 text-xs">${getFacilityName(facility)}</span>
-                    `).join('')}
-                    ${house.facilities.length > 3 ? `<span class="text-xs">+${house.facilities.length - 3} more</span>` : ''}
-                </div>
-            ` : ''}
+
             
             <div class="space-y-2">
                 <div class="flex justify-between items-center text-sm">
@@ -672,18 +649,10 @@ function filterHouses() {
     }
     
     if (capacityFilter) {
-        filteredHouses = filteredHouses.filter(house => house.capacity === capacityFilter);
+        filteredHouses = filteredHouses.filter(house => house.capacity === parseInt(capacityFilter));
     }
     
-    if (facilityFilter) {
-        filteredHouses = filteredHouses.filter(house => {
-            const houseFacilities = house.facilities || house.features || [];
-            return houseFacilities.some(facility => 
-                facility.toLowerCase().includes(facilityFilter.toLowerCase()) ||
-                getFacilityName(facility).toLowerCase().includes(facilityFilter.toLowerCase())
-            );
-        });
-    }
+
     
     displayHouseList(filteredHouses);
 }
@@ -725,8 +694,7 @@ function contactHouse(houseName) {
     }
     
     // Create detailed information display
-    const facilities = house.facilities ? house.facilities.map(f => getFacilityName(f)).join(', ') : 'None specified';
-    const features = house.features ? house.features.join(', ') : 'None specified';
+
     
     const modalContent = `
         <div class="space-y-6">
@@ -755,25 +723,7 @@ function contactHouse(houseName) {
                 </div>
             </div>
             
-            <div>
-                <h4 class="font-bold mb-2">Facilities</h4>
-                <div class="flex flex-wrap gap-2">
-                    ${house.facilities ? house.facilities.map(facility => `
-                        <span class="border border-black px-2 py-1 text-xs">${getFacilityName(facility)}</span>
-                    `).join('') : '<span class="text-sm">None specified</span>'}
-                </div>
-            </div>
-            
-            ${house.features ? `
-                <div>
-                    <h4 class="font-bold mb-2">Features</h4>
-                    <div class="flex flex-wrap gap-2">
-                        ${house.features.map(feature => `
-                            <span class="border border-black px-2 py-1 text-xs">${feature}</span>
-                        `).join('')}
-                    </div>
-                </div>
-            ` : ''}
+
             
             <div class="border-t pt-4">
                 <h4 class="font-bold mb-2">Next Steps</h4>
@@ -919,23 +869,7 @@ async function displayHouseList(houses = null) {
                 
                 <p class="text-sm mb-4">${house.description}</p>
                 
-                ${house.features ? `
-                    <div class="flex flex-wrap gap-1 mb-4">
-                        ${house.features.slice(0, 3).map(feature => `
-                            <span class="border border-black px-2 py-1 text-xs">${feature}</span>
-                        `).join('')}
-                        ${house.features.length > 3 ? `<span class="text-xs">+${house.features.length - 3} more</span>` : ''}
-                    </div>
-                ` : ''}
-                
-                ${house.facilities ? `
-                    <div class="flex flex-wrap gap-1 mb-4">
-                        ${house.facilities.slice(0, 3).map(facility => `
-                            <span class="border border-black px-2 py-1 text-xs">${getFacilityName(facility)}</span>
-                        `).join('')}
-                        ${house.facilities.length > 3 ? `<span class="text-xs">+${house.facilities.length - 3} more</span>` : ''}
-                    </div>
-                ` : ''}
+
                 
                 <div class="flex justify-between items-center">
                     <div class="text-sm">
@@ -1395,9 +1329,8 @@ async function loadHackerHousesList() {
             }
             
             return {
-                name: house.name,
-                location: house.location,
-                email: house.email,
+                ...house,
+                image: getRegionEmoji(house.region),
                 description: house.description,
                 capacity: house.capacity,
                 features: features
@@ -1416,7 +1349,7 @@ async function loadHackerHousesList() {
                 email: "hello@tokyotech.house",
                 description: "AI/ML focused hacker house in Shibuya. Perfect for tech founders building innovative products.",
                 capacity: 8,
-                features: ["High-speed WiFi", "24/7 Access", "Mentorship", "Networking Events"]
+
             },
             {
                 name: "SF Startup Hub",
@@ -1424,7 +1357,7 @@ async function loadHackerHousesList() {
                 email: "apply@sfhub.co",
                 description: "YC-style accelerator environment in the heart of Silicon Valley. Connect with investors and fellow founders.",
                 capacity: 12,
-                features: ["Investor Network", "Demo Days", "Legal Support", "Funding Prep"]
+
             },
             {
                 name: "Berlin Builders",
@@ -1432,7 +1365,7 @@ async function loadHackerHousesList() {
                 email: "team@berlinbuilders.com",
                 description: "European startup community focused on sustainable tech and social impact ventures.",
                 capacity: 6,
-                features: ["Sustainability Focus", "EU Market Access", "Co-working Space", "Community Events"]
+
             }
         ];
     }
@@ -1445,14 +1378,6 @@ async function loadHackerHousesList() {
                 <h3 class="text-xl font-bold mb-2">${house.name}</h3>
                 <p class="text-sm text-gray-600 mb-3">${house.location}</p>
                 <p class="text-sm mb-4">${house.description}</p>
-                <div class="mb-4">
-                    <p class="text-xs font-bold mb-2">Features:</p>
-                    <div class="flex flex-wrap gap-1">
-                        ${house.features.map(feature => `
-                            <span class="px-2 py-1 border border-gray-300 text-xs rounded">${feature}</span>
-                        `).join('')}
-                    </div>
-                </div>
                 <div class="flex justify-between items-center">
                     <span class="text-sm font-bold">Capacity: ${house.capacity} founders</span>
                     <button onclick="showDirectApplicationForm('${house.name}', '${house.email}')" class="simple-button px-4 py-2 text-sm">

@@ -135,6 +135,7 @@
     <!-- Supabase JS -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="supabase-config.js"></script>
+    <script src="supabase-db.js"></script>
     <script src="email-service.js"></script>
     <script src="script.js"></script>
     <script>
@@ -183,8 +184,7 @@
                     email: document.getElementById('houseEmail').value
                 };
                 
-                // Set default facilities (can be expanded later)
-                formData.facilities = [];
+
                 
                 // Validate
                 console.log('Validating form data:', formData);
