@@ -212,7 +212,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 name: document.getElementById('appName').value,
                 email: document.getElementById('appEmail').value,
                 age: document.getElementById('appAge').value,
-                location: document.getElementById('appLocation').value,
                 introduction: document.getElementById('appIntroduction').value,
                 startDate: document.getElementById('appStartDate').value,
                 endDate: document.getElementById('appEndDate').value
@@ -245,11 +244,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 name: document.getElementById('houseName').value,
                 location: document.getElementById('houseLocation').value,
                 email: document.getElementById('houseEmail').value,
-                region: document.getElementById('houseRegion').value,
+                sns: document.getElementById('houseSNS').value,
                 description: document.getElementById('houseDescription').value
             };
             
-            if (!formData.name || !formData.location || !formData.email || !formData.region || !formData.description) {
+            if (!formData.name || !formData.location || !formData.email || !formData.sns || !formData.description) {
                 alert('Please fill in all required fields');
                 return;
             }
@@ -293,47 +292,20 @@ async function registerHackerHouse(formData) {
     console.log('Registering hacker house:', formData);
     
     try {
-        // Process uploaded photos
-        const photoFiles = document.getElementById('housePhotos').files;
-        let photoUrls = [];
-        
-        if (photoFiles && photoFiles.length > 0) {
-            console.log(`📸 Processing ${photoFiles.length} photos...`);
-            
-            for (let i = 0; i < photoFiles.length; i++) {
-                const file = photoFiles[i];
-                
-                // Check file size (5MB limit)
-                if (file.size > 5 * 1024 * 1024) {
-                    alert(`Photo "${file.name}" is too large. Please use photos under 5MB.`);
-                    continue;
-                }
-                
-                try {
-                    // Convert to base64 for storage
-                    const base64 = await fileToBase64(file);
-                    photoUrls.push(base64);
-                    console.log(`✅ Processed photo: ${file.name}`);
-                } catch (photoError) {
-                    console.error(`❌ Failed to process photo ${file.name}:`, photoError);
-                }
-            }
-        }
-        
         // Check if Supabase is available
         if (typeof SupabaseDB !== 'undefined') {
             console.log('SupabaseDB is available, creating house...');
             
-            const houseWithImage = {
+            const houseData = {
                 ...formData,
-                image: getRegionEmoji(formData.region),
-                photos: photoUrls
+                image: '🏠', // Default house emoji since region is removed
+                region: 'other' // Default region for backward compatibility
             };
             
-            console.log('House data with image and photos:', houseWithImage);
+            console.log('House data:', houseData);
             
             // Create house in database
-            const newHouse = await SupabaseDB.createHackerHouse(houseWithImage);
+            const newHouse = await SupabaseDB.createHackerHouse(houseData);
             console.log('House created successfully:', newHouse);
             
             // Show success message
@@ -346,8 +318,8 @@ async function registerHackerHouse(formData) {
             const newHouse = {
                 ...formData,
                 id: Date.now(),
-                image: getRegionEmoji(formData.region),
-                photos: photoUrls,
+                image: '🏠',
+                region: 'other',
                 created_at: new Date().toISOString()
             };
             
@@ -2076,7 +2048,6 @@ async function submitApplications() {
         name: document.getElementById('appName').value,
         email: document.getElementById('appEmail').value,
         age: parseInt(document.getElementById('appAge').value),
-        location: document.getElementById('appLocation').value,
         project: document.getElementById('appProject').value,
         startDate: document.getElementById('appStartDate').value,
         endDate: document.getElementById('appEndDate').value,
@@ -2087,7 +2058,7 @@ async function submitApplications() {
     console.log('📝 Form data collected:', formData);
 
     // Validate required fields
-    if (!formData.name || !formData.email || !formData.age || !formData.location || !formData.project || !formData.startDate || !formData.endDate) {
+    if (!formData.name || !formData.email || !formData.age || !formData.project || !formData.startDate || !formData.endDate) {
         console.log('❌ Validation failed - missing required fields');
         alert('Please fill in all required fields');
         return;

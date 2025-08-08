@@ -78,8 +78,8 @@
                         
                         <div>
                             <label class="block text-sm font-bold mb-2">Location *</label>
-                            <input type="text" id="houseLocation" required class="w-full px-3 py-2 simple-input" placeholder="Full address">
-                            <p class="text-xs mt-1">This will be kept private until a founder is approved to stay</p>
+                            <input type="text" id="houseLocation" required class="w-full px-3 py-2 simple-input" placeholder="e.g., Shibuya, Tokyo or Mission District, SF">
+                            <p class="text-xs mt-1 text-gray-600">You don't need to provide the exact address, but please include enough detail so founders know the general area (e.g., neighborhood, district)</p>
                         </div>
                         
                         <div>
@@ -89,16 +89,9 @@
                         </div>
                         
                         <div>
-                            <label class="block text-sm font-bold mb-2">Region *</label>
-                            <select id="houseRegion" required class="w-full px-3 py-2 simple-input">
-                                <option value="">Select a region</option>
-                                <option value="tokyo">Tokyo</option>
-                                <option value="sf">San Francisco</option>
-                                <option value="nyc">New York City</option>
-                                <option value="london">London</option>
-                                <option value="singapore">Singapore</option>
-                                <option value="other">Other</option>
-                            </select>
+                            <label class="block text-sm font-bold mb-2">House SNS/Social Media *</label>
+                            <input type="url" id="houseSNS" required class="w-full px-3 py-2 simple-input" placeholder="https://twitter.com/yourhouse or Instagram, website, etc.">
+                            <p class="text-xs mt-1 text-gray-600">Share your house's social media or website so founders can get a feel for the community vibe</p>
                         </div>
                         
                         <div>
@@ -110,13 +103,16 @@
                             </div>
                         </div>
                         
-                        <div>
-                            <label class="block text-sm font-bold mb-2">House Photos</label>
-                            <input type="file" id="housePhotos" accept="image/*" multiple class="w-full px-3 py-2 simple-input">
-                            <p class="text-xs mt-1 text-gray-600">Upload photos of your house (optional). Multiple photos allowed. Max 5MB per photo.</p>
-                        </div>
+
                         
 
+                        
+                        <div>
+                            <label class="flex items-center">
+                                <input type="checkbox" id="agreeTerms" required class="mr-2">
+                                <span class="text-sm">I agree to the <a href="terms.html" target="_blank" class="underline hover:no-underline">Terms of Service</a> *</span>
+                            </label>
+                        </div>
                         
                         <div class="text-center">
                             <button type="submit" class="simple-button px-6 py-3 font-mono">Register House</button>
