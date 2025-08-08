@@ -498,13 +498,9 @@ async function registerHackerHouse(houseData) {
             // Update local stats and house list
             await updateHomeStats();
             
-            // Force reload of house list from database
+            // Reload house list from database (this already updates the display)
             if (typeof loadHackerHousesList === 'function') {
                 await loadHackerHousesList();
-            }
-            
-            if (document.getElementById('houseGrid')) {
-                await displayHouseList();
             }
         } else {
             console.log('SupabaseDB not available, using local storage fallback');
