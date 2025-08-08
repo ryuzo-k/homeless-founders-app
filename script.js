@@ -2189,34 +2189,6 @@ async function verifyHouseEmail() {
         allHouses = allHouses.concat(userLocalHouses);
         console.log(`✅ Found ${userLocalHouses.length} houses in local storage`);
         
-        // Add test houses for development/demo purposes
-        const testHouses = [
-            {
-                id: 'test-1',
-                email: 'kijimaryuzo@gmail.com',
-                name: 'Tokyo Tech House',
-                location: 'Tokyo, Japan',
-                description: 'A vibrant community of tech innovators in the heart of Tokyo',
-                capacity: 20,
-                rent: 800,
-                created_at: new Date().toISOString()
-            },
-            {
-                id: 'test-2', 
-                email: 'kijimaryuzo@gmail.com',
-                name: 'Shibuya Startup Hub',
-                location: 'Shibuya, Tokyo',
-                description: 'Modern co-living space for ambitious entrepreneurs',
-                capacity: 15,
-                rent: 1000,
-                created_at: new Date().toISOString()
-            }
-        ];
-        
-        const testUserHouses = testHouses.filter(h => h.email.toLowerCase() === email.toLowerCase());
-        allHouses = allHouses.concat(testUserHouses);
-        console.log(`✅ Added ${testUserHouses.length} test houses for development`);
-        
         // Remove duplicates based on name and location
         const uniqueHouses = allHouses.filter((house, index, self) => 
             index === self.findIndex(h => h.name === house.name && h.location === house.location)
@@ -2261,8 +2233,8 @@ function showHouseSelectionScreen(houses) {
                          onmouseout="this.style.borderColor='#ddd'; this.style.backgroundColor='white';">
                         <h3 style="margin: 0 0 10px 0; color: #333;">${house.name || 'Unnamed House'}</h3>
                         <p style="margin: 5px 0; color: #666;"><strong>📍 Location:</strong> ${house.location || 'Not specified'}</p>
-                        <p style="margin: 5px 0; color: #666;"><strong>👥 Capacity:</strong> ${house.capacity || 'Not specified'} people</p>
-                        <p style="margin: 5px 0; color: #666;"><strong>💰 Rent:</strong> $${house.rent || 'Not specified'}/month</p>
+                        <p style="margin: 5px 0; color: #666;"><strong>🌍 Region:</strong> ${house.region || 'Not specified'}</p>
+                        <p style="margin: 5px 0; color: #666;"><strong>📧 Contact:</strong> ${house.email || 'Not specified'}</p>
                         ${house.description ? `<p style="margin: 10px 0 0 0; color: #888; font-size: 14px;">${house.description.substring(0, 100)}${house.description.length > 100 ? '...' : ''}</p>` : ''}
                     </div>
                 `).join('')}
@@ -2306,8 +2278,7 @@ function selectHouseForEditing(house) {
     document.getElementById('editHouseName').value = house.name || '';
     document.getElementById('editHouseLocation').value = house.location || '';
     document.getElementById('editHouseDescription').value = house.description || '';
-    document.getElementById('editHouseCapacity').value = house.capacity || '';
-    document.getElementById('editHouseRent').value = house.rent || '';
+    // Note: capacity and rent fields don't exist in the actual form
     
     console.log('✅ House data loaded successfully for editing');
 }
@@ -2326,9 +2297,8 @@ async function updateHouseInfo() {
     const formData = {
         name: document.getElementById('editHouseName').value,
         location: document.getElementById('editHouseLocation').value,
-        description: document.getElementById('editHouseDescription').value,
-        capacity: parseInt(document.getElementById('editHouseCapacity').value) || 0,
-        rent: parseInt(document.getElementById('editHouseRent').value) || 0
+        description: document.getElementById('editHouseDescription').value
+        // Note: Only updating fields that actually exist in the form
     };
     
     console.log('Updating house info:', formData);
