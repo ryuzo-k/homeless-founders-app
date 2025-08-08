@@ -1379,42 +1379,82 @@ function sendViaMailto(formData, selectedHouses) {
 // Universal email opening function with multiple fallback methods
 function tryOpenEmail(mailtoLink, house, subject, body) {
     console.log(`🔄 Trying multiple email opening methods for ${house.name}...`);
+    console.log(`📧 Mailto link: ${mailtoLink.substring(0, 150)}...`);
+    console.log(`🌐 User agent: ${navigator.userAgent}`);
+    console.log(`🔗 Current URL: ${window.location.href}`);
+    
+    let methodResults = [];
     
     // Method 1: Try window.location.href (works in most browsers)
     try {
+        console.log(`🔄 Attempting Method 1: window.location.href`);
         window.location.href = mailtoLink;
-        console.log(`✅ Method 1 (location.href) succeeded for ${house.name}`);
-        return true;
+        console.log(`✅ Method 1 (location.href) executed for ${house.name}`);
+        methodResults.push('Method 1: Executed (location.href)');
+        
+        // Give it a moment to work, then check if we're still on the same page
+        setTimeout(() => {
+            if (window.location.href.includes('browse-houses.html')) {
+                console.log(`⚠️ Method 1 may have failed - still on same page`);
+            } else {
+                console.log(`✅ Method 1 likely succeeded - page changed`);
+            }
+        }, 1000);
+        
+        return true; // Assume success since no error was thrown
     } catch (e) {
         console.log(`❌ Method 1 failed: ${e.message}`);
+        methodResults.push(`Method 1: Failed - ${e.message}`);
     }
     
     // Method 2: Try window.open (works in some browsers)
     try {
+        console.log(`🔄 Attempting Method 2: window.open`);
         const opened = window.open(mailtoLink);
+        console.log(`📊 window.open result:`, opened);
+        
         if (opened) {
             console.log(`✅ Method 2 (window.open) succeeded for ${house.name}`);
+            methodResults.push('Method 2: Succeeded (window.open)');
             return true;
+        } else {
+            console.log(`⚠️ Method 2: window.open returned null/undefined`);
+            methodResults.push('Method 2: Failed - returned null');
         }
     } catch (e) {
         console.log(`❌ Method 2 failed: ${e.message}`);
+        methodResults.push(`Method 2: Failed - ${e.message}`);
     }
     
     // Method 3: Try creating a temporary link and clicking it
     try {
+        console.log(`🔄 Attempting Method 3: temporary link click`);
         const link = document.createElement('a');
         link.href = mailtoLink;
         link.style.display = 'none';
+        link.target = '_blank';
         document.body.appendChild(link);
+        
+        console.log(`📊 Created link element:`, link);
+        console.log(`📊 Link href:`, link.href);
+        
         link.click();
         document.body.removeChild(link);
-        console.log(`✅ Method 3 (temporary link) succeeded for ${house.name}`);
+        
+        console.log(`✅ Method 3 (temporary link) executed for ${house.name}`);
+        methodResults.push('Method 3: Executed (temporary link)');
         return true;
     } catch (e) {
         console.log(`❌ Method 3 failed: ${e.message}`);
+        methodResults.push(`Method 3: Failed - ${e.message}`);
     }
     
     console.log(`❌ All email opening methods failed for ${house.name}`);
+    console.log(`📊 Method results:`, methodResults);
+    
+    // Show detailed debug info to user
+    alert(`🔍 Debug Info for ${house.name}:\n\n${methodResults.join('\n')}\n\nBrowser: ${navigator.userAgent.split(' ')[0]}\n\nWill now show email options...`);
+    
     return false;
 }
 
