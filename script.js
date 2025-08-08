@@ -1286,14 +1286,39 @@ async function continueApplicationSubmission(founderData, selectedHouses, parent
             console.log('Founder registered locally:', newFounder);
         }
         
-        // Show success message with house contact info
-        let message = 'Application submitted successfully!\n\nPlease contact the houses directly:\n\n';
-        selectedHouses.forEach(house => {
-            message += `${house.name}: ${house.email}\n`;
-        });
-        message += '\nMention that you applied through Homeless Founders platform.';
-        
-        alert(message);
+        // Send emails to selected houses (including parental consent info)
+        const emailService = new EmailService();
+        let emailsSent = 0;
+        let emailErrors = [];
+
+        for (const house of selectedHouses) {
+            try {
+                console.log(`Sending application email to ${house.name} (with parental consent)...`);
+                await emailService.sendApplicationEmail(founderData, house, parentalConsentId);
+                emailsSent++;
+                console.log(`✅ Email sent successfully to ${house.name}`);
+            } catch (emailError) {
+                console.error(`❌ Failed to send email to ${house.name}:`, emailError);
+                emailErrors.push(`${house.name}: ${emailError.message}`);
+            }
+        }
+
+        // Show success/error message based on email results
+        if (emailsSent === selectedHouses.length) {
+            // All emails sent successfully
+            alert(`🎉 Application with parental consent submitted successfully!\n\n✅ Emails sent to ${emailsSent} house(s)\n\nThe houses will contact you directly at ${founderData.email}`);
+        } else if (emailsSent > 0) {
+            // Some emails sent
+            alert(`⚠️ Application partially submitted\n\n✅ Emails sent to ${emailsSent}/${selectedHouses.length} house(s)\n\nErrors:\n${emailErrors.join('\n')}\n\nPlease contact the remaining houses directly.`);
+        } else {
+            // No emails sent - fallback to contact info
+            let message = '❌ Email sending failed. Please contact houses directly:\n\n';
+            selectedHouses.forEach(house => {
+                message += `${house.name}: ${house.email}\n`;
+            });
+            message += '\nMention that you applied through Homeless Founders platform and have parental consent.';
+            alert(message);
+        }
         
         // Hide forms
         const container = document.getElementById('parentalConsentContainer');
@@ -1518,14 +1543,39 @@ async function submitApplications() {
             console.log('Founder registered locally:', newFounder);
         }
 
-        // Show success message with house contact info
-        let message = 'Application submitted successfully!\n\nPlease contact the houses directly:\n\n';
-        selectedHouses.forEach(house => {
-            message += `${house.name}: ${house.email}\n`;
-        });
-        message += '\nMention that you applied through Homeless Founders platform.';
-        
-        alert(message);
+        // Send emails to selected houses
+        const emailService = new EmailService();
+        let emailsSent = 0;
+        let emailErrors = [];
+
+        for (const house of selectedHouses) {
+            try {
+                console.log(`Sending application email to ${house.name}...`);
+                await emailService.sendApplicationEmail(formData, house);
+                emailsSent++;
+                console.log(`✅ Email sent successfully to ${house.name}`);
+            } catch (emailError) {
+                console.error(`❌ Failed to send email to ${house.name}:`, emailError);
+                emailErrors.push(`${house.name}: ${emailError.message}`);
+            }
+        }
+
+        // Show success/error message based on email results
+        if (emailsSent === selectedHouses.length) {
+            // All emails sent successfully
+            alert(`🎉 Application submitted successfully!\n\n✅ Emails sent to ${emailsSent} house(s)\n\nThe houses will contact you directly at ${formData.email}`);
+        } else if (emailsSent > 0) {
+            // Some emails sent
+            alert(`⚠️ Application partially submitted\n\n✅ Emails sent to ${emailsSent}/${selectedHouses.length} house(s)\n\nErrors:\n${emailErrors.join('\n')}\n\nPlease contact the remaining houses directly.`);
+        } else {
+            // No emails sent - fallback to contact info
+            let message = '❌ Email sending failed. Please contact houses directly:\n\n';
+            selectedHouses.forEach(house => {
+                message += `${house.name}: ${house.email}\n`;
+            });
+            message += '\nMention that you applied through Homeless Founders platform.';
+            alert(message);
+        }
 
         // Hide application form and show houses list
         if (document.getElementById('applicationForm')) {
