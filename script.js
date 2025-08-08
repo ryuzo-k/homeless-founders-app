@@ -1323,7 +1323,7 @@ async function continueApplicationSubmission(founderData, selectedHouses, parent
         
     } catch (error) {
         console.error('Application submission error:', error);
-        alert('⚠️ メール送信に失敗しました。ハッカーハウスに直接連絡してください。');
+        alert('Email sending failed. Please contact houses directly.');
     }
 }
 
@@ -1581,7 +1581,7 @@ async function submitApplications() {
         }
     } catch (error) {
         console.error('Application submission error:', error);
-        alert('⚠️ メール送信に失敗しました。ハッカーハウスに直接連絡してください。');
+        alert('Email sending failed. Please contact houses directly.');
     }
 }
 
