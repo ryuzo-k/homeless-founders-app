@@ -1368,6 +1368,8 @@ Platform: https://homeless-founders.vercel.app/`;
     };
 
     // Open email client for each selected house
+    let emailsOpened = 0;
+    
     selectedHouses.forEach((house, index) => {
         setTimeout(() => {
             console.log(`📧 Processing house ${index + 1}/${selectedHouses.length}:`, house);
@@ -1379,17 +1381,28 @@ Platform: https://homeless-founders.vercel.app/`;
             console.log(`🚀 Opening email client for ${house.name}...`);
             
             try {
-                window.open(mailtoLink);
-                console.log(`✅ Successfully opened email client for ${house.name}`);
+                // Use location.href instead of window.open for better compatibility
+                window.location.href = mailtoLink;
+                console.log(`✅ Successfully triggered email client for ${house.name}`);
+                emailsOpened++;
+                
+                // Show success message only after the last email is processed
+                if (emailsOpened === selectedHouses.length) {
+                    setTimeout(() => {
+                        const houseNames = selectedHouses.map(h => h.name).join(', ');
+                        alert(`✅ Email client opened successfully!\n\n📧 Perfect application email created for: ${houseNames}\n\n💡 Your email client should now be open with a pre-written application.\nSimply review and click Send - it will appear in your Sent folder.`);
+                    }, 500); // Small delay to ensure email client has time to open
+                }
             } catch (error) {
                 console.error(`❌ Failed to open email client for ${house.name}:`, error);
+                // Fallback: show contact info
+                alert(`❌ Could not open email client automatically.\n\nPlease manually email: ${house.email}\n\nSubject: ${subject}\n\nWe'll copy the email content to your clipboard.`);
+                
+                // Copy to clipboard as fallback
+                navigator.clipboard.writeText(`To: ${house.email}\nSubject: ${subject}\n\n${body}`).catch(e => console.log('Clipboard not available'));
             }
         }, index * 1000); // Delay each email by 1 second to avoid overwhelming
     });
-
-    // Show success message
-    const houseNames = selectedHouses.map(h => h.name).join(', ');
-    alert(`📧 Email client opened for ${selectedHouses.length} house(s): ${houseNames}\n\n✅ Perfect application emails have been pre-written for you!\n\n💡 Simply review and click Send in your email client.\nThe emails will appear in your Sent folder after sending.`);
 }
 
 // Send application via mailto with parental consent
@@ -1449,19 +1462,33 @@ Consent ID: ${parentalConsentId}`;
     };
 
     // Open email client for each selected house
+    let emailsOpened = 0;
+    
     selectedHouses.forEach((house, index) => {
         setTimeout(() => {
             const { subject, body } = generateEmailContent(house);
             const mailtoLink = `mailto:${house.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
             
             console.log(`Opening email client for ${house.name} (parental consent application)...`);
-            window.open(mailtoLink);
+            
+            try {
+                window.location.href = mailtoLink;
+                emailsOpened++;
+                
+                // Show success message only after the last email is processed
+                if (emailsOpened === selectedHouses.length) {
+                    setTimeout(() => {
+                        const houseNames = selectedHouses.map(h => h.name).join(', ');
+                        alert(`✅ Email client opened successfully!\n\n📧 Parental consent application created for: ${houseNames}\n\n⚠️ Important: This application clearly indicates you are a minor with parental consent.\n\n💡 Your email client should now be open - simply review and click Send.`);
+                    }, 500);
+                }
+            } catch (error) {
+                console.error(`Failed to open email client for ${house.name}:`, error);
+                alert(`❌ Could not open email client automatically.\n\nPlease manually email: ${house.email}\n\nSubject: ${subject}\n\nWe'll copy the email content to your clipboard.`);
+                navigator.clipboard.writeText(`To: ${house.email}\nSubject: ${subject}\n\n${body}`).catch(e => console.log('Clipboard not available'));
+            }
         }, index * 1000); // Delay each email by 1 second to avoid overwhelming
     });
-
-    // Show success message
-    const houseNames = selectedHouses.map(h => h.name).join(', ');
-    alert(`📧 Email client opened for ${selectedHouses.length} house(s): ${houseNames}\n\n✅ Perfect application emails with parental consent info have been pre-written!\n\n⚠️ Important: These applications clearly indicate you are a minor with parental consent.\n\n💡 Simply review and click Send in your email client.`);
 }
 
 // Calculate duration between two dates
