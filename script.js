@@ -1310,7 +1310,8 @@ async function continueApplicationSubmission(founderData, selectedHouses, parent
         
     } catch (error) {
         console.error('Application submission error:', error);
-        alert('Email sending failed. Please contact houses directly.');
+        // This should not happen with mailto approach
+        console.log('Unexpected error in parental consent flow:', error);
     }
 }
 
@@ -1725,7 +1726,8 @@ async function submitApplications() {
         }
     } catch (error) {
         console.error('Application submission error:', error);
-        alert('Email sending failed. Please contact houses directly.');
+        // This should not happen with mailto approach
+        console.log('Unexpected error in main application flow:', error);
     }
 }
 
