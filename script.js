@@ -245,10 +245,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 location: document.getElementById('houseLocation').value,
                 email: document.getElementById('houseEmail').value,
                 sns: document.getElementById('houseSNS').value,
+                country: document.getElementById('houseCountry').value,
                 description: document.getElementById('houseDescription').value
             };
             
-            if (!formData.name || !formData.location || !formData.email || !formData.sns || !formData.description) {
+            if (!formData.name || !formData.location || !formData.email || !formData.sns || !formData.country || !formData.description) {
                 alert('Please fill in all required fields');
                 return;
             }
@@ -2058,7 +2059,7 @@ async function submitApplications() {
     console.log('📝 Form data collected:', formData);
 
     // Validate required fields
-    if (!formData.name || !formData.email || !formData.age || !formData.project || !formData.startDate || !formData.endDate) {
+    if (!formData.name || !formData.email || !formData.age || !formData.project || !formData.startDate || !formData.endDate || !formData.portfolio) {
         console.log('❌ Validation failed - missing required fields');
         alert('Please fill in all required fields');
         return;
