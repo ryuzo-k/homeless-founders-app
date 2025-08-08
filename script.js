@@ -293,16 +293,44 @@ async function registerHackerHouse(formData) {
     console.log('Registering hacker house:', formData);
     
     try {
+        // Process uploaded photos
+        const photoFiles = document.getElementById('housePhotos').files;
+        let photoUrls = [];
+        
+        if (photoFiles && photoFiles.length > 0) {
+            console.log(`📸 Processing ${photoFiles.length} photos...`);
+            
+            for (let i = 0; i < photoFiles.length; i++) {
+                const file = photoFiles[i];
+                
+                // Check file size (5MB limit)
+                if (file.size > 5 * 1024 * 1024) {
+                    alert(`Photo "${file.name}" is too large. Please use photos under 5MB.`);
+                    continue;
+                }
+                
+                try {
+                    // Convert to base64 for storage
+                    const base64 = await fileToBase64(file);
+                    photoUrls.push(base64);
+                    console.log(`✅ Processed photo: ${file.name}`);
+                } catch (photoError) {
+                    console.error(`❌ Failed to process photo ${file.name}:`, photoError);
+                }
+            }
+        }
+        
         // Check if Supabase is available
         if (typeof SupabaseDB !== 'undefined') {
             console.log('SupabaseDB is available, creating house...');
             
             const houseWithImage = {
                 ...formData,
-                image: getRegionEmoji(formData.region)
+                image: getRegionEmoji(formData.region),
+                photos: photoUrls
             };
             
-            console.log('House data with image:', houseWithImage);
+            console.log('House data with image and photos:', houseWithImage);
             
             // Create house in database
             const newHouse = await SupabaseDB.createHackerHouse(houseWithImage);
@@ -319,6 +347,7 @@ async function registerHackerHouse(formData) {
                 ...formData,
                 id: Date.now(),
                 image: getRegionEmoji(formData.region),
+                photos: photoUrls,
                 created_at: new Date().toISOString()
             };
             
@@ -347,6 +376,16 @@ async function registerHackerHouse(formData) {
         alert(errorMessage);
         throw error;
     }
+}
+
+// Helper function to convert file to base64
+function fileToBase64(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = error => reject(error);
+    });
 }
 
 // Find My Matchボタンのイベントリスナー
@@ -639,6 +678,13 @@ async function displayHouseList(houses = null) {
     
     houseGrid.innerHTML = housesToShow.map(house => `
         <div class="simple-card p-6">
+            ${house.photos && house.photos.length > 0 ? `
+                <div class="mb-4">
+                    <img src="${house.photos[0]}" alt="${house.name}" class="w-full h-48 object-cover border border-black" style="max-height: 200px;">
+                    ${house.photos.length > 1 ? `<p class="text-xs text-gray-600 mt-1">+${house.photos.length - 1} more photos</p>` : ''}
+                </div>
+            ` : ''}
+            
             <div class="flex items-start justify-between mb-4">
                 <div class="flex items-center">
                     <span class="text-3xl mr-3">${house.image}</span>
