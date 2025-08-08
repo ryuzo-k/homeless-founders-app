@@ -1276,14 +1276,14 @@ async function continueApplicationSubmission(founderData, selectedHouses, parent
             console.log('Founder registered locally:', newFounder);
         }
         
-        // Send emails to selected houses (including parental consent info)
+        // Send emails to selected houses (including parental consent info) using EmailJS
         const emailService = new EmailService();
         let emailsSent = 0;
         let emailErrors = [];
 
         for (const house of selectedHouses) {
             try {
-                console.log(`Sending application email to ${house.name} (with parental consent)...`);
+                console.log(`Sending application email to ${house.name} (with parental consent) via EmailJS...`);
                 await emailService.sendApplicationEmail(founderData, house, parentalConsentId);
                 emailsSent++;
                 console.log(`✅ Email sent successfully to ${house.name}`);
@@ -1301,12 +1301,12 @@ async function continueApplicationSubmission(founderData, selectedHouses, parent
             // Some emails sent
             alert(`⚠️ Application partially submitted\n\n✅ Emails sent to ${emailsSent}/${selectedHouses.length} house(s)\n\nErrors:\n${emailErrors.join('\n')}\n\nPlease contact the remaining houses directly.`);
         } else {
-            // No emails sent - fallback to contact info
+            // No emails sent - show contact info as fallback
             let message = '❌ Email sending failed. Please contact houses directly:\n\n';
             selectedHouses.forEach(house => {
-                message += `${house.name}: ${house.email}\n`;
+                message += `📧 ${house.name}: ${house.email}\n`;
             });
-            message += '\nMention that you applied through Homeless Founders platform and have parental consent.';
+            message += '\n💡 Mention that you applied through Homeless Founders platform and have parental consent.';
             alert(message);
         }
         
@@ -1533,14 +1533,14 @@ async function submitApplications() {
             console.log('Founder registered locally:', newFounder);
         }
 
-        // Send emails to selected houses
+        // Send emails to selected houses using EmailJS
         const emailService = new EmailService();
         let emailsSent = 0;
         let emailErrors = [];
 
         for (const house of selectedHouses) {
             try {
-                console.log(`Sending application email to ${house.name}...`);
+                console.log(`Sending application email to ${house.name} via EmailJS...`);
                 await emailService.sendApplicationEmail(formData, house);
                 emailsSent++;
                 console.log(`✅ Email sent successfully to ${house.name}`);
@@ -1558,12 +1558,12 @@ async function submitApplications() {
             // Some emails sent
             alert(`⚠️ Application partially submitted\n\n✅ Emails sent to ${emailsSent}/${selectedHouses.length} house(s)\n\nErrors:\n${emailErrors.join('\n')}\n\nPlease contact the remaining houses directly.`);
         } else {
-            // No emails sent - fallback to contact info
+            // No emails sent - show contact info as fallback
             let message = '❌ Email sending failed. Please contact houses directly:\n\n';
             selectedHouses.forEach(house => {
-                message += `${house.name}: ${house.email}\n`;
+                message += `📧 ${house.name}: ${house.email}\n`;
             });
-            message += '\nMention that you applied through Homeless Founders platform.';
+            message += '\n💡 Mention that you applied through Homeless Founders platform.';
             alert(message);
         }
 

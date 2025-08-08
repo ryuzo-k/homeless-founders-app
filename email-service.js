@@ -1,9 +1,28 @@
-// Email service using Resend API
+// Email service using EmailJS (client-side email sending)
 class EmailService {
     constructor() {
-        // Get API key from config (browser-compatible)
-        this.apiKey = CONFIG?.RESEND_API_KEY || 're_8XoCALVe_8ut7821d5mJRN94J69FfwG5F';
-        this.baseUrl = 'https://api.resend.com';
+        // EmailJS configuration
+        this.serviceId = 'service_homeless_founders';
+        this.templateId = 'template_application';
+        this.publicKey = 'YOUR_EMAILJS_PUBLIC_KEY'; // Will be replaced with actual key
+        
+        // Initialize EmailJS
+        this.initEmailJS();
+    }
+    
+    initEmailJS() {
+        // Load EmailJS if not already loaded
+        if (typeof emailjs === 'undefined') {
+            const script = document.createElement('script');
+            script.src = 'https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js';
+            script.onload = () => {
+                emailjs.init(this.publicKey);
+                console.log('EmailJS initialized');
+            };
+            document.head.appendChild(script);
+        } else {
+            emailjs.init(this.publicKey);
+        }
     }
 
     async sendParentalConsentEmail(founderData, parentEmail) {
@@ -36,35 +55,57 @@ class EmailService {
     }
 
     async sendApplicationEmail(founderData, houseData, parentalConsentId = null) {
-        const emailData = {
-            from: 'onboarding@resend.dev',
-            to: houseData.email,
-            reply_to: founderData.email,
-            subject: `🏠 New Founder Application: ${founderData.name}`,
-            html: this.generateApplicationEmailHTML(founderData, houseData, parentalConsentId)
-        };
-
         try {
-            const response = await fetch(`${this.baseUrl}/emails`, {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${this.apiKey}`,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(emailData)
-            });
+            // Wait for EmailJS to be loaded
+            await this.waitForEmailJS();
+            
+            const templateParams = {
+                to_email: houseData.email,
+                to_name: houseData.name,
+                from_name: founderData.name,
+                from_email: founderData.email,
+                applicant_age: founderData.age,
+                applicant_location: founderData.location,
+                project_description: founderData.project,
+                start_date: founderData.startDate,
+                end_date: founderData.endDate,
+                message: founderData.message || '',
+                has_parental_consent: parentalConsentId ? 'Yes' : 'No',
+                platform: 'Homeless Founders'
+            };
 
-            if (!response.ok) {
-                throw new Error(`Email API error: ${response.status}`);
-            }
+            const result = await emailjs.send(
+                this.serviceId,
+                this.templateId,
+                templateParams
+            );
 
-            const result = await response.json();
-            console.log('Email sent successfully:', result);
+            console.log('Email sent successfully via EmailJS:', result);
             return result;
         } catch (error) {
-            console.error('Email sending failed:', error);
-            throw error;
+            console.error('EmailJS sending failed:', error);
+            throw new Error(`Email sending failed: ${error.text || error.message}`);
         }
+    }
+    
+    async waitForEmailJS() {
+        return new Promise((resolve, reject) => {
+            let attempts = 0;
+            const maxAttempts = 50;
+            
+            const checkEmailJS = () => {
+                if (typeof emailjs !== 'undefined') {
+                    resolve();
+                } else if (attempts < maxAttempts) {
+                    attempts++;
+                    setTimeout(checkEmailJS, 100);
+                } else {
+                    reject(new Error('EmailJS failed to load'));
+                }
+            };
+            
+            checkEmailJS();
+        });
     }
 
     async sendParentalConsentConfirmation(parentEmail, minorName) {
