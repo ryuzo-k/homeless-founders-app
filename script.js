@@ -1308,10 +1308,15 @@ async function continueApplicationSubmission(founderData, selectedHouses, parent
 
 // Send application via mailto (opens user's email client)
 function sendViaMailto(formData, selectedHouses) {
+    console.log('📬 sendViaMailto called with:', { formData, selectedHouses });
+    
     if (selectedHouses.length === 0) {
+        console.log('❌ No houses provided to sendViaMailto');
         alert('Please select at least one house to apply to.');
         return;
     }
+    
+    console.log('✅ Houses validation passed, proceeding with mailto...');
 
     // Generate perfect application email content
     const generateEmailContent = (house) => {
@@ -1356,11 +1361,20 @@ Platform: https://homeless-founders.vercel.app/`;
     // Open email client for each selected house
     selectedHouses.forEach((house, index) => {
         setTimeout(() => {
+            console.log(`📧 Processing house ${index + 1}/${selectedHouses.length}:`, house);
+            
             const { subject, body } = generateEmailContent(house);
             const mailtoLink = `mailto:${house.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
             
-            console.log(`Opening email client for ${house.name}...`);
-            window.open(mailtoLink);
+            console.log(`📬 Generated mailto link for ${house.name}:`, mailtoLink.substring(0, 100) + '...');
+            console.log(`🚀 Opening email client for ${house.name}...`);
+            
+            try {
+                window.open(mailtoLink);
+                console.log(`✅ Successfully opened email client for ${house.name}`);
+            } catch (error) {
+                console.error(`❌ Failed to open email client for ${house.name}:`, error);
+            }
         }, index * 1000); // Delay each email by 1 second to avoid overwhelming
     });
 
@@ -1596,6 +1610,8 @@ async function loadHackerHousesList() {
 
 // Founder Application Submission Function
 async function submitApplications() {
+    console.log('🚀 Starting application submission...');
+    
     // Get form data
     const formData = {
         name: document.getElementById('appName').value,
@@ -1608,32 +1624,47 @@ async function submitApplications() {
         message: document.getElementById('appMessage').value
     };
 
+    console.log('📝 Form data collected:', formData);
+
     // Validate required fields
     if (!formData.name || !formData.email || !formData.age || !formData.location || !formData.project || !formData.startDate || !formData.endDate) {
+        console.log('❌ Validation failed - missing required fields');
         alert('Please fill in all required fields');
         return;
     }
+    
+    console.log('✅ Form validation passed');
 
     // Get selected houses
     const selectedHouses = [];
     const checkboxes = document.querySelectorAll('.house-checkbox:checked');
     
+    console.log('🏠 Checking selected houses...');
+    console.log('Checkboxes found:', checkboxes.length);
+    console.log('Window.selectedHouse:', window.selectedHouse);
+    
     if (checkboxes.length === 0) {
         // Check if this is a direct application to a single house
         if (window.selectedHouse) {
             selectedHouses.push(window.selectedHouse);
+            console.log('✅ Using direct application house:', window.selectedHouse);
         } else {
+            console.log('❌ No houses selected');
             alert('Please select at least one house to apply to');
             return;
         }
     } else {
         checkboxes.forEach(checkbox => {
-            selectedHouses.push({
+            const house = {
                 name: checkbox.dataset.name,
                 email: checkbox.dataset.email
-            });
+            };
+            selectedHouses.push(house);
+            console.log('✅ Added house:', house);
         });
     }
+    
+    console.log('📋 Final selected houses:', selectedHouses);
 
     try {
         // Check if applicant is a minor
@@ -1661,7 +1692,9 @@ async function submitApplications() {
         }
 
         // Use mailto approach - opens user's email client with pre-filled content
+        console.log('📧 Calling sendViaMailto with:', { formData, selectedHouses });
         sendViaMailto(formData, selectedHouses);
+        console.log('✅ sendViaMailto completed');
 
         // Hide application form and show houses list
         if (document.getElementById('applicationForm')) {
