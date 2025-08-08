@@ -1276,39 +1276,8 @@ async function continueApplicationSubmission(founderData, selectedHouses, parent
             console.log('Founder registered locally:', newFounder);
         }
         
-        // Send emails to selected houses (including parental consent info) using EmailJS
-        const emailService = new EmailService();
-        let emailsSent = 0;
-        let emailErrors = [];
-
-        for (const house of selectedHouses) {
-            try {
-                console.log(`Sending application email to ${house.name} (with parental consent) via EmailJS...`);
-                await emailService.sendApplicationEmail(founderData, house, parentalConsentId);
-                emailsSent++;
-                console.log(`✅ Email sent successfully to ${house.name}`);
-            } catch (emailError) {
-                console.error(`❌ Failed to send email to ${house.name}:`, emailError);
-                emailErrors.push(`${house.name}: ${emailError.message}`);
-            }
-        }
-
-        // Show success/error message based on email results
-        if (emailsSent === selectedHouses.length) {
-            // All emails sent successfully
-            alert(`🎉 Application with parental consent submitted successfully!\n\n✅ Emails sent to ${emailsSent} house(s)\n\nThe houses will contact you directly at ${founderData.email}`);
-        } else if (emailsSent > 0) {
-            // Some emails sent
-            alert(`⚠️ Application partially submitted\n\n✅ Emails sent to ${emailsSent}/${selectedHouses.length} house(s)\n\nErrors:\n${emailErrors.join('\n')}\n\nPlease contact the remaining houses directly.`);
-        } else {
-            // No emails sent - show contact info as fallback
-            let message = '❌ Email sending failed. Please contact houses directly:\n\n';
-            selectedHouses.forEach(house => {
-                message += `📧 ${house.name}: ${house.email}\n`;
-            });
-            message += '\n💡 Mention that you applied through Homeless Founders platform and have parental consent.';
-            alert(message);
-        }
+        // Use mailto approach for parental consent applications
+        sendViaMailtoWithParentalConsent(founderData, selectedHouses, parentalConsentId);
         
         // Hide forms
         const container = document.getElementById('parentalConsentContainer');
@@ -1325,6 +1294,154 @@ async function continueApplicationSubmission(founderData, selectedHouses, parent
         console.error('Application submission error:', error);
         alert('Email sending failed. Please contact houses directly.');
     }
+}
+
+// Send application via mailto (opens user's email client)
+function sendViaMailto(formData, selectedHouses) {
+    if (selectedHouses.length === 0) {
+        alert('Please select at least one house to apply to.');
+        return;
+    }
+
+    // Generate perfect application email content
+    const generateEmailContent = (house) => {
+        const subject = `🏠 Founder Application: ${formData.name} - ${formData.project}`;
+        
+        const body = `Dear ${house.name} team,
+
+I hope this email finds you well. I am writing to apply for accommodation at ${house.name} through the Homeless Founders platform.
+
+**About Me:**
+• Name: ${formData.name}
+• Age: ${formData.age}
+• Email: ${formData.email}
+• Current Location: ${formData.location}
+
+**My Project:**
+${formData.project}
+
+**Accommodation Details:**
+• Preferred Start Date: ${formData.startDate}
+• Preferred End Date: ${formData.endDate}
+• Duration: ${calculateDuration(formData.startDate, formData.endDate)}
+
+**Additional Information:**
+${formData.message || 'I am excited about the opportunity to join your community and contribute to the vibrant ecosystem of founders and entrepreneurs.'}
+
+I believe ${house.name} would be the perfect environment for me to develop my project while connecting with like-minded individuals. I am committed to being a positive and contributing member of your community.
+
+Thank you for considering my application. I look forward to hearing from you and would be happy to provide any additional information you may need.
+
+Best regards,
+${formData.name}
+${formData.email}
+
+---
+Applied via Homeless Founders Platform
+Platform: https://homeless-founders.vercel.app/`;
+
+        return { subject, body };
+    };
+
+    // Open email client for each selected house
+    selectedHouses.forEach((house, index) => {
+        setTimeout(() => {
+            const { subject, body } = generateEmailContent(house);
+            const mailtoLink = `mailto:${house.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+            
+            console.log(`Opening email client for ${house.name}...`);
+            window.open(mailtoLink);
+        }, index * 1000); // Delay each email by 1 second to avoid overwhelming
+    });
+
+    // Show success message
+    const houseNames = selectedHouses.map(h => h.name).join(', ');
+    alert(`📧 Email client opened for ${selectedHouses.length} house(s): ${houseNames}\n\n✅ Perfect application emails have been pre-written for you!\n\n💡 Simply review and click Send in your email client.\nThe emails will appear in your Sent folder after sending.`);
+}
+
+// Send application via mailto with parental consent
+function sendViaMailtoWithParentalConsent(formData, selectedHouses, parentalConsentId) {
+    if (selectedHouses.length === 0) {
+        alert('Please select at least one house to apply to.');
+        return;
+    }
+
+    // Generate perfect application email content with parental consent
+    const generateEmailContent = (house) => {
+        const subject = `🏠 Founder Application (Minor with Parental Consent): ${formData.name} - ${formData.project}`;
+        
+        const body = `Dear ${house.name} team,
+
+I hope this email finds you well. I am writing to apply for accommodation at ${house.name} through the Homeless Founders platform.
+
+⚠️ **IMPORTANT: This application is for a minor (under 18) with verified parental consent.**
+
+**About Me:**
+• Name: ${formData.name}
+• Age: ${formData.age} (Minor - under 18)
+• Email: ${formData.email}
+• Current Location: ${formData.location}
+• Parental Consent ID: ${parentalConsentId}
+
+**My Project:**
+${formData.project}
+
+**Accommodation Details:**
+• Preferred Start Date: ${formData.startDate}
+• Preferred End Date: ${formData.endDate}
+• Duration: ${calculateDuration(formData.startDate, formData.endDate)}
+
+**Parental Consent Information:**
+✅ Parental consent has been obtained and verified through the Homeless Founders platform.
+✅ Parent/Guardian contact information is available upon request.
+✅ All legal requirements for minor accommodation have been addressed.
+
+**Additional Information:**
+${formData.message || 'I am excited about the opportunity to join your community and contribute to the vibrant ecosystem of founders and entrepreneurs, with full parental support.'}
+
+I believe ${house.name} would be the perfect environment for me to develop my project while connecting with like-minded individuals. My parents/guardians fully support this opportunity and I am committed to being a positive and contributing member of your community.
+
+Thank you for considering my application. Please note that as a minor, any accommodation arrangements will need to comply with local regulations regarding minors. I look forward to hearing from you and would be happy to provide any additional information, including parental contact details.
+
+Best regards,
+${formData.name}
+${formData.email}
+
+---
+Applied via Homeless Founders Platform (Minor with Parental Consent)
+Platform: https://homeless-founders.vercel.app/
+Consent ID: ${parentalConsentId}`;
+
+        return { subject, body };
+    };
+
+    // Open email client for each selected house
+    selectedHouses.forEach((house, index) => {
+        setTimeout(() => {
+            const { subject, body } = generateEmailContent(house);
+            const mailtoLink = `mailto:${house.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+            
+            console.log(`Opening email client for ${house.name} (parental consent application)...`);
+            window.open(mailtoLink);
+        }, index * 1000); // Delay each email by 1 second to avoid overwhelming
+    });
+
+    // Show success message
+    const houseNames = selectedHouses.map(h => h.name).join(', ');
+    alert(`📧 Email client opened for ${selectedHouses.length} house(s): ${houseNames}\n\n✅ Perfect application emails with parental consent info have been pre-written!\n\n⚠️ Important: These applications clearly indicate you are a minor with parental consent.\n\n💡 Simply review and click Send in your email client.`);
+}
+
+// Calculate duration between two dates
+function calculateDuration(startDate, endDate) {
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    const diffTime = Math.abs(end - start);
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    
+    if (diffDays === 1) return '1 day';
+    if (diffDays < 7) return `${diffDays} days`;
+    if (diffDays < 30) return `${Math.ceil(diffDays / 7)} week(s)`;
+    return `${Math.ceil(diffDays / 30)} month(s)`;
 }
 
 // 直接応募フォームを表示する
@@ -1533,39 +1650,8 @@ async function submitApplications() {
             console.log('Founder registered locally:', newFounder);
         }
 
-        // Send emails to selected houses using EmailJS
-        const emailService = new EmailService();
-        let emailsSent = 0;
-        let emailErrors = [];
-
-        for (const house of selectedHouses) {
-            try {
-                console.log(`Sending application email to ${house.name} via EmailJS...`);
-                await emailService.sendApplicationEmail(formData, house);
-                emailsSent++;
-                console.log(`✅ Email sent successfully to ${house.name}`);
-            } catch (emailError) {
-                console.error(`❌ Failed to send email to ${house.name}:`, emailError);
-                emailErrors.push(`${house.name}: ${emailError.message}`);
-            }
-        }
-
-        // Show success/error message based on email results
-        if (emailsSent === selectedHouses.length) {
-            // All emails sent successfully
-            alert(`🎉 Application submitted successfully!\n\n✅ Emails sent to ${emailsSent} house(s)\n\nThe houses will contact you directly at ${formData.email}`);
-        } else if (emailsSent > 0) {
-            // Some emails sent
-            alert(`⚠️ Application partially submitted\n\n✅ Emails sent to ${emailsSent}/${selectedHouses.length} house(s)\n\nErrors:\n${emailErrors.join('\n')}\n\nPlease contact the remaining houses directly.`);
-        } else {
-            // No emails sent - show contact info as fallback
-            let message = '❌ Email sending failed. Please contact houses directly:\n\n';
-            selectedHouses.forEach(house => {
-                message += `📧 ${house.name}: ${house.email}\n`;
-            });
-            message += '\n💡 Mention that you applied through Homeless Founders platform.';
-            alert(message);
-        }
+        // Use mailto approach - opens user's email client with pre-filled content
+        sendViaMailto(formData, selectedHouses);
 
         // Hide application form and show houses list
         if (document.getElementById('applicationForm')) {
