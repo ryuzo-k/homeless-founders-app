@@ -484,8 +484,17 @@ async function registerHackerHouse(houseData) {
         console.log('registerHackerHouse called with:', houseData);
         
         // Check if Supabase is available
-        if (typeof SupabaseDB !== 'undefined') {
+        if (typeof SupabaseDB !== 'undefined' && typeof supabaseClient !== 'undefined') {
             console.log('SupabaseDB is available, creating house...');
+            
+            // Double-check Supabase client initialization
+            try {
+                await supabaseClient.from('hacker_houses').select('count').limit(1);
+                console.log('Supabase connection verified');
+            } catch (connectionError) {
+                console.error('Supabase connection failed:', connectionError);
+                throw new Error('Database connection failed. Please check your internet connection and try again.');
+            }
             
             // Extract features from description using OpenAI
             let extractedFeatures = [];
@@ -554,7 +563,20 @@ async function registerHackerHouse(houseData) {
         
     } catch (error) {
         console.error('ハッカーハウス登録エラー:', error);
-        alert('Registration failed. Please try again.');
+        
+        // Provide specific error messages for different scenarios
+        let errorMessage = 'Registration failed. ';
+        if (error.message.includes('Database connection failed')) {
+            errorMessage += 'Please check your internet connection and try again.';
+        } else if (error.message.includes('API key')) {
+            errorMessage += 'API configuration issue. Please contact support.';
+        } else if (error.message.includes('Supabase')) {
+            errorMessage += 'Database service temporarily unavailable. Your data has been saved locally.';
+        } else {
+            errorMessage += 'Please try again. If the problem persists, contact support.';
+        }
+        
+        alert(errorMessage);
     }
 }
 
