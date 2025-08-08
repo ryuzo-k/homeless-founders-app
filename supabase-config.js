@@ -441,6 +441,17 @@ const SupabaseTest = {
 };
 
 // Export for use in other files
+window.supabaseClient = supabaseClient;
 window.SupabaseDB = SupabaseDB;
 window.SupabaseAuth = SupabaseAuth;
 window.SupabaseTest = SupabaseTest;
+
+// Initialize the new SupabaseDatabase class from supabase-db.js
+document.addEventListener('DOMContentLoaded', function() {
+    if (typeof SupabaseDatabase !== 'undefined') {
+        window.SupabaseDB = new SupabaseDatabase();
+        console.log('✅ SupabaseDatabase class initialized');
+    } else {
+        console.log('⚠️ SupabaseDatabase class not found, using legacy SupabaseDB');
+    }
+});
