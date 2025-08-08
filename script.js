@@ -667,6 +667,14 @@ async function displayHouseList(houses = null) {
     const houseGrid = document.getElementById('houseGrid');
     const emptyState = document.getElementById('emptyState');
     
+    // Debug: Check photo data in display function
+    console.log('🖼️ Debug - Houses to display:', housesToShow.length);
+    const housesWithPhotos = housesToShow.filter(h => h.photos && h.photos.length > 0);
+    console.log('🖼️ Debug - Houses with photos in display:', housesWithPhotos.length);
+    if (housesWithPhotos.length > 0) {
+        console.log('🖼️ Debug - Sample house with photos in display:', housesWithPhotos[0].name, housesWithPhotos[0].photos.length);
+    }
+    
     if (housesToShow.length === 0) {
         houseGrid.classList.add('hidden');
         emptyState.classList.remove('hidden');
@@ -1948,6 +1956,13 @@ async function loadHackerHousesList() {
         console.log('Loaded houses from database:', houses);
         console.log('Number of houses loaded:', houses.length);
         
+        // Debug: Check if any houses have photos
+        const housesWithPhotos = houses.filter(h => h.photos && h.photos.length > 0);
+        console.log('Houses with photos:', housesWithPhotos.length);
+        if (housesWithPhotos.length > 0) {
+            console.log('Sample house with photos:', housesWithPhotos[0]);
+        }
+        
         // Transform database data to match expected format
         houses = houses.map(house => {
             let features = [];
@@ -1973,7 +1988,8 @@ async function loadHackerHousesList() {
                 image: getRegionEmoji(house.region),
                 description: house.description,
                 capacity: house.capacity,
-                features: features
+                features: features,
+                photos: house.photos || []
             };
         });
         
