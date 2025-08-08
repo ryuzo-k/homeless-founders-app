@@ -94,17 +94,6 @@
                             <textarea id="editHouseDescription" required class="w-full px-3 py-2 simple-input h-24"></textarea>
                         </div>
                         
-                        <div class="grid md:grid-cols-2 gap-6">
-                            <div>
-                                <label class="block text-sm font-bold mb-2">Capacity *</label>
-                                <input type="number" id="editHouseCapacity" required class="w-full px-3 py-2 simple-input" min="1">
-                            </div>
-                            <div>
-                                <label class="block text-sm font-bold mb-2">Monthly Rent (USD)</label>
-                                <input type="number" id="editHouseRent" class="w-full px-3 py-2 simple-input" min="0">
-                            </div>
-                        </div>
-                        
                         <div class="flex space-x-4">
                             <button type="submit" class="simple-button px-6 py-3 font-mono flex-1">Update House</button>
                             <button type="button" onclick="cancelEdit()" class="simple-button px-6 py-3 font-mono flex-1">Cancel</button>
@@ -122,6 +111,11 @@
         </div>
     </div>
 
+    <!-- Supabase JS -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase-config.js"></script>
+    <script src="supabase-db.js"></script>
+    <script src="email-service.js"></script>
     <script src="script.js"></script>
     <script>
         // Initialize the page
