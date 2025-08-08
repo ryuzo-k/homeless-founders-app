@@ -1385,6 +1385,13 @@ async function loadHackerHousesList() {
     try {
         // Try to load from database first
         console.log('Attempting to load houses from database...');
+        
+        // Check if SupabaseDB is available
+        if (typeof SupabaseDB === 'undefined') {
+            console.error('SupabaseDB is not defined. Using fallback data.');
+            throw new Error('SupabaseDB not available');
+        }
+        
         houses = await SupabaseDB.getAllHackerHouses();
         console.log('Loaded houses from database:', houses);
         console.log('Number of houses loaded:', houses.length);
