@@ -1465,52 +1465,110 @@ function showEmailOptions(house, subject, body) {
         animation: fadeIn 0.3s ease-in;
     `;
     
-    modal.innerHTML = `
-        <div style="background: white; padding: 30px; border-radius: 15px; max-width: 500px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 10px 30px rgba(0,0,0,0.3);">
-            <h2 style="margin-top: 0; color: #333; text-align: center;">📧 Send Application to ${house.name}</h2>
-            <p style="color: #666; text-align: center; margin-bottom: 25px;">Choose your preferred email method:</p>
+    const modalContent = document.createElement('div');
+    modalContent.style.cssText = 'background: white; padding: 30px; border-radius: 15px; max-width: 500px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 10px 30px rgba(0,0,0,0.3);';
+    
+    modalContent.innerHTML = `
+        <h2 style="margin-top: 0; color: #333; text-align: center;">📧 Send Application to ${house.name}</h2>
+        <p style="color: #666; text-align: center; margin-bottom: 25px;">Choose your preferred email method:</p>
+        
+        <div style="margin: 20px 0;">
+            <button id="gmail-btn" 
+                    style="display: block; width: 100%; padding: 18px; margin: 12px 0; background: linear-gradient(135deg, #ea4335, #d33b2c); color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 16px; font-weight: 600; transition: transform 0.2s;">
+                📧 Open in Gmail
+            </button>
             
-            <div style="margin: 20px 0;">
-                <button onclick="openGmail('${house.email}', '${encodeURIComponent(subject)}', '${encodeURIComponent(decodedBody)}'); this.closest('.email-modal').remove();" 
-                        style="display: block; width: 100%; padding: 18px; margin: 12px 0; background: linear-gradient(135deg, #ea4335, #d33b2c); color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 16px; font-weight: 600; transition: transform 0.2s;">
-                    📧 Open in Gmail
-                </button>
-                
-                <button onclick="openOutlook('${house.email}', '${encodeURIComponent(subject)}', '${encodeURIComponent(decodedBody)}'); this.closest('.email-modal').remove();" 
-                        style="display: block; width: 100%; padding: 18px; margin: 12px 0; background: linear-gradient(135deg, #0078d4, #106ebe); color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 16px; font-weight: 600; transition: transform 0.2s;">
-                    📧 Open in Outlook
-                </button>
-                
-                <button onclick="tryNativeMailto('${house.email}', '${encodeURIComponent(subject)}', '${encodeURIComponent(decodedBody)}'); this.closest('.email-modal').remove();" 
-                        style="display: block; width: 100%; padding: 18px; margin: 12px 0; background: linear-gradient(135deg, #007AFF, #0051D5); color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 16px; font-weight: 600; transition: transform 0.2s;">
-                    📱 Open Default Email App
-                </button>
-                
-                <button onclick="copyEmailContent('${house.email}', '${subject}', \`${decodedBody.replace(/`/g, '\\`').replace(/\$/g, '\\$')}\`)" 
-                        style="display: block; width: 100%; padding: 18px; margin: 12px 0; background: linear-gradient(135deg, #28a745, #20963d); color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 16px; font-weight: 600; transition: transform 0.2s;">
-                    📋 Copy Email Content
+            <button id="outlook-btn" 
+                    style="display: block; width: 100%; padding: 18px; margin: 12px 0; background: linear-gradient(135deg, #0078d4, #106ebe); color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 16px; font-weight: 600; transition: transform 0.2s;">
+                📧 Open in Outlook
+            </button>
+            
+            <button id="native-btn" 
+                    style="display: block; width: 100%; padding: 18px; margin: 12px 0; background: linear-gradient(135deg, #007AFF, #0051D5); color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 16px; font-weight: 600; transition: transform 0.2s;">
+                📱 Open Default Email App
+            </button>
+            
+            <button id="copy-btn" 
+                    style="display: block; width: 100%; padding: 18px; margin: 12px 0; background: linear-gradient(135deg, #28a745, #20963d); color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 16px; font-weight: 600; transition: transform 0.2s;">
+                📋 Copy Email Content
+            </button>
+        </div>
+        
+        <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin-top: 20px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                <strong style="color: #333;">Email Details:</strong>
+                <button id="close-btn" 
+                        style="background: #dc3545; color: white; border: none; border-radius: 5px; padding: 8px 12px; cursor: pointer; font-size: 14px;">
+                    ✕ Close
                 </button>
             </div>
-            
-            <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin-top: 20px;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                    <strong style="color: #333;">Email Details:</strong>
-                    <button onclick="this.closest('.email-modal').remove()" 
-                            style="background: #dc3545; color: white; border: none; border-radius: 5px; padding: 8px 12px; cursor: pointer; font-size: 14px;">
-                        ✕ Close
-                    </button>
-                </div>
-                <div style="font-size: 14px; color: #666;">
-                    <strong>To:</strong> ${house.email}<br>
-                    <strong>Subject:</strong> ${subject}
-                </div>
-                <details style="margin-top: 15px;">
-                    <summary style="cursor: pointer; color: #007AFF; font-weight: 600;">📄 Preview Email Content</summary>
-                    <div style="white-space: pre-wrap; font-size: 12px; margin-top: 10px; background: white; padding: 15px; border-radius: 5px; border: 1px solid #ddd; max-height: 200px; overflow-y: auto;">${decodedBody}</div>
-                </details>
+            <div style="font-size: 14px; color: #666;">
+                <strong>To:</strong> ${house.email}<br>
+                <strong>Subject:</strong> ${subject}
             </div>
+            <details style="margin-top: 15px;">
+                <summary style="cursor: pointer; color: #007AFF; font-weight: 600;">📄 Preview Email Content</summary>
+                <div style="white-space: pre-wrap; font-size: 12px; margin-top: 10px; background: white; padding: 15px; border-radius: 5px; border: 1px solid #ddd; max-height: 200px; overflow-y: auto;">${decodedBody}</div>
+            </details>
         </div>
     `;
+    
+    modal.appendChild(modalContent);
+    
+    // Add event listeners after DOM is created
+    setTimeout(() => {
+        const gmailBtn = modal.querySelector('#gmail-btn');
+        const outlookBtn = modal.querySelector('#outlook-btn');
+        const nativeBtn = modal.querySelector('#native-btn');
+        const copyBtn = modal.querySelector('#copy-btn');
+        const closeBtn = modal.querySelector('#close-btn');
+        
+        if (gmailBtn) {
+            gmailBtn.addEventListener('click', () => {
+                console.log('Gmail button clicked');
+                window.openGmail(house.email, encodeURIComponent(subject), encodeURIComponent(decodedBody));
+                modal.remove();
+            });
+        }
+        
+        if (outlookBtn) {
+            outlookBtn.addEventListener('click', () => {
+                console.log('Outlook button clicked');
+                window.openOutlook(house.email, encodeURIComponent(subject), encodeURIComponent(decodedBody));
+                modal.remove();
+            });
+        }
+        
+        if (nativeBtn) {
+            nativeBtn.addEventListener('click', () => {
+                console.log('Native email button clicked');
+                window.tryNativeMailto(house.email, encodeURIComponent(subject), encodeURIComponent(decodedBody));
+                modal.remove();
+            });
+        }
+        
+        if (copyBtn) {
+            copyBtn.addEventListener('click', () => {
+                console.log('Copy button clicked');
+                window.copyEmailContent(house.email, subject, decodedBody);
+                modal.remove();
+            });
+        }
+        
+        if (closeBtn) {
+            closeBtn.addEventListener('click', () => {
+                console.log('Close button clicked');
+                modal.remove();
+            });
+        }
+        
+        // Close modal when clicking outside
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                modal.remove();
+            }
+        });
+    }, 10);
     
     // Add CSS animation
     const style = document.createElement('style');
