@@ -31,6 +31,11 @@ class SupabaseDatabase {
         }
     }
 
+    // Alias for getAllHackerHouses (for compatibility)
+    async getHackerHouses() {
+        return this.getAllHackerHouses();
+    }
+
     // Create new hacker house
     async createHackerHouse(houseData) {
         try {

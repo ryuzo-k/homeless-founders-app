@@ -2156,17 +2156,31 @@ async function verifyHouseEmail() {
     try {
         let allHouses = [];
         
+        // Debug: Check if SupabaseDB is available
+        console.log('🔧 Debug - SupabaseDB available:', typeof SupabaseDB !== 'undefined');
+        console.log('🔧 Debug - supabaseClient available:', typeof supabaseClient !== 'undefined');
+        
         // Get houses from Supabase database
         if (typeof SupabaseDB !== 'undefined') {
             console.log('🔍 Searching for houses in Supabase database...');
             try {
                 const dbHouses = await SupabaseDB.getHackerHouses();
+                console.log('🔧 Debug - Raw database response:', dbHouses);
+                console.log('🔧 Debug - Database houses count:', dbHouses ? dbHouses.length : 0);
+                
+                if (dbHouses && dbHouses.length > 0) {
+                    console.log('🔧 Debug - Sample house emails:', dbHouses.slice(0, 3).map(h => h.email));
+                }
+                
                 const userHouses = dbHouses.filter(h => h.email && h.email.toLowerCase() === email.toLowerCase());
                 allHouses = allHouses.concat(userHouses);
-                console.log(`✅ Found ${userHouses.length} houses in database`);
+                console.log(`✅ Found ${userHouses.length} houses in database for email: ${email}`);
             } catch (dbError) {
                 console.log('⚠️ Database query failed:', dbError.message);
+                console.error('🔧 Debug - Full database error:', dbError);
             }
+        } else {
+            console.log('⚠️ SupabaseDB not available - using localStorage only');
         }
         
         // Get houses from localStorage
