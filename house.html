@@ -208,7 +208,7 @@
                 // Show loading state
                 const submitButton = document.querySelector('button[type="submit"]');
                 const originalText = submitButton.textContent;
-                submitButton.textContent = '🤖 Analyzing description...';
+                submitButton.textContent = 'Registering House...';
                 submitButton.disabled = true;
                 
                 try {
@@ -226,11 +226,6 @@
         });
     </script>
     
-    <!-- External Scripts - CONFIG must load first -->
-    <script src="config.js"></script>
-    <script src="supabase-config.js"></script>
-    <script src="supabase-db.js"></script>
-    <script src="openai-service.js"></script>
-    <script src="script.js"></script>
+
 </body>
 </html>

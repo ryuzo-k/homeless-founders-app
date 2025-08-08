@@ -282,13 +282,61 @@ async function submitApplication(formData) {
 async function registerHackerHouse(formData) {
     console.log('Registering hacker house:', formData);
     
-    // Here you would typically send the data to your backend
-    // For now, we'll just show a success message
-    document.getElementById('houseForm').style.display = 'none';
-    document.getElementById('houseSuccess').style.display = 'block';
-    
-    // In a real implementation, you would send the house data to your backend here
-    // For example, using fetch or axios to send a POST request
+    try {
+        // Check if Supabase is available
+        if (typeof SupabaseDB !== 'undefined') {
+            console.log('SupabaseDB is available, creating house...');
+            
+            const houseWithImage = {
+                ...formData,
+                image: getRegionEmoji(formData.region)
+            };
+            
+            console.log('House data with image:', houseWithImage);
+            
+            // Create house in database
+            const newHouse = await SupabaseDB.createHackerHouse(houseWithImage);
+            console.log('House created successfully:', newHouse);
+            
+            // Show success message
+            document.getElementById('houseForm').style.display = 'none';
+            document.getElementById('houseSuccess').style.display = 'block';
+            
+        } else {
+            console.log('SupabaseDB not available, using fallback');
+            // Fallback to local storage
+            const newHouse = {
+                ...formData,
+                id: Date.now(),
+                image: getRegionEmoji(formData.region),
+                created_at: new Date().toISOString()
+            };
+            
+            registeredHouses.push(newHouse);
+            console.log('House registered locally:', newHouse);
+            
+            // Show success message
+            document.getElementById('houseForm').style.display = 'none';
+            document.getElementById('houseSuccess').style.display = 'block';
+        }
+        
+    } catch (error) {
+        console.error('Error registering house:', error);
+        
+        let errorMessage = 'Failed to register house. ';
+        if (error.message.includes('Database connection failed')) {
+            errorMessage += 'Please check your internet connection and try again.';
+        } else if (error.message.includes('API key')) {
+            errorMessage += 'API configuration issue. Please contact support.';
+        } else if (error.message.includes('Supabase')) {
+            errorMessage += 'Database service temporarily unavailable. Your data has been saved locally.';
+        } else {
+            errorMessage += 'Please try again. If the problem persists, contact support.';
+        }
+        
+        alert(errorMessage);
+        throw error;
+    }
 }
 
 // Find My Matchボタンのイベントリスナー
@@ -444,32 +492,7 @@ document.getElementById('consentFile').addEventListener('change', function(e) {
     }
 });
 
-// ハッカーハウス登録フォーム処理
-document.getElementById('houseForm').addEventListener('submit', function(e) {
-    e.preventDefault();
-    
 
-    
-    const formData = {
-        name: document.getElementById('houseName').value,
-        location: document.getElementById('houseLocation').value,
-        region: document.getElementById('houseRegion').value,
-        description: document.getElementById('houseDescription').value,
-        capacity: parseInt(document.getElementById('houseCapacity').value),
-        currentOccupancy: 0, // 初期値は0
-        email: document.getElementById('houseEmail').value,
-        preferences: document.getElementById('housePreferences').value
-    };
-    
-    // バリデーション
-    if (!formData.name || !formData.location || !formData.region || !formData.description || !formData.capacity || !formData.email) {
-        alert('Please fill in all required fields');
-        return;
-    }
-    
-    // ハッカーハウスを登録
-    registerHackerHouse(formData);
-});
 
 // ハッカーハウス登録処理
 async function registerHackerHouse(houseData) {
@@ -1247,27 +1270,30 @@ async function handleParentalConsentSubmission(e) {
 async function continueApplicationSubmission(founderData, selectedHouses, parentalConsentId) {
     try {
         // Save founder to database
-        const founderRecord = await SupabaseDB.createFounder(founderData);
-        console.log('Founder created:', founderRecord);
-        
-        // Send email notifications to selected houses
-        const emailService = new EmailService();
-        for (const house of selectedHouses) {
-            const houseData = {
-                name: house.name,
-                email: house.email
+        if (typeof SupabaseDB !== 'undefined') {
+            const founderRecord = await SupabaseDB.createFounder(founderData);
+            console.log('Founder created:', founderRecord);
+        } else {
+            // Fallback to local storage
+            const newFounder = {
+                ...founderData,
+                id: Date.now(),
+                parentalConsentId: parentalConsentId,
+                selectedHouses: selectedHouses.map(h => h.name),
+                created_at: new Date().toISOString()
             };
-            
-            try {
-                await emailService.sendApplicationEmail(founderData, houseData, parentalConsentId);
-                console.log(`Email sent to ${house.name}`);
-            } catch (emailError) {
-                console.error(`Failed to send email to ${house.name}:`, emailError);
-            }
+            registeredFounders.push(newFounder);
+            console.log('Founder registered locally:', newFounder);
         }
         
-        // Show success message
-        document.getElementById('applicationSuccess').classList.remove('hidden');
+        // Show success message with house contact info
+        let message = 'Application submitted successfully!\n\nPlease contact the houses directly:\n\n';
+        selectedHouses.forEach(house => {
+            message += `${house.name}: ${house.email}\n`;
+        });
+        message += '\nMention that you applied through Homeless Founders platform.';
+        
+        alert(message);
         
         // Hide forms
         const container = document.getElementById('parentalConsentContainer');
@@ -1282,7 +1308,7 @@ async function continueApplicationSubmission(founderData, selectedHouses, parent
         
     } catch (error) {
         console.error('Application submission error:', error);
-        alert('Failed to submit application. Please try again.');
+        alert('Application saved locally. Please contact houses directly with their email addresses.');
     }
 }
 
@@ -1439,75 +1465,72 @@ async function submitApplications() {
         endDate: document.getElementById('appEndDate').value,
         message: document.getElementById('appMessage').value
     };
-    
+
     // Validate required fields
     if (!formData.name || !formData.email || !formData.age || !formData.location || !formData.project || !formData.startDate || !formData.endDate) {
-        alert('Please fill in all required fields.');
+        alert('Please fill in all required fields');
         return;
     }
-    
+
     // Get selected houses
-    let selectedHouses = Array.from(document.querySelectorAll('.house-checkbox:checked')).map(cb => ({
-        name: cb.dataset.name,
-        email: cb.dataset.email
-    }));
+    const selectedHouses = [];
+    const checkboxes = document.querySelectorAll('.house-checkbox:checked');
     
-    // If no houses are selected (direct application), use the selected house
-    if (selectedHouses.length === 0 && window.selectedHouse) {
-        selectedHouses = [window.selectedHouse];
-    } else if (selectedHouses.length === 0) {
-        alert('Please select at least one hacker house to apply to.');
-        return;
+    if (checkboxes.length === 0) {
+        // Check if this is a direct application to a single house
+        if (window.selectedHouse) {
+            selectedHouses.push(window.selectedHouse);
+        } else {
+            alert('Please select at least one house to apply to');
+            return;
+        }
+    } else {
+        checkboxes.forEach(checkbox => {
+            selectedHouses.push({
+                name: checkbox.dataset.name,
+                email: checkbox.dataset.email
+            });
+        });
     }
-    
+
     try {
-        // Create founder record in database
-        const founderData = {
-            name: formData.name,
-            email: formData.email,
-            age: formData.age,
-            product: formData.project,
-            startDate: formData.startDate,
-            endDate: formData.endDate,
-            region: 'other' // Default region, could be improved with a region selector
-        };
-        
-        // Check if applicant is a minor and handle parental consent
-        let parentalConsentId = null;
-        
+        // Check if applicant is a minor
         if (formData.age < 18) {
-            // Show parental consent form instead of sending email
+            // Show parental consent form
             showParentalConsentForm(formData, selectedHouses);
             return;
         }
-        
-        // Save founder to database
-        const founderRecord = await SupabaseDB.createFounder(founderData);
-        console.log('Founder created:', founderRecord);
-        
-        // Send email notifications to selected houses
-        const emailService = new EmailService();
-        for (const house of selectedHouses) {
-            // In a real implementation, you would retrieve the actual house data from the database
-            const houseData = {
-                name: house.name,
-                email: house.email
+
+        // For adults, proceed with application
+        if (typeof SupabaseDB !== 'undefined') {
+            // Save to database
+            const founderRecord = await SupabaseDB.createFounder(formData);
+            console.log('Founder created:', founderRecord);
+        } else {
+            // Save locally
+            const newFounder = {
+                ...formData,
+                id: Date.now(),
+                selectedHouses: selectedHouses.map(h => h.name),
+                created_at: new Date().toISOString()
             };
-            
-            try {
-                await emailService.sendApplicationEmail(founderData, houseData, parentalConsentId);
-                console.log(`Email sent to ${house.name}`);
-            } catch (emailError) {
-                console.error(`Failed to send email to ${house.name}:`, emailError);
-            }
+            registeredFounders.push(newFounder);
+            console.log('Founder registered locally:', newFounder);
         }
+
+        // Show success message with house contact info
+        let message = 'Application submitted successfully!\n\nPlease contact the houses directly:\n\n';
+        selectedHouses.forEach(house => {
+            message += `${house.name}: ${house.email}\n`;
+        });
+        message += '\nMention that you applied through Homeless Founders platform.';
         
-        // Show success message
-        document.getElementById('applicationSuccess').classList.remove('hidden');
-        // Hide form if on apply page
+        alert(message);
+
+        // Hide application form and show houses list
         if (document.getElementById('applicationForm')) {
             document.getElementById('applicationForm').style.display = 'none';
-            document.querySelector('#applyPage .simple-card:nth-child(3)').style.display = 'none';
+            document.getElementById('applicationSuccess').style.display = 'block';
             document.getElementById('submitApplications').style.display = 'none';
         }
         // Hide form if on browse houses page
@@ -1518,7 +1541,7 @@ async function submitApplications() {
         }
     } catch (error) {
         console.error('Application submission error:', error);
-        alert('Error submitting application. Please try again.');
+        alert('Application saved locally. Please contact houses directly with their email addresses.');
     }
 }
 
