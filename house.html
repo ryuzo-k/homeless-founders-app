@@ -161,68 +161,7 @@
                 });
             }
             
-            // Handle form submission
-            document.getElementById('houseForm').addEventListener('submit', async function(e) {
-                e.preventDefault();
-                console.log('Form submitted, collecting data...');
-                
-                // Log individual field values
-                console.log('houseName:', document.getElementById('houseName').value);
-                console.log('houseLocation:', document.getElementById('houseLocation').value);
-                console.log('houseRegion:', document.getElementById('houseRegion').value);
-                console.log('houseDescription:', document.getElementById('houseDescription').value);
-                console.log('houseCapacity:', document.getElementById('houseCapacity').value);
-                console.log('houseEmail:', document.getElementById('houseEmail').value);
-                
-                const formData = {
-                    name: document.getElementById('houseName').value,
-                    location: document.getElementById('houseLocation').value,
-                    region: document.getElementById('houseRegion').value,
-                    description: document.getElementById('houseDescription').value,
-                    capacity: document.getElementById('houseCapacity').value,
-                    currentOccupancy: 0,
-                    email: document.getElementById('houseEmail').value
-                };
-                
-
-                
-                // Validate
-                console.log('Validating form data:', formData);
-                
-                const missingFields = [];
-                if (!formData.name) missingFields.push('House Name');
-                if (!formData.location) missingFields.push('Location');
-                if (!formData.region) missingFields.push('Region');
-                if (!formData.description) missingFields.push('Description');
-                if (!formData.capacity) missingFields.push('Capacity');
-                if (!formData.email) missingFields.push('Contact Email');
-                
-                if (missingFields.length > 0) {
-                    console.log('Missing fields:', missingFields);
-                    alert('Please fill in all required fields: ' + missingFields.join(', '));
-                    return;
-                }
-                
-                console.log('Submitting house data:', formData);
-                
-                // Show loading state
-                const submitButton = document.querySelector('button[type="submit"]');
-                const originalText = submitButton.textContent;
-                submitButton.textContent = 'Registering House...';
-                submitButton.disabled = true;
-                
-                try {
-                    await registerHackerHouse(formData);
-                    // Success - will be handled by registerHackerHouse function
-                } catch (error) {
-                    console.error('Registration failed:', error);
-                    alert('Registration failed. Please try again.');
-                } finally {
-                    // Reset button
-                    submitButton.textContent = originalText;
-                    submitButton.disabled = false;
-                }
-            });
+            // Form submission is handled by script.js
         });
     </script>
     
