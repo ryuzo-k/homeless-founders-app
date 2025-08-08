@@ -3,6 +3,11 @@
 .env.local
 .env.production
 
+# API Keys and configuration files (disabled for production deployment)
+# config.js
+# config-production.js
+# config-local.js
+
 # Logs
 *.log
 npm-debug.log*

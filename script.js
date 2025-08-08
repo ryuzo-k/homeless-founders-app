@@ -532,7 +532,20 @@ async function registerHackerHouse(houseData) {
         
     } catch (error) {
         console.error('ハッカーハウス登録エラー:', error);
-        alert('Registration failed. Please try again.');
+        
+        // Provide specific error messages for different scenarios
+        let errorMessage = 'Registration failed. ';
+        if (error.message.includes('Database connection failed')) {
+            errorMessage += 'Please check your internet connection and try again.';
+        } else if (error.message.includes('API key')) {
+            errorMessage += 'API configuration issue. Please contact support.';
+        } else if (error.message.includes('Supabase')) {
+            errorMessage += 'Database service temporarily unavailable. Your data has been saved locally.';
+        } else {
+            errorMessage += 'Please try again. If the problem persists, contact support.';
+        }
+        
+        alert(errorMessage);
     }
 }
 
@@ -1304,6 +1317,13 @@ async function loadHackerHousesList() {
     try {
         // Try to load from database first
         console.log('Attempting to load houses from database...');
+        
+        // Check if SupabaseDB is available
+        if (typeof SupabaseDB === 'undefined') {
+            console.error('SupabaseDB is not defined. Using fallback data.');
+            throw new Error('SupabaseDB not available');
+        }
+        
         houses = await SupabaseDB.getAllHackerHouses();
         console.log('Loaded houses from database:', houses);
         console.log('Number of houses loaded:', houses.length);

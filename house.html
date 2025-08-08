@@ -161,8 +161,8 @@
                 });
             }
             
-            // Add form submit listener
-            document.getElementById('houseForm').addEventListener('submit', function(e) {
+            // Handle form submission
+            document.getElementById('houseForm').addEventListener('submit', async function(e) {
                 e.preventDefault();
                 console.log('Form submitted, collecting data...');
                 
@@ -204,9 +204,33 @@
                 }
                 
                 console.log('Submitting house data:', formData);
-                registerHackerHouse(formData);
+                
+                // Show loading state
+                const submitButton = document.querySelector('button[type="submit"]');
+                const originalText = submitButton.textContent;
+                submitButton.textContent = '🤖 Analyzing description...';
+                submitButton.disabled = true;
+                
+                try {
+                    await registerHackerHouse(formData);
+                    // Success - will be handled by registerHackerHouse function
+                } catch (error) {
+                    console.error('Registration failed:', error);
+                    alert('Registration failed. Please try again.');
+                } finally {
+                    // Reset button
+                    submitButton.textContent = originalText;
+                    submitButton.disabled = false;
+                }
             });
         });
     </script>
+    
+    <!-- External Scripts - CONFIG must load first -->
+    <script src="config.js"></script>
+    <script src="supabase-config.js"></script>
+    <script src="supabase-db.js"></script>
+    <script src="openai-service.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>
