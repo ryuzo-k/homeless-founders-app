@@ -246,20 +246,30 @@ document.addEventListener('DOMContentLoaded', function() {
                 location: document.getElementById('houseLocation').value,
                 email: document.getElementById('houseEmail').value,
                 region: document.getElementById('houseRegion').value,
-                description: document.getElementById('houseDescription').value,
-                capacity: document.getElementById('houseCapacity').value
+                description: document.getElementById('houseDescription').value
             };
             
-            if (!formData.name || !formData.location || !formData.email || !formData.region || !formData.description || !formData.capacity) {
+            if (!formData.name || !formData.location || !formData.email || !formData.region || !formData.description) {
                 alert('Please fill in all required fields');
                 return;
             }
             
             try {
+                // Test Supabase connection first
+                console.log('Testing Supabase connection...');
+                if (typeof SupabaseDB !== 'undefined') {
+                    console.log('✅ SupabaseDB is available');
+                    console.log('Supabase URL:', CONFIG?.SUPABASE_URL);
+                    console.log('Supabase Key exists:', !!CONFIG?.SUPABASE_ANON_KEY);
+                } else {
+                    console.log('❌ SupabaseDB is not available');
+                }
+                
                 // ハッカーハウスを登録
                 await registerHackerHouse(formData);
             } catch (error) {
                 console.error('Error registering house:', error);
+                alert(`Registration failed: ${error.message}`);
             }
         });
     }

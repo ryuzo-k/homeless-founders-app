@@ -80,6 +80,9 @@ class EmailService {
                 templateParams
             );
 
+            // Send confirmation email to applicant
+            await this.sendConfirmationEmail(founderData, houseData);
+
             console.log('Email sent successfully via EmailJS:', result);
             return result;
         } catch (error) {
@@ -106,6 +109,35 @@ class EmailService {
             
             checkEmailJS();
         });
+    }
+
+    async sendConfirmationEmail(founderData, houseData) {
+        try {
+            await this.waitForEmailJS();
+            
+            const confirmationParams = {
+                to_email: founderData.email,
+                to_name: founderData.name,
+                house_name: houseData.name,
+                house_email: houseData.email,
+                applicant_name: founderData.name,
+                project_description: founderData.project,
+                start_date: founderData.startDate,
+                end_date: founderData.endDate,
+                platform: 'Homeless Founders'
+            };
+
+            await emailjs.send(
+                this.serviceId,
+                'template_confirmation', // Separate template for confirmation
+                confirmationParams
+            );
+
+            console.log('Confirmation email sent to applicant');
+        } catch (error) {
+            console.error('Failed to send confirmation email:', error);
+            // Don't throw error - confirmation email is optional
+        }
     }
 
     async sendParentalConsentConfirmation(parentEmail, minorName) {
