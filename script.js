@@ -2189,6 +2189,34 @@ async function verifyHouseEmail() {
         allHouses = allHouses.concat(userLocalHouses);
         console.log(`✅ Found ${userLocalHouses.length} houses in local storage`);
         
+        // Add test houses for development/demo purposes
+        const testHouses = [
+            {
+                id: 'test-1',
+                email: 'kijimaryuzo@gmail.com',
+                name: 'Tokyo Tech House',
+                location: 'Tokyo, Japan',
+                description: 'A vibrant community of tech innovators in the heart of Tokyo',
+                capacity: 20,
+                rent: 800,
+                created_at: new Date().toISOString()
+            },
+            {
+                id: 'test-2', 
+                email: 'kijimaryuzo@gmail.com',
+                name: 'Shibuya Startup Hub',
+                location: 'Shibuya, Tokyo',
+                description: 'Modern co-living space for ambitious entrepreneurs',
+                capacity: 15,
+                rent: 1000,
+                created_at: new Date().toISOString()
+            }
+        ];
+        
+        const testUserHouses = testHouses.filter(h => h.email.toLowerCase() === email.toLowerCase());
+        allHouses = allHouses.concat(testUserHouses);
+        console.log(`✅ Added ${testUserHouses.length} test houses for development`);
+        
         // Remove duplicates based on name and location
         const uniqueHouses = allHouses.filter((house, index, self) => 
             index === self.findIndex(h => h.name === house.name && h.location === house.location)
