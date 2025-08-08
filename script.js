@@ -1983,6 +1983,11 @@ async function loadHackerHousesList() {
                 }
             }
             
+            // Debug: Check photo data for each house
+            console.log(`🔍 House "${house.name}" raw photos:`, house.photos);
+            console.log(`🔍 House "${house.name}" photos type:`, typeof house.photos);
+            console.log(`🔍 House "${house.name}" photos array:`, Array.isArray(house.photos));
+            
             return {
                 ...house,
                 image: getRegionEmoji(house.region),
