@@ -54,7 +54,10 @@ class SupabaseDatabase {
     // Update hacker house
     async updateHackerHouse(id, updateData) {
         try {
-            const { data, error } = await this.client
+            const client = this.getClient();
+            if (!client) throw new Error('Supabase client not initialized');
+            
+            const { data, error } = await client
                 .from('hacker_houses')
                 .update(updateData)
                 .eq('id', id)
@@ -72,7 +75,10 @@ class SupabaseDatabase {
     // Delete hacker house
     async deleteHackerHouse(id) {
         try {
-            const { error } = await this.client
+            const client = this.getClient();
+            if (!client) throw new Error('Supabase client not initialized');
+            
+            const { error } = await client
                 .from('hacker_houses')
                 .delete()
                 .eq('id', id);
@@ -88,7 +94,10 @@ class SupabaseDatabase {
     // Get hacker house by ID
     async getHackerHouseById(id) {
         try {
-            const { data, error } = await this.client
+            const client = this.getClient();
+            if (!client) throw new Error('Supabase client not initialized');
+            
+            const { data, error } = await client
                 .from('hacker_houses')
                 .select('*')
                 .eq('id', id)
