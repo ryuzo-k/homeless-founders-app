@@ -686,9 +686,9 @@ async function displayHouseList(houses = null) {
     
     houseGrid.innerHTML = housesToShow.map(house => `
         <div class="simple-card p-6">
-            ${house.photos && house.photos.length > 0 ? `
+            ${house.photos && Array.isArray(house.photos) && house.photos.length > 0 ? `
                 <div class="mb-4">
-                    <img src="${house.photos[0]}" alt="${house.name}" class="w-full h-48 object-cover border border-black" style="max-height: 200px;">
+                    <img src="${house.photos[0]}" alt="${house.name}" class="w-full h-48 object-cover border border-black" onerror="this.style.display='none'">
                     ${house.photos.length > 1 ? `<p class="text-xs text-gray-600 mt-1">+${house.photos.length - 1} more photos</p>` : ''}
                 </div>
             ` : ''}
