@@ -422,11 +422,11 @@ function showMinorApplicationForm(houseName, founderName, founderEmail, founderA
     // 未成年者の申し込み完了メッセージ（保護者情報付き）
     alert(`Minor Application to ${houseName} submitted successfully!\n\n=== MINOR APPLICANT ===\nName: ${founderName}\nAge: ${founderAge} (MINOR - Under 18)\nEmail: ${founderEmail}\nStay Duration: ${startDate} - ${endDate} (${diffDays} days)\n\n=== PARENT/GUARDIAN INFO ===\nName: ${parentName}\nEmail: ${parentEmail}\nPhone: ${parentPhone}\n\n=== IMPORTANT NOTICE ===\nThis application includes parental information as required for minors.\nThe hacker house will contact both the minor and parent/guardian.\nParental supervision and approval is required for all arrangements.\n\nNext Steps:\n1. House will contact parent at ${parentEmail}\n2. Parent must approve all arrangements\n3. You can reach the house at ${houseEmail}`);
 }
+
+// 同意書アップロード処理
 document.getElementById('consentFile').addEventListener('change', function(e) {
     const file = e.target.files[0];
     if (file) {
-        // ここで実際のアップロード処理を行う（簡略化）
-        console.log('Consent form selected:', file.name);
         alert(`Consent form "${file.name}" uploaded successfully.\nStarting matching process after verification.`);
         
         // 同意書確認後、マッチング実行
@@ -444,6 +444,45 @@ document.getElementById('consentFile').addEventListener('change', function(e) {
     }
 });
 
+// ハッカーハウス登録フォーム処理
+document.getElementById('houseForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+
+    
+    const formData = {
+        name: document.getElementById('houseName').value,
+        location: document.getElementById('houseLocation').value,
+        region: document.getElementById('houseRegion').value,
+        description: document.getElementById('houseDescription').value,
+        capacity: parseInt(document.getElementById('houseCapacity').value),
+        currentOccupancy: 0, // 初期値は0
+        email: document.getElementById('houseEmail').value,
+        preferences: document.getElementById('housePreferences').value
+    };
+    
+    // 設備の取得
+    const facilities = [];
+    document.querySelectorAll('#housePage input[type="checkbox"]:checked').forEach(checkbox => {
+        facilities.push(checkbox.value);
+    });
+    formData.facilities = facilities;
+    
+    // バリデーション
+    if (!formData.name || !formData.location || !formData.region || !formData.description || !formData.capacity || !formData.email) {
+        alert('Please fill in all required fields');
+        return;
+    }
+    
+    // ハッカーハウスを登録
+    registerHackerHouse(formData);
+});
+
+// ハッカーハウス登録処理
+async function registerHackerHouse(houseData) {
+    try {
+        console.log('registerHackerHouse called with:', houseData);
+        
         // Check if Supabase is available
         if (typeof SupabaseDB !== 'undefined') {
             console.log('SupabaseDB is available, creating house...');
@@ -456,13 +495,10 @@ document.getElementById('consentFile').addEventListener('change', function(e) {
             const newHouse = await SupabaseDB.createHackerHouse(houseWithImage);
             console.log('新しいハッカーハウスがデータベースに登録されました:', newHouse);
             
-            // Update local stats and house list
+            // Update local stats only
             await updateHomeStats();
             
-            // Reload house list from database (this already updates the display)
-            if (typeof loadHackerHousesList === 'function') {
-                await loadHackerHousesList();
-            }
+            console.log('House registered successfully, no need to reload list');
         } else {
             console.log('SupabaseDB not available, using local storage fallback');
             // Fallback to local storage
@@ -548,7 +584,7 @@ function getRegionEmoji(region) {
 }
 
 // ハウス一覧表示機能
-function displayHouseList(houses = null) {
+async function displayHouseList(houses = null) {
     const housesToShow = houses || [...hackerHouses, ...registeredHouses];
     const houseGrid = document.getElementById('houseGrid');
     const emptyState = document.getElementById('emptyState');
@@ -1367,37 +1403,6 @@ async function loadHackerHousesList() {
                 features: features
             };
         });
-
-        // If DB is reachable but has no houses, show a helpful fallback list
-        if (!Array.isArray(houses) || houses.length === 0) {
-            console.log('No houses found in DB. Showing sample fallback list.');
-            houses = [
-                {
-                    name: "Tokyo Tech House",
-                    location: "Tokyo, Japan",
-                    email: "hello@tokyotech.house",
-                    description: "AI/ML focused hacker house in Shibuya. Perfect for tech founders building innovative products.",
-                    capacity: 8,
-                    features: ["High-speed WiFi", "24/7 Access", "Mentorship", "Networking Events"]
-                },
-                {
-                    name: "SF Startup Hub",
-                    location: "San Francisco, CA",
-                    email: "apply@sfhub.co",
-                    description: "YC-style accelerator environment in the heart of Silicon Valley. Connect with investors and fellow founders.",
-                    capacity: 12,
-                    features: ["Investor Network", "Demo Days", "Legal Support", "Funding Prep"]
-                },
-                {
-                    name: "Berlin Builders",
-                    location: "Berlin, Germany", 
-                    email: "team@berlinbuilders.com",
-                    description: "European startup community focused on sustainable tech and social impact ventures.",
-                    capacity: 6,
-                    features: ["Sustainability Focus", "EU Market Access", "Co-working Space", "Community Events"]
-                }
-            ];
-        }
         
     } catch (error) {
         console.error('Failed to load houses from database:', error);

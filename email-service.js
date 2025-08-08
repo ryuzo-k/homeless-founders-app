@@ -39,7 +39,8 @@ class EmailService {
         const emailData = {
             from: 'onboarding@resend.dev',
             to: houseData.email,
-            subject: `New Application: ${founderData.name}`,
+            reply_to: founderData.email,
+            subject: `🏠 New Founder Application: ${founderData.name}`,
             html: this.generateApplicationEmailHTML(founderData, houseData, parentalConsentId)
         };
 
@@ -174,48 +175,60 @@ class EmailService {
             <head>
                 <meta charset="utf-8">
                 <style>
-                    body { font-family: monospace; background: white; color: black; }
+                    body { font-family: monospace; background: white; color: black; line-height: 1.6; }
                     .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-                    .header { border: 2px solid black; padding: 20px; margin-bottom: 20px; }
-                    .content { border: 2px solid black; padding: 20px; }
-                    .minor-notice { background: #fff3cd; border: 2px solid #856404; padding: 15px; margin: 15px 0; }
-                    .button { background: white; border: 2px solid black; padding: 10px 20px; text-decoration: none; color: black; display: inline-block; margin: 10px 0; }
+                    .header { border: 2px solid black; padding: 20px; margin-bottom: 20px; text-align: center; }
+                    .content { border: 2px solid black; padding: 20px; margin-bottom: 20px; }
+                    .section { margin-bottom: 20px; }
+                    .field { margin-bottom: 10px; }
+                    .label { font-weight: bold; display: inline-block; min-width: 120px; }
+                    .consent-notice { background: #d4edda; border: 2px solid #28a745; padding: 15px; margin: 15px 0; }
+                    .project-box { border: 1px solid #ccc; padding: 15px; background: #f9f9f9; margin: 10px 0; }
                 </style>
             </head>
             <body>
                 <div class="container">
                     <div class="header">
                         <h1>🏠 New Founder Application</h1>
-                        <p><strong>House:</strong> ${houseData.name}</p>
+                        <p><strong>Target House:</strong> ${houseData.name}</p>
+                        <p style="font-size: 12px; color: #666;">Homeless Founders Platform</p>
                     </div>
                     
                     <div class="content">
-                        <h2>Applicant Information</h2>
-                        <p><strong>Name:</strong> ${founderData.name}</p>
-                        <p><strong>Age:</strong> ${founderData.age}</p>
-                        <p><strong>Email:</strong> ${founderData.email}</p>
-                        <p><strong>Stay Duration:</strong> ${founderData.startDate} to ${founderData.endDate}</p>
-                        <p><strong>Product/Project:</strong></p>
-                        <p style="border: 1px solid #ccc; padding: 10px; background: #f9f9f9;">${founderData.product}</p>
+                        <div class="section">
+                            <h2>📋 Applicant Information</h2>
+                            <div class="field"><span class="label">Name:</span> ${founderData.name}</div>
+                            <div class="field"><span class="label">Age:</span> ${founderData.age} years old</div>
+                            <div class="field"><span class="label">Email:</span> ${founderData.email}</div>
+                            <div class="field"><span class="label">Location:</span> ${founderData.location || 'Not specified'}</div>
+                            <div class="field"><span class="label">Stay Period:</span> ${founderData.startDate} to ${founderData.endDate}</div>
+                        </div>
+                        
+                        <div class="section">
+                            <h2>🚀 Project/Startup Details</h2>
+                            <div class="project-box">${founderData.project || founderData.message || 'No project details provided'}</div>
+                        </div>
                         
                         ${isMinor ? `
-                        <div class="minor-notice">
-                            <h3>⚠️ MINOR APPLICANT</h3>
-                            <p>This applicant is under 18 years old. Parental consent has been obtained and is on file.</p>
-                            <p><strong>Parental Consent ID:</strong> ${parentalConsentId}</p>
-                            <p><strong>Important:</strong> Please ensure all arrangements are approved by the parent/guardian before accepting this application.</p>
+                        <div class="consent-notice">
+                            <h3>✅ PARENTAL CONSENT VERIFIED</h3>
+                            <p><strong>Status:</strong> This applicant is under 18 years old. Valid parental consent has been obtained and verified.</p>
+                            <p><strong>Consent Reference:</strong> ${parentalConsentId}</p>
+                            <p><strong>Note:</strong> All arrangements must be coordinated with the parent/guardian before accepting this application.</p>
                         </div>
                         ` : ''}
                         
-                        <h3>Next Steps</h3>
-                        <ol>
-                            <li>Review the application details above</li>
-                            <li>Contact the applicant at ${founderData.email}</li>
-                            <li>Schedule an interview if interested</li>
-                            ${isMinor ? '<li>Coordinate with parent/guardian for all arrangements</li>' : ''}
-                        </ol>
-                        
-                        <a href="mailto:${founderData.email}" class="button">Reply to Applicant</a>
+                        <div class="section">
+                            <h2>📞 Next Steps</h2>
+                            <ol style="padding-left: 20px;">
+                                <li>Review the application details above</li>
+                                <li>Reply directly to this email to contact the applicant</li>
+                                <li>Schedule a video interview if interested</li>
+                                ${isMinor ? '<li><strong>Important:</strong> Coordinate with parent/guardian for all arrangements</li>' : ''}
+                            </ol>
+                            
+                            <p style="margin-top: 20px;"><strong>Questions?</strong> Contact us at support@homelessfounders.com</p>
+                        </div>
                     </div>
                     
                     <div style="margin-top: 20px; text-align: center; font-size: 12px; color: #666;">
