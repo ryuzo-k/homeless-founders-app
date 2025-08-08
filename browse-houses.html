@@ -151,15 +151,15 @@
         </div>
     </div>
 
-    <!-- Supabase JS -->
+    <!-- Supabase and essential scripts -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="supabase-config.js"></script>
+    <script src="supabase-db.js"></script>
     <script src="email-service.js"></script>
     <script src="script.js"></script>
+
     <script>
         // Load houses when page loads
-
-        
         document.addEventListener('DOMContentLoaded', function() {
             // Debug: Check if all required objects are loaded
             console.log('=== DEBUG INFO ===');
@@ -168,29 +168,10 @@
             console.log('supabaseClient:', typeof supabaseClient !== 'undefined' ? 'LOADED' : 'NOT LOADED');
             console.log('SupabaseDB:', typeof SupabaseDB !== 'undefined' ? 'LOADED' : 'NOT LOADED');
             
-            // If SupabaseDB is not loaded, try to initialize it manually
-            if (typeof SupabaseDB === 'undefined' && typeof supabaseClient !== 'undefined') {
-                console.log('Manually initializing SupabaseDB...');
-                window.SupabaseDB = {
-                    async getAllHackerHouses() {
-                        try {
-                            const { data, error } = await supabaseClient
-                                .from('hacker_houses')
-                                .select('*')
-                                .order('created_at', { ascending: false });
-                            
-                            if (error) throw error;
-                            return data || [];
-                        } catch (error) {
-                            console.error('Error fetching houses:', error);
-                            return [];
-                        }
-                    }
-                };
-                console.log('Manual SupabaseDB initialized');
+            // Load houses list
+            if (typeof loadHackerHousesList === 'function') {
+                loadHackerHousesList();
             }
-            
-            loadHackerHousesList();
             
             // Add back to houses list functionality
             const backButton = document.createElement('button');
@@ -250,15 +231,10 @@
         });
     </script>
     
-    <!-- Supabase JS -->
+    <!-- Supabase and essential scripts -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    
-    <!-- External Scripts - CONFIG must load first -->
-    <script src="config.js"></script>
-    <script src="supabase-config.js"></script>
     <script src="supabase-db.js"></script>
     <script src="email-service.js"></script>
-    <script src="openai-service.js"></script>
     <script src="script.js"></script>
 </body>
 </html>
