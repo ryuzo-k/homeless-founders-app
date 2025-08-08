@@ -1331,38 +1331,7 @@ function sendViaMailto(formData, selectedHouses) {
     const generateEmailContent = (house) => {
         const subject = `🏠 Founder Application: ${formData.name} - ${formData.project}`;
         
-        const body = `Dear ${house.name} team,
-
-I hope this email finds you well. I am writing to apply for accommodation at ${house.name} through the Homeless Founders platform.
-
-**About Me:**
-• Name: ${formData.name}
-• Age: ${formData.age}
-• Email: ${formData.email}
-• Current Location: ${formData.location}
-
-**My Project:**
-${formData.project}
-
-**Accommodation Details:**
-• Preferred Start Date: ${formData.startDate}
-• Preferred End Date: ${formData.endDate}
-• Duration: ${calculateDuration(formData.startDate, formData.endDate)}
-
-**Additional Information:**
-${formData.message || 'I am excited about the opportunity to join your community and contribute to the vibrant ecosystem of founders and entrepreneurs.'}
-
-I believe ${house.name} would be the perfect environment for me to develop my project while connecting with like-minded individuals. I am committed to being a positive and contributing member of your community.
-
-Thank you for considering my application. I look forward to hearing from you and would be happy to provide any additional information you may need.
-
-Best regards,
-${formData.name}
-${formData.email}
-
----
-Applied via Homeless Founders Platform
-Platform: https://homeless-founders.vercel.app/`;
+        const body = `Dear ${house.name} team,%0D%0A%0D%0AI hope this email finds you well. I am writing to apply for accommodation at ${house.name} through the Homeless Founders platform.%0D%0A%0D%0AABOUT ME:%0D%0A- Name: ${formData.name}%0D%0A- Age: ${formData.age}%0D%0A- Email: ${formData.email}%0D%0A- Current Location: ${formData.location}%0D%0A%0D%0AMY PROJECT:%0D%0A${formData.project}%0D%0A%0D%0AACCOMMODATION DETAILS:%0D%0A- Preferred Start Date: ${formData.startDate}%0D%0A- Preferred End Date: ${formData.endDate}%0D%0A- Duration: ${calculateDuration(formData.startDate, formData.endDate)}%0D%0A%0D%0AADDITIONAL INFORMATION:%0D%0A${formData.message || 'I am excited about the opportunity to join your community and contribute to the vibrant ecosystem of founders and entrepreneurs.'}%0D%0A%0D%0AI believe ${house.name} would be the perfect environment for me to develop my project while connecting with like-minded individuals. I am committed to being a positive and contributing member of your community.%0D%0A%0D%0AThank you for considering my application. I look forward to hearing from you and would be happy to provide any additional information you may need.%0D%0A%0D%0ABest regards,%0D%0A${formData.name}%0D%0A${formData.email}%0D%0A%0D%0A---%0D%0AApplied via Homeless Founders Platform%0D%0APlatform: https://homeless-founders.vercel.app/`;
 
         return { subject, body };
     };
@@ -1416,47 +1385,7 @@ function sendViaMailtoWithParentalConsent(formData, selectedHouses, parentalCons
     const generateEmailContent = (house) => {
         const subject = `🏠 Founder Application (Minor with Parental Consent): ${formData.name} - ${formData.project}`;
         
-        const body = `Dear ${house.name} team,
-
-I hope this email finds you well. I am writing to apply for accommodation at ${house.name} through the Homeless Founders platform.
-
-⚠️ **IMPORTANT: This application is for a minor (under 18) with verified parental consent.**
-
-**About Me:**
-• Name: ${formData.name}
-• Age: ${formData.age} (Minor - under 18)
-• Email: ${formData.email}
-• Current Location: ${formData.location}
-• Parental Consent ID: ${parentalConsentId}
-
-**My Project:**
-${formData.project}
-
-**Accommodation Details:**
-• Preferred Start Date: ${formData.startDate}
-• Preferred End Date: ${formData.endDate}
-• Duration: ${calculateDuration(formData.startDate, formData.endDate)}
-
-**Parental Consent Information:**
-✅ Parental consent has been obtained and verified through the Homeless Founders platform.
-✅ Parent/Guardian contact information is available upon request.
-✅ All legal requirements for minor accommodation have been addressed.
-
-**Additional Information:**
-${formData.message || 'I am excited about the opportunity to join your community and contribute to the vibrant ecosystem of founders and entrepreneurs, with full parental support.'}
-
-I believe ${house.name} would be the perfect environment for me to develop my project while connecting with like-minded individuals. My parents/guardians fully support this opportunity and I am committed to being a positive and contributing member of your community.
-
-Thank you for considering my application. Please note that as a minor, any accommodation arrangements will need to comply with local regulations regarding minors. I look forward to hearing from you and would be happy to provide any additional information, including parental contact details.
-
-Best regards,
-${formData.name}
-${formData.email}
-
----
-Applied via Homeless Founders Platform (Minor with Parental Consent)
-Platform: https://homeless-founders.vercel.app/
-Consent ID: ${parentalConsentId}`;
+        const body = `Dear ${house.name} team,%0D%0A%0D%0AI hope this email finds you well. I am writing to apply for accommodation at ${house.name} through the Homeless Founders platform.%0D%0A%0D%0AIMPORTANT: This application is for a minor (under 18) with verified parental consent.%0D%0A%0D%0AABOUT ME:%0D%0A- Name: ${formData.name}%0D%0A- Age: ${formData.age} (Minor - under 18)%0D%0A- Email: ${formData.email}%0D%0A- Current Location: ${formData.location}%0D%0A- Parental Consent ID: ${parentalConsentId}%0D%0A%0D%0AMY PROJECT:%0D%0A${formData.project}%0D%0A%0D%0AACCOMMODATION DETAILS:%0D%0A- Preferred Start Date: ${formData.startDate}%0D%0A- Preferred End Date: ${formData.endDate}%0D%0A- Duration: ${calculateDuration(formData.startDate, formData.endDate)}%0D%0A%0D%0APARENTAL CONSENT INFORMATION:%0D%0A- Parental consent has been obtained and verified through the Homeless Founders platform%0D%0A- Parent/Guardian contact information is available upon request%0D%0A- All legal requirements for minor accommodation have been addressed%0D%0A%0D%0AADDITIONAL INFORMATION:%0D%0A${formData.message || 'I am excited about the opportunity to join your community and contribute to the vibrant ecosystem of founders and entrepreneurs, with full parental support.'}%0D%0A%0D%0AI believe ${house.name} would be the perfect environment for me to develop my project while connecting with like-minded individuals. My parents/guardians fully support this opportunity and I am committed to being a positive and contributing member of your community.%0D%0A%0D%0AThank you for considering my application. Please note that as a minor, any accommodation arrangements will need to comply with local regulations regarding minors. I look forward to hearing from you and would be happy to provide any additional information, including parental contact details.%0D%0A%0D%0ABest regards,%0D%0A${formData.name}%0D%0A${formData.email}%0D%0A%0D%0A---%0D%0AApplied via Homeless Founders Platform (Minor with Parental Consent)%0D%0APlatform: https://homeless-founders.vercel.app/%0D%0AConsent ID: ${parentalConsentId}`;
 
         return { subject, body };
     };
