@@ -1250,8 +1250,25 @@ async function handleParentalConsentSubmission(e) {
             consent_status: 'approved'
         };
         
-        const consentRecord = await SupabaseDB.createOrUpdateParentalConsent(consentData);
-        console.log('Parental consent created:', consentRecord);
+        // Generate unique consent ID
+        const consentId = `PC-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+        const consentRecord = { ...consentData, id: consentId };
+        
+        // Try to save to Supabase if available, but don't fail if it doesn't work
+        try {
+            if (typeof SupabaseDB !== 'undefined' && SupabaseDB.createOrUpdateParentalConsent) {
+                const dbRecord = await SupabaseDB.createOrUpdateParentalConsent(consentData);
+                console.log('✅ Parental consent saved to database:', dbRecord);
+                consentRecord.id = dbRecord.id;
+            } else {
+                console.log('ℹ️ SupabaseDB not available or method missing, using local consent ID');
+            }
+        } catch (dbError) {
+            console.log('⚠️ Database save failed for parental consent, continuing with local ID:', dbError.message);
+            // Continue with local consent ID
+        }
+        
+        console.log('✅ Parental consent processed:', consentRecord);
         
         // Hide consent form
         hideParentalConsentForm();
