@@ -1349,28 +1349,17 @@ function sendViaMailto(formData, selectedHouses) {
             console.log(`📬 Generated mailto link for ${house.name}:`, mailtoLink.substring(0, 100) + '...');
             console.log(`🚀 Opening email client for ${house.name}...`);
             
-            try {
-                // Try multiple approaches for maximum compatibility
-                const success = tryOpenEmail(mailtoLink, house, subject, body);
-                
-                if (success) {
-                    console.log(`✅ Successfully opened email for ${house.name}`);
-                    emailsOpened++;
-                    
-                    // Show success message only after the last email is processed
-                    if (emailsOpened === selectedHouses.length) {
-                        setTimeout(() => {
-                            const houseNames = selectedHouses.map(h => h.name).join(', ');
-                            alert(`✅ Email client opened successfully!\n\n📧 Perfect application email created for: ${houseNames}\n\n💡 Your email client should now be open with a pre-written application.\nSimply review and click Send - it will appear in your Sent folder.`);
-                        }, 500);
-                    }
-                } else {
-                    // If all methods fail, show manual options
-                    showEmailOptions(house, subject, body);
-                }
-            } catch (error) {
-                console.error(`❌ Failed to open email client for ${house.name}:`, error);
-                showEmailOptions(house, subject, body);
+            // Skip mailto entirely - directly show email options for reliability
+            console.log(`📧 Opening email options for ${house.name}...`);
+            showEmailOptions(house, subject, body);
+            emailsOpened++;
+            
+            // Show completion message after all emails are processed
+            if (emailsOpened === selectedHouses.length) {
+                setTimeout(() => {
+                    const houseNames = selectedHouses.map(h => h.name).join(', ');
+                    console.log(`✅ All email options shown for: ${houseNames}`);
+                }, 100);
             }
         }, index * 1000); // Delay each email by 1 second to avoid overwhelming
     });
@@ -1458,56 +1447,83 @@ function tryOpenEmail(mailtoLink, house, subject, body) {
     return false;
 }
 
-// Show email options when automatic opening fails
+// Show email options - the reliable solution for all browsers
 function showEmailOptions(house, subject, body) {
     const decodedBody = decodeURIComponent(body.replace(/%0D%0A/g, '\n'));
     
+    // Remove any existing modals first
+    const existingModals = document.querySelectorAll('.email-modal');
+    existingModals.forEach(modal => modal.remove());
+    
     // Create a modal with multiple options
     const modal = document.createElement('div');
+    modal.className = 'email-modal';
     modal.style.cssText = `
         position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-        background: rgba(0,0,0,0.8); z-index: 10000; display: flex; 
+        background: rgba(0,0,0,0.9); z-index: 10000; display: flex; 
         align-items: center; justify-content: center; padding: 20px;
+        animation: fadeIn 0.3s ease-in;
     `;
     
     modal.innerHTML = `
-        <div style="background: white; padding: 30px; border-radius: 10px; max-width: 600px; max-height: 80vh; overflow-y: auto;">
-            <h2 style="margin-top: 0; color: #333;">📧 Email Options for ${house.name}</h2>
-            <p style="color: #666;">Choose how you'd like to send your application:</p>
+        <div style="background: white; padding: 30px; border-radius: 15px; max-width: 500px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 10px 30px rgba(0,0,0,0.3);">
+            <h2 style="margin-top: 0; color: #333; text-align: center;">📧 Send Application to ${house.name}</h2>
+            <p style="color: #666; text-align: center; margin-bottom: 25px;">Choose your preferred email method:</p>
             
             <div style="margin: 20px 0;">
-                <button onclick="openGmail('${house.email}', '${encodeURIComponent(subject)}', '${encodeURIComponent(decodedBody)}')" 
-                        style="display: block; width: 100%; padding: 15px; margin: 10px 0; background: #ea4335; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 16px;">
-                    📧 Open Gmail
+                <button onclick="openGmail('${house.email}', '${encodeURIComponent(subject)}', '${encodeURIComponent(decodedBody)}'); this.closest('.email-modal').remove();" 
+                        style="display: block; width: 100%; padding: 18px; margin: 12px 0; background: linear-gradient(135deg, #ea4335, #d33b2c); color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 16px; font-weight: 600; transition: transform 0.2s;">
+                    📧 Open in Gmail
                 </button>
                 
-                <button onclick="openOutlook('${house.email}', '${encodeURIComponent(subject)}', '${encodeURIComponent(decodedBody)}')" 
-                        style="display: block; width: 100%; padding: 15px; margin: 10px 0; background: #0078d4; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 16px;">
-                    📧 Open Outlook
+                <button onclick="openOutlook('${house.email}', '${encodeURIComponent(subject)}', '${encodeURIComponent(decodedBody)}'); this.closest('.email-modal').remove();" 
+                        style="display: block; width: 100%; padding: 18px; margin: 12px 0; background: linear-gradient(135deg, #0078d4, #106ebe); color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 16px; font-weight: 600; transition: transform 0.2s;">
+                    📧 Open in Outlook
                 </button>
                 
-                <button onclick="copyEmailContent('${house.email}', '${subject}', \`${decodedBody.replace(/`/g, '\\`')}\`)" 
-                        style="display: block; width: 100%; padding: 15px; margin: 10px 0; background: #28a745; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 16px;">
+                <button onclick="tryNativeMailto('${house.email}', '${encodeURIComponent(subject)}', '${encodeURIComponent(decodedBody)}'); this.closest('.email-modal').remove();" 
+                        style="display: block; width: 100%; padding: 18px; margin: 12px 0; background: linear-gradient(135deg, #007AFF, #0051D5); color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 16px; font-weight: 600; transition: transform 0.2s;">
+                    📱 Open Default Email App
+                </button>
+                
+                <button onclick="copyEmailContent('${house.email}', '${subject}', \`${decodedBody.replace(/`/g, '\\`').replace(/\$/g, '\\$')}\`)" 
+                        style="display: block; width: 100%; padding: 18px; margin: 12px 0; background: linear-gradient(135deg, #28a745, #20963d); color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 16px; font-weight: 600; transition: transform 0.2s;">
                     📋 Copy Email Content
-                </button>
-                
-                <button onclick="this.parentElement.parentElement.parentElement.remove()" 
-                        style="display: block; width: 100%; padding: 15px; margin: 10px 0; background: #6c757d; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 16px;">
-                    ❌ Close
                 </button>
             </div>
             
-            <div style="background: #f8f9fa; padding: 15px; border-radius: 5px; margin-top: 20px;">
-                <strong>Manual Email Details:</strong><br>
-                <strong>To:</strong> ${house.email}<br>
-                <strong>Subject:</strong> ${subject}<br>
-                <details style="margin-top: 10px;">
-                    <summary style="cursor: pointer;">📄 View Email Content</summary>
-                    <pre style="white-space: pre-wrap; font-size: 12px; margin-top: 10px; background: white; padding: 10px; border-radius: 3px;">${decodedBody}</pre>
+            <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin-top: 20px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                    <strong style="color: #333;">Email Details:</strong>
+                    <button onclick="this.closest('.email-modal').remove()" 
+                            style="background: #dc3545; color: white; border: none; border-radius: 5px; padding: 8px 12px; cursor: pointer; font-size: 14px;">
+                        ✕ Close
+                    </button>
+                </div>
+                <div style="font-size: 14px; color: #666;">
+                    <strong>To:</strong> ${house.email}<br>
+                    <strong>Subject:</strong> ${subject}
+                </div>
+                <details style="margin-top: 15px;">
+                    <summary style="cursor: pointer; color: #007AFF; font-weight: 600;">📄 Preview Email Content</summary>
+                    <div style="white-space: pre-wrap; font-size: 12px; margin-top: 10px; background: white; padding: 15px; border-radius: 5px; border: 1px solid #ddd; max-height: 200px; overflow-y: auto;">${decodedBody}</div>
                 </details>
             </div>
         </div>
     `;
+    
+    // Add CSS animation
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        .email-modal button:hover {
+            transform: translateY(-2px);
+        }
+    `;
+    document.head.appendChild(style);
     
     document.body.appendChild(modal);
 }
@@ -1521,6 +1537,17 @@ window.openGmail = function(email, subject, body) {
 window.openOutlook = function(email, subject, body) {
     const outlookUrl = `https://outlook.live.com/mail/0/deeplink/compose?to=${email}&subject=${subject}&body=${body}`;
     window.open(outlookUrl, '_blank');
+};
+
+window.tryNativeMailto = function(email, subject, body) {
+    const mailtoLink = `mailto:${email}?subject=${subject}&body=${body}`;
+    try {
+        window.location.href = mailtoLink;
+        console.log('✅ Native mailto attempted');
+    } catch (e) {
+        alert('❌ Could not open default email app. Please use one of the other options.');
+        console.error('Native mailto failed:', e);
+    }
 };
 
 window.copyEmailContent = function(email, subject, body) {
