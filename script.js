@@ -1350,29 +1350,154 @@ function sendViaMailto(formData, selectedHouses) {
             console.log(`🚀 Opening email client for ${house.name}...`);
             
             try {
-                // Use location.href instead of window.open for better compatibility
-                window.location.href = mailtoLink;
-                console.log(`✅ Successfully triggered email client for ${house.name}`);
-                emailsOpened++;
+                // Try multiple approaches for maximum compatibility
+                const success = tryOpenEmail(mailtoLink, house, subject, body);
                 
-                // Show success message only after the last email is processed
-                if (emailsOpened === selectedHouses.length) {
-                    setTimeout(() => {
-                        const houseNames = selectedHouses.map(h => h.name).join(', ');
-                        alert(`✅ Email client opened successfully!\n\n📧 Perfect application email created for: ${houseNames}\n\n💡 Your email client should now be open with a pre-written application.\nSimply review and click Send - it will appear in your Sent folder.`);
-                    }, 500); // Small delay to ensure email client has time to open
+                if (success) {
+                    console.log(`✅ Successfully opened email for ${house.name}`);
+                    emailsOpened++;
+                    
+                    // Show success message only after the last email is processed
+                    if (emailsOpened === selectedHouses.length) {
+                        setTimeout(() => {
+                            const houseNames = selectedHouses.map(h => h.name).join(', ');
+                            alert(`✅ Email client opened successfully!\n\n📧 Perfect application email created for: ${houseNames}\n\n💡 Your email client should now be open with a pre-written application.\nSimply review and click Send - it will appear in your Sent folder.`);
+                        }, 500);
+                    }
+                } else {
+                    // If all methods fail, show manual options
+                    showEmailOptions(house, subject, body);
                 }
             } catch (error) {
                 console.error(`❌ Failed to open email client for ${house.name}:`, error);
-                // Fallback: show contact info
-                alert(`❌ Could not open email client automatically.\n\nPlease manually email: ${house.email}\n\nSubject: ${subject}\n\nWe'll copy the email content to your clipboard.`);
-                
-                // Copy to clipboard as fallback
-                navigator.clipboard.writeText(`To: ${house.email}\nSubject: ${subject}\n\n${body}`).catch(e => console.log('Clipboard not available'));
+                showEmailOptions(house, subject, body);
             }
         }, index * 1000); // Delay each email by 1 second to avoid overwhelming
     });
 }
+
+// Universal email opening function with multiple fallback methods
+function tryOpenEmail(mailtoLink, house, subject, body) {
+    console.log(`🔄 Trying multiple email opening methods for ${house.name}...`);
+    
+    // Method 1: Try window.location.href (works in most browsers)
+    try {
+        window.location.href = mailtoLink;
+        console.log(`✅ Method 1 (location.href) succeeded for ${house.name}`);
+        return true;
+    } catch (e) {
+        console.log(`❌ Method 1 failed: ${e.message}`);
+    }
+    
+    // Method 2: Try window.open (works in some browsers)
+    try {
+        const opened = window.open(mailtoLink);
+        if (opened) {
+            console.log(`✅ Method 2 (window.open) succeeded for ${house.name}`);
+            return true;
+        }
+    } catch (e) {
+        console.log(`❌ Method 2 failed: ${e.message}`);
+    }
+    
+    // Method 3: Try creating a temporary link and clicking it
+    try {
+        const link = document.createElement('a');
+        link.href = mailtoLink;
+        link.style.display = 'none';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        console.log(`✅ Method 3 (temporary link) succeeded for ${house.name}`);
+        return true;
+    } catch (e) {
+        console.log(`❌ Method 3 failed: ${e.message}`);
+    }
+    
+    console.log(`❌ All email opening methods failed for ${house.name}`);
+    return false;
+}
+
+// Show email options when automatic opening fails
+function showEmailOptions(house, subject, body) {
+    const decodedBody = decodeURIComponent(body.replace(/%0D%0A/g, '\n'));
+    
+    // Create a modal with multiple options
+    const modal = document.createElement('div');
+    modal.style.cssText = `
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+        background: rgba(0,0,0,0.8); z-index: 10000; display: flex; 
+        align-items: center; justify-content: center; padding: 20px;
+    `;
+    
+    modal.innerHTML = `
+        <div style="background: white; padding: 30px; border-radius: 10px; max-width: 600px; max-height: 80vh; overflow-y: auto;">
+            <h2 style="margin-top: 0; color: #333;">📧 Email Options for ${house.name}</h2>
+            <p style="color: #666;">Choose how you'd like to send your application:</p>
+            
+            <div style="margin: 20px 0;">
+                <button onclick="openGmail('${house.email}', '${encodeURIComponent(subject)}', '${encodeURIComponent(decodedBody)}')" 
+                        style="display: block; width: 100%; padding: 15px; margin: 10px 0; background: #ea4335; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 16px;">
+                    📧 Open Gmail
+                </button>
+                
+                <button onclick="openOutlook('${house.email}', '${encodeURIComponent(subject)}', '${encodeURIComponent(decodedBody)}')" 
+                        style="display: block; width: 100%; padding: 15px; margin: 10px 0; background: #0078d4; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 16px;">
+                    📧 Open Outlook
+                </button>
+                
+                <button onclick="copyEmailContent('${house.email}', '${subject}', \`${decodedBody.replace(/`/g, '\\`')}\`)" 
+                        style="display: block; width: 100%; padding: 15px; margin: 10px 0; background: #28a745; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 16px;">
+                    📋 Copy Email Content
+                </button>
+                
+                <button onclick="this.parentElement.parentElement.parentElement.remove()" 
+                        style="display: block; width: 100%; padding: 15px; margin: 10px 0; background: #6c757d; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 16px;">
+                    ❌ Close
+                </button>
+            </div>
+            
+            <div style="background: #f8f9fa; padding: 15px; border-radius: 5px; margin-top: 20px;">
+                <strong>Manual Email Details:</strong><br>
+                <strong>To:</strong> ${house.email}<br>
+                <strong>Subject:</strong> ${subject}<br>
+                <details style="margin-top: 10px;">
+                    <summary style="cursor: pointer;">📄 View Email Content</summary>
+                    <pre style="white-space: pre-wrap; font-size: 12px; margin-top: 10px; background: white; padding: 10px; border-radius: 3px;">${decodedBody}</pre>
+                </details>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+}
+
+// Global functions for email options
+window.openGmail = function(email, subject, body) {
+    const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=${email}&su=${subject}&body=${body}`;
+    window.open(gmailUrl, '_blank');
+};
+
+window.openOutlook = function(email, subject, body) {
+    const outlookUrl = `https://outlook.live.com/mail/0/deeplink/compose?to=${email}&subject=${subject}&body=${body}`;
+    window.open(outlookUrl, '_blank');
+};
+
+window.copyEmailContent = function(email, subject, body) {
+    const content = `To: ${email}\nSubject: ${subject}\n\n${body}`;
+    navigator.clipboard.writeText(content).then(() => {
+        alert('📋 Email content copied to clipboard!\n\nYou can now paste it into any email client.');
+    }).catch(() => {
+        // Fallback for older browsers
+        const textArea = document.createElement('textarea');
+        textArea.value = content;
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textArea);
+        alert('📋 Email content copied to clipboard!');
+    });
+};
 
 // Send application via mailto with parental consent
 function sendViaMailtoWithParentalConsent(formData, selectedHouses, parentalConsentId) {
