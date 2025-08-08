@@ -636,7 +636,15 @@ function getRegionEmoji(region) {
 
 // ハウス一覧表示機能
 async function displayHouseList(houses = null) {
-    const housesToShow = houses || [...hackerHouses, ...registeredHouses];
+    let housesToShow = houses || [...hackerHouses, ...registeredHouses];
+    
+    // Apply country filter if set
+    const countryFilter = document.getElementById('countryFilter');
+    if (countryFilter && countryFilter.value) {
+        housesToShow = housesToShow.filter(house => house.country === countryFilter.value);
+        console.log(`🌍 Filtered houses by country "${countryFilter.value}":`, housesToShow.length);
+    }
+    
     const houseGrid = document.getElementById('houseGrid');
     const emptyState = document.getElementById('emptyState');
     
@@ -1016,8 +1024,9 @@ async function verifyHouseEmail() {
 function loadHouseForEdit(house) {
     document.getElementById('editHouseName').value = house.name || '';
     document.getElementById('editHouseLocation').value = house.location || '';
+    document.getElementById('editHouseSNS').value = house.sns || '';
+    document.getElementById('editHouseCountry').value = house.country || '';
     document.getElementById('editHouseDescription').value = house.description || '';
-    document.getElementById('editHouseCapacity').value = house.capacity || '';
 }
 
 // 編集キャンセル
@@ -1041,12 +1050,13 @@ document.getElementById('updateHouseForm')?.addEventListener('submit', async fun
     const updatedData = {
         name: document.getElementById('editHouseName').value,
         location: document.getElementById('editHouseLocation').value,
-        description: document.getElementById('editHouseDescription').value,
-        capacity: parseInt(document.getElementById('editHouseCapacity').value)
+        sns: document.getElementById('editHouseSNS').value,
+        country: document.getElementById('editHouseCountry').value,
+        description: document.getElementById('editHouseDescription').value
     };
     
     // バリデーション
-    if (!updatedData.name || !updatedData.location || !updatedData.description || !updatedData.capacity) {
+    if (!updatedData.name || !updatedData.location || !updatedData.sns || !updatedData.country || !updatedData.description) {
         alert('Please fill in all required fields');
         return;
     }
@@ -1091,6 +1101,15 @@ document.getElementById('updateHouseForm')?.addEventListener('submit', async fun
     if (ageField) {
         ageField.addEventListener('input', checkAge);
         ageField.addEventListener('change', checkAge);
+    }
+    
+    // Add country filter event listener
+    const countryFilter = document.getElementById('countryFilter');
+    if (countryFilter) {
+        countryFilter.addEventListener('change', function() {
+            console.log('🌍 Country filter changed to:', this.value);
+            displayHouseList();
+        });
     }
 
     // ...
