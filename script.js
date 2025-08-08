@@ -1607,6 +1607,151 @@ function showEmailOptions(house, subject, body) {
     document.body.appendChild(modal);
 }
 
+// Show email options for parental consent applications
+function showParentalConsentEmailOptions(house, subject, body) {
+    // Remove any existing modals first
+    const existingModals = document.querySelectorAll('.email-modal');
+    existingModals.forEach(modal => modal.remove());
+    
+    // Create a modal with multiple options
+    const modal = document.createElement('div');
+    modal.className = 'email-modal';
+    modal.style.cssText = `
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+        background: rgba(0,0,0,0.9); z-index: 10000; display: flex; 
+        align-items: center; justify-content: center; padding: 20px;
+        animation: fadeIn 0.3s ease-in;
+    `;
+    
+    const modalContent = document.createElement('div');
+    modalContent.style.cssText = 'background: white; padding: 30px; border-radius: 15px; max-width: 500px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 10px 30px rgba(0,0,0,0.3);';
+    
+    modalContent.innerHTML = `
+        <h2 style="margin-top: 0; color: #333; text-align: center;">📧 Send Parental Consent Application to ${house.name}</h2>
+        <p style="color: #666; text-align: center; margin-bottom: 25px;">⚠️ This application includes parental consent information</p>
+        
+        <div style="margin: 20px 0;">
+            <button id="gmail-btn" 
+                    style="display: block; width: 100%; padding: 18px; margin: 12px 0; background: linear-gradient(135deg, #ea4335, #d33b2c); color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 16px; font-weight: 600; transition: transform 0.2s;">
+                📧 Open in Gmail
+            </button>
+            
+            <button id="outlook-btn" 
+                    style="display: block; width: 100%; padding: 18px; margin: 12px 0; background: linear-gradient(135deg, #0078d4, #106ebe); color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 16px; font-weight: 600; transition: transform 0.2s;">
+                📧 Open in Outlook
+            </button>
+            
+            <button id="native-btn" 
+                    style="display: block; width: 100%; padding: 18px; margin: 12px 0; background: linear-gradient(135deg, #007AFF, #0051D5); color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 16px; font-weight: 600; transition: transform 0.2s;">
+                📱 Open Default Email App
+            </button>
+            
+            <button id="copy-btn" 
+                    style="display: block; width: 100%; padding: 18px; margin: 12px 0; background: linear-gradient(135deg, #28a745, #20963d); color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 16px; font-weight: 600; transition: transform 0.2s;">
+                📋 Copy Email Content
+            </button>
+        </div>
+        
+        <div style="background: #fff3cd; padding: 20px; border-radius: 8px; margin-top: 20px; border: 1px solid #ffeaa7;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                <strong style="color: #856404;">⚠️ Parental Consent Application</strong>
+                <button id="close-btn" 
+                        style="background: #dc3545; color: white; border: none; border-radius: 5px; padding: 8px 12px; cursor: pointer; font-size: 14px;">
+                    ✕ Close
+                </button>
+            </div>
+            <div style="font-size: 14px; color: #856404;">
+                <strong>To:</strong> ${house.email}<br>
+                <strong>Subject:</strong> ${subject}
+            </div>
+            <details style="margin-top: 15px;">
+                <summary style="cursor: pointer; color: #007AFF; font-weight: 600;">📄 Preview Email Content</summary>
+                <div style="white-space: pre-wrap; font-size: 12px; margin-top: 10px; background: white; padding: 15px; border-radius: 5px; border: 1px solid #ddd; max-height: 200px; overflow-y: auto;">${body}</div>
+            </details>
+        </div>
+    `;
+    
+    modal.appendChild(modalContent);
+    
+    // Add event listeners after DOM is created
+    setTimeout(() => {
+        const gmailBtn = modal.querySelector('#gmail-btn');
+        const outlookBtn = modal.querySelector('#outlook-btn');
+        const nativeBtn = modal.querySelector('#native-btn');
+        const copyBtn = modal.querySelector('#copy-btn');
+        const closeBtn = modal.querySelector('#close-btn');
+        
+        if (gmailBtn) {
+            gmailBtn.addEventListener('click', () => {
+                console.log('Gmail button clicked (parental consent)');
+                const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=${house.email}&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+                window.open(gmailUrl, '_blank');
+                modal.remove();
+            });
+        }
+        
+        if (outlookBtn) {
+            outlookBtn.addEventListener('click', () => {
+                console.log('Outlook button clicked (parental consent)');
+                const outlookUrl = `https://outlook.live.com/mail/0/deeplink/compose?to=${house.email}&subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+                window.open(outlookUrl, '_blank');
+                modal.remove();
+            });
+        }
+        
+        if (nativeBtn) {
+            nativeBtn.addEventListener('click', () => {
+                console.log('Native email button clicked (parental consent)');
+                const mailtoLink = `mailto:${house.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+                try {
+                    window.location.href = mailtoLink;
+                    console.log('✅ Native mailto attempted (parental consent)');
+                } catch (e) {
+                    alert('❌ Could not open default email app. Please use one of the other options.');
+                    console.error('Native mailto failed:', e);
+                }
+                modal.remove();
+            });
+        }
+        
+        if (copyBtn) {
+            copyBtn.addEventListener('click', () => {
+                console.log('Copy button clicked (parental consent)');
+                const content = `To: ${house.email}\nSubject: ${subject}\n\n${body}`;
+                navigator.clipboard.writeText(content).then(() => {
+                    alert('📋 Parental consent email content copied to clipboard!\n\nYou can now paste it into any email client.');
+                }).catch(() => {
+                    // Fallback for older browsers
+                    const textArea = document.createElement('textarea');
+                    textArea.value = content;
+                    document.body.appendChild(textArea);
+                    textArea.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(textArea);
+                    alert('📋 Parental consent email content copied to clipboard!');
+                });
+                modal.remove();
+            });
+        }
+        
+        if (closeBtn) {
+            closeBtn.addEventListener('click', () => {
+                console.log('Close button clicked (parental consent)');
+                modal.remove();
+            });
+        }
+        
+        // Close modal when clicking outside
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                modal.remove();
+            }
+        });
+    }, 10);
+    
+    document.body.appendChild(modal);
+}
+
 // Global functions for email options
 window.openGmail = function(email, subject, body) {
     const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=${email}&su=${subject}&body=${body}`;
@@ -1667,25 +1812,18 @@ function sendViaMailtoWithParentalConsent(formData, selectedHouses, parentalCons
     selectedHouses.forEach((house, index) => {
         setTimeout(() => {
             const { subject, body } = generateEmailContent(house);
-            const mailtoLink = `mailto:${house.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+            const decodedBody = decodeURIComponent(body.replace(/%0D%0A/g, '\n'));
             
-            console.log(`Opening email client for ${house.name} (parental consent application)...`);
+            console.log(`📧 Opening parental consent email options for ${house.name}...`);
+            showParentalConsentEmailOptions(house, subject, decodedBody);
+            emailsOpened++;
             
-            try {
-                window.location.href = mailtoLink;
-                emailsOpened++;
-                
-                // Show success message only after the last email is processed
-                if (emailsOpened === selectedHouses.length) {
-                    setTimeout(() => {
-                        const houseNames = selectedHouses.map(h => h.name).join(', ');
-                        alert(`✅ Email client opened successfully!\n\n📧 Parental consent application created for: ${houseNames}\n\n⚠️ Important: This application clearly indicates you are a minor with parental consent.\n\n💡 Your email client should now be open - simply review and click Send.`);
-                    }, 500);
-                }
-            } catch (error) {
-                console.error(`Failed to open email client for ${house.name}:`, error);
-                alert(`❌ Could not open email client automatically.\n\nPlease manually email: ${house.email}\n\nSubject: ${subject}\n\nWe'll copy the email content to your clipboard.`);
-                navigator.clipboard.writeText(`To: ${house.email}\nSubject: ${subject}\n\n${body}`).catch(e => console.log('Clipboard not available'));
+            // Show completion message after all emails are processed
+            if (emailsOpened === selectedHouses.length) {
+                setTimeout(() => {
+                    const houseNames = selectedHouses.map(h => h.name).join(', ');
+                    console.log(`✅ All parental consent email options shown for: ${houseNames}`);
+                }, 100);
             }
         }, index * 1000); // Delay each email by 1 second to avoid overwhelming
     });
