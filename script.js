@@ -2151,60 +2151,133 @@ async function verifyHouseEmail() {
         return;
     }
     
-    console.log('Verifying house email:', email);
+    console.log('Finding houses for email:', email);
     
     try {
-        let house = null;
+        let allHouses = [];
         
-        // Try to find house in Supabase database
+        // Get houses from Supabase database
         if (typeof SupabaseDB !== 'undefined') {
-            console.log('🔍 Searching for house in Supabase database...');
-            const houses = await SupabaseDB.getHackerHouses();
-            house = houses.find(h => h.email && h.email.toLowerCase() === email.toLowerCase());
-            
-            if (house) {
-                console.log('✅ House found in database:', house);
-            } else {
-                console.log('⚠️ House not found in database, checking local storage...');
+            console.log('🔍 Searching for houses in Supabase database...');
+            try {
+                const dbHouses = await SupabaseDB.getHackerHouses();
+                const userHouses = dbHouses.filter(h => h.email && h.email.toLowerCase() === email.toLowerCase());
+                allHouses = allHouses.concat(userHouses);
+                console.log(`✅ Found ${userHouses.length} houses in database`);
+            } catch (dbError) {
+                console.log('⚠️ Database query failed:', dbError.message);
             }
         }
         
-        // Fallback: check localStorage for registered houses
-        if (!house) {
-            const localHouses = JSON.parse(localStorage.getItem('registeredHouses') || '[]');
-            house = localHouses.find(h => h.email && h.email.toLowerCase() === email.toLowerCase());
-            
-            if (house) {
-                console.log('✅ House found in local storage:', house);
-            } else {
-                console.log('⚠️ House not found in local storage either');
-            }
+        // Get houses from localStorage
+        const localHouses = JSON.parse(localStorage.getItem('registeredHouses') || '[]');
+        const userLocalHouses = localHouses.filter(h => h.email && h.email.toLowerCase() === email.toLowerCase());
+        allHouses = allHouses.concat(userLocalHouses);
+        console.log(`✅ Found ${userLocalHouses.length} houses in local storage`);
+        
+        // Remove duplicates based on name and location
+        const uniqueHouses = allHouses.filter((house, index, self) => 
+            index === self.findIndex(h => h.name === house.name && h.location === house.location)
+        );
+        
+        console.log(`✅ Total unique houses found: ${uniqueHouses.length}`);
+        
+        if (uniqueHouses.length === 0) {
+            alert('No houses found for this email address.\n\nPlease make sure you entered the correct email address you used when registering your house(s).');
+            return;
         }
         
-        if (house) {
-            // Store current house for editing
-            window.currentEditingHouse = house;
-            
-            // メール認証成功 - フォームを表示してデータを入力
-            document.getElementById('emailVerification').style.display = 'none';
-            document.getElementById('editHouseForm').style.display = 'block';
-            
-            // フォームにデータを入力
-            document.getElementById('editHouseName').value = house.name || '';
-            document.getElementById('editHouseLocation').value = house.location || '';
-            document.getElementById('editHouseDescription').value = house.description || '';
-            document.getElementById('editHouseCapacity').value = house.capacity || '';
-            document.getElementById('editHouseRent').value = house.rent || '';
-            
-            console.log('✅ House data loaded successfully for editing');
+        if (uniqueHouses.length === 1) {
+            // Only one house - proceed directly to editing
+            selectHouseForEditing(uniqueHouses[0]);
         } else {
-            alert('Email not found. Please make sure you entered the email address you used when registering your house.\n\nNote: Only houses registered through this platform can be edited.');
+            // Multiple houses - show selection screen
+            showHouseSelectionScreen(uniqueHouses);
         }
         
     } catch (error) {
-        console.error('❌ Error verifying house email:', error);
-        alert('Error verifying email. Please try again or check your internet connection.');
+        console.error('❌ Error finding houses:', error);
+        alert('Error searching for houses. Please try again or check your internet connection.');
     }
+}
+
+// Show house selection screen when multiple houses are found
+function showHouseSelectionScreen(houses) {
+    document.getElementById('emailVerification').style.display = 'none';
+    
+    // Create house selection screen
+    const selectionHtml = `
+        <div id="houseSelection" style="max-width: 600px; margin: 0 auto; padding: 20px;">
+            <h2>Select House to Edit</h2>
+            <p>We found ${houses.length} houses registered with this email. Please select which one you'd like to edit:</p>
+            
+            <div style="display: grid; gap: 15px; margin: 20px 0;">
+                ${houses.map((house, index) => `
+                    <div onclick="selectHouseForEditing(window.foundHouses[${index}])" 
+                         style="border: 2px solid #ddd; border-radius: 8px; padding: 20px; cursor: pointer; transition: all 0.2s; background: white;"
+                         onmouseover="this.style.borderColor='#007bff'; this.style.backgroundColor='#f8f9fa';"
+                         onmouseout="this.style.borderColor='#ddd'; this.style.backgroundColor='white';">
+                        <h3 style="margin: 0 0 10px 0; color: #333;">${house.name || 'Unnamed House'}</h3>
+                        <p style="margin: 5px 0; color: #666;"><strong>📍 Location:</strong> ${house.location || 'Not specified'}</p>
+                        <p style="margin: 5px 0; color: #666;"><strong>👥 Capacity:</strong> ${house.capacity || 'Not specified'} people</p>
+                        <p style="margin: 5px 0; color: #666;"><strong>💰 Rent:</strong> $${house.rent || 'Not specified'}/month</p>
+                        ${house.description ? `<p style="margin: 10px 0 0 0; color: #888; font-size: 14px;">${house.description.substring(0, 100)}${house.description.length > 100 ? '...' : ''}</p>` : ''}
+                    </div>
+                `).join('')}
+            </div>
+            
+            <button onclick="goBackToEmailVerification()" 
+                    style="background: #6c757d; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; margin-top: 20px;">
+                ← Back to Email Entry
+            </button>
+        </div>
+    `;
+    
+    // Store houses globally for selection
+    window.foundHouses = houses;
+    
+    // Insert selection screen
+    const container = document.querySelector('.container') || document.body;
+    const selectionDiv = document.createElement('div');
+    selectionDiv.innerHTML = selectionHtml;
+    container.appendChild(selectionDiv);
+}
+
+// Select a specific house for editing
+function selectHouseForEditing(house) {
+    console.log('✅ Selected house for editing:', house);
+    
+    // Store current house for editing
+    window.currentEditingHouse = house;
+    
+    // Hide selection screen if it exists
+    const selectionScreen = document.getElementById('houseSelection');
+    if (selectionScreen) {
+        selectionScreen.remove();
+    }
+    
+    // Show edit form
+    document.getElementById('emailVerification').style.display = 'none';
+    document.getElementById('editHouseForm').style.display = 'block';
+    
+    // Fill form with house data
+    document.getElementById('editHouseName').value = house.name || '';
+    document.getElementById('editHouseLocation').value = house.location || '';
+    document.getElementById('editHouseDescription').value = house.description || '';
+    document.getElementById('editHouseCapacity').value = house.capacity || '';
+    document.getElementById('editHouseRent').value = house.rent || '';
+    
+    console.log('✅ House data loaded successfully for editing');
+}
+
+// Go back to email verification
+function goBackToEmailVerification() {
+    const selectionScreen = document.getElementById('houseSelection');
+    if (selectionScreen) {
+        selectionScreen.remove();
+    }
+    document.getElementById('emailVerification').style.display = 'block';
+    document.getElementById('verifyEmail').value = '';
 }
 
 async function updateHouseInfo() {
