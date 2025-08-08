@@ -1286,30 +1286,25 @@ async function handleParentalConsentSubmission(e) {
 // 保護者同意後の応募続行処理
 async function continueApplicationSubmission(founderData, selectedHouses, parentalConsentId) {
     try {
-        // For minors with parental consent, proceed with application
-        try {
-            if (typeof SupabaseDB !== 'undefined') {
-                // Try to save to database (optional - don't fail if it doesn't work)
-                const founderRecord = await SupabaseDB.createFounder(founderData);
-                console.log('✅ Minor founder created in database:', founderRecord);
-            } else {
-                console.log('ℹ️ SupabaseDB not available, skipping database save');
-            }
-        } catch (dbError) {
-            console.log('⚠️ Database save failed for minor, continuing with email sending:', dbError.message);
-            // Don't throw error - continue with email sending
-        }
+        // For minors with parental consent, proceed directly to email sending
+        // No database save needed - email contains all necessary information
+        console.log('📧 Proceeding directly to email sending for minor with parental consent');
         
-        // Always save locally as backup
-        const newFounder = {
+        // Save locally for reference only (optional)
+        const applicationRecord = {
             ...founderData,
             id: Date.now(),
             selectedHouses: selectedHouses.map(h => h.name),
             parentalConsentId: parentalConsentId,
-            created_at: new Date().toISOString()
+            created_at: new Date().toISOString(),
+            type: 'parental_consent_application'
         };
-        registeredFounders.push(newFounder);
-        console.log('💾 Minor founder saved locally:', newFounder);
+        
+        // Store in localStorage for user's reference
+        const existingApplications = JSON.parse(localStorage.getItem('applications') || '[]');
+        existingApplications.push(applicationRecord);
+        localStorage.setItem('applications', JSON.stringify(existingApplications));
+        console.log('💾 Application saved locally for reference:', applicationRecord);
         
         // Use mailto approach for parental consent applications
         sendViaMailtoWithParentalConsent(founderData, selectedHouses, parentalConsentId);
@@ -2068,9 +2063,29 @@ async function submitApplications() {
         // For adults, proceed with application
         try {
             if (typeof SupabaseDB !== 'undefined') {
-                // Try to save to database (optional - don't fail if it doesn't work)
-                const founderRecord = await SupabaseDB.createFounder(formData);
-                console.log('✅ Founder created in database:', founderRecord);
+                // Proceed directly to email sending - no database save needed
+                // Email contains all necessary information for house owners
+                console.log('📧 Proceeding directly to email sending for regular application');
+                
+                // Save locally for user's reference only (optional)
+                const applicationRecord = {
+                    ...formData,
+                    id: Date.now(),
+                    selectedHouses: selectedHouses.map(h => h.name),
+                    created_at: new Date().toISOString(),
+                    type: 'regular_application'
+                };
+                
+                // Store in localStorage for user's reference
+                const existingApplications = JSON.parse(localStorage.getItem('applications') || '[]');
+                existingApplications.push(applicationRecord);
+                localStorage.setItem('applications', JSON.stringify(existingApplications));
+                console.log('💾 Application saved locally for reference:', applicationRecord);
+
+                // Use mailto approach - opens user's email client with pre-filled content
+                console.log('📧 Calling sendViaMailto with:', { formData, selectedHouses });
+                sendViaMailto(formData, selectedHouses);
+                console.log('✅ sendViaMailto completed');
             } else {
                 console.log('ℹ️ SupabaseDB not available, skipping database save');
             }
@@ -2079,21 +2094,6 @@ async function submitApplications() {
             // Don't throw error - continue with email sending
         }
         
-        // Always save locally as backup
-        const newFounder = {
-            ...formData,
-            id: Date.now(),
-            selectedHouses: selectedHouses.map(h => h.name),
-            created_at: new Date().toISOString()
-        };
-        registeredFounders.push(newFounder);
-        console.log('💾 Founder saved locally:', newFounder);
-
-        // Use mailto approach - opens user's email client with pre-filled content
-        console.log('📧 Calling sendViaMailto with:', { formData, selectedHouses });
-        sendViaMailto(formData, selectedHouses);
-        console.log('✅ sendViaMailto completed');
-
         // Hide application form and show houses list
         if (document.getElementById('applicationForm')) {
             document.getElementById('applicationForm').style.display = 'none';
