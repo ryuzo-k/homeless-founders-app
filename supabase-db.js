@@ -1,13 +1,24 @@
 // Supabase Database Operations
 class SupabaseDatabase {
     constructor() {
-        this.client = supabaseClient;
+        // Initialize client when needed, not in constructor
+        this.client = null;
+    }
+    
+    getClient() {
+        if (!this.client && typeof supabaseClient !== 'undefined') {
+            this.client = supabaseClient;
+        }
+        return this.client;
     }
 
     // Get all hacker houses
     async getAllHackerHouses() {
         try {
-            const { data, error } = await this.client
+            const client = this.getClient();
+            if (!client) throw new Error('Supabase client not initialized');
+            
+            const { data, error } = await client
                 .from('hacker_houses')
                 .select('*')
                 .order('created_at', { ascending: false });
@@ -23,7 +34,10 @@ class SupabaseDatabase {
     // Create new hacker house
     async createHackerHouse(houseData) {
         try {
-            const { data, error } = await this.client
+            const client = this.getClient();
+            if (!client) throw new Error('Supabase client not initialized');
+            
+            const { data, error } = await client
                 .from('hacker_houses')
                 .insert([houseData])
                 .select()
@@ -91,7 +105,10 @@ class SupabaseDatabase {
     // Test connection
     async testConnection() {
         try {
-            const { data, error } = await this.client
+            const client = this.getClient();
+            if (!client) throw new Error('Supabase client not initialized');
+            
+            const { data, error } = await client
                 .from('hacker_houses')
                 .select('count')
                 .limit(1);
