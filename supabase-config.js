@@ -1,6 +1,6 @@
-// Supabase configuration
-const SUPABASE_URL = 'https://ezwledxluhlwjnafgtxk.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV6d2xlZHhsdWhsd2puYWZndHhrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ0NjY5NDcsImV4cCI6MjA3MDA0Mjk0N30.4AniVUMd1hIPrZ5a_9IgOKezbJqZDDsY-7ThmnhKJ2U';
+// Supabase configuration - now uses CONFIG object
+const SUPABASE_URL = CONFIG?.SUPABASE_URL || 'https://ezwledxluhlwjnafgtxk.supabase.co';
+const SUPABASE_ANON_KEY = CONFIG?.SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV6d2xlZHhsdWhsd2puYWZndHhrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ0NjY5NDcsImV4cCI6MjA3MDA0Mjk0N30.4AniVUMd1hIPrZ5a_9IgOKezbJqZDDsY-7ThmnhKJ2U';
 
 // Initialize Supabase client
 const { createClient } = supabase;

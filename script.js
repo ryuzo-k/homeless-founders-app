@@ -486,12 +486,27 @@ async function registerHackerHouse(houseData) {
         // Check if Supabase is available
         if (typeof SupabaseDB !== 'undefined') {
             console.log('SupabaseDB is available, creating house...');
+            
+            // Extract features from description using OpenAI
+            let extractedFeatures = [];
+            if (typeof openAIService !== 'undefined' && houseData.description) {
+                try {
+                    console.log('Extracting features from description...');
+                    extractedFeatures = await openAIService.extractFeatures(houseData.description);
+                    console.log('Features extracted:', extractedFeatures);
+                } catch (error) {
+                    console.error('Feature extraction failed:', error);
+                    extractedFeatures = ['WiFi', 'Shared Kitchen', 'Coworking Space']; // fallback
+                }
+            }
+            
             const houseWithImage = {
                 ...houseData,
-                image: getRegionEmoji(houseData.region)
+                image: getRegionEmoji(houseData.region),
+                facilities: extractedFeatures
             };
             
-            console.log('House data with image:', houseWithImage);
+            console.log('House data with image and features:', houseWithImage);
             const newHouse = await SupabaseDB.createHackerHouse(houseWithImage);
             console.log('新しいハッカーハウスがデータベースに登録されました:', newHouse);
             
