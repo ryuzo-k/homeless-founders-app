@@ -160,8 +160,37 @@
         // Load houses when page loads
 
         
-        document.addEventListener('DOMContentLoaded', async function() {
-            await loadHackerHousesList();
+        document.addEventListener('DOMContentLoaded', function() {
+            // Debug: Check if all required objects are loaded
+            console.log('=== DEBUG INFO ===');
+            console.log('CONFIG:', typeof CONFIG !== 'undefined' ? 'LOADED' : 'NOT LOADED');
+            console.log('supabase:', typeof supabase !== 'undefined' ? 'LOADED' : 'NOT LOADED');
+            console.log('supabaseClient:', typeof supabaseClient !== 'undefined' ? 'LOADED' : 'NOT LOADED');
+            console.log('SupabaseDB:', typeof SupabaseDB !== 'undefined' ? 'LOADED' : 'NOT LOADED');
+            
+            // If SupabaseDB is not loaded, try to initialize it manually
+            if (typeof SupabaseDB === 'undefined' && typeof supabaseClient !== 'undefined') {
+                console.log('Manually initializing SupabaseDB...');
+                window.SupabaseDB = {
+                    async getAllHackerHouses() {
+                        try {
+                            const { data, error } = await supabaseClient
+                                .from('hacker_houses')
+                                .select('*')
+                                .order('created_at', { ascending: false });
+                            
+                            if (error) throw error;
+                            return data || [];
+                        } catch (error) {
+                            console.error('Error fetching houses:', error);
+                            return [];
+                        }
+                    }
+                };
+                console.log('Manual SupabaseDB initialized');
+            }
+            
+            loadHackerHousesList();
             
             // Add back to houses list functionality
             const backButton = document.createElement('button');
