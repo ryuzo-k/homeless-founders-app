@@ -1341,9 +1341,9 @@ function sendViaMailto(formData, selectedHouses) {
 
     // Generate perfect application email content
     const generateEmailContent = (house) => {
-        const subject = `🏠 Founder Application: ${formData.name} - ${formData.project}`;
+        const subject = `新しい応募が来ました`;
         
-        const body = `Dear ${house.name} team,%0D%0A%0D%0AI hope this email finds you well. I am writing to apply for accommodation at ${house.name} through the Homeless Founders platform.%0D%0A%0D%0AABOUT ME:%0D%0A- Name: ${formData.name}%0D%0A- Age: ${formData.age}%0D%0A- Email: ${formData.email}%0D%0A- Current Location: ${formData.location}%0D%0A%0D%0AMY PROJECT:%0D%0A${formData.project}%0D%0A%0D%0AACCOMMODATION DETAILS:%0D%0A- Preferred Start Date: ${formData.startDate}%0D%0A- Preferred End Date: ${formData.endDate}%0D%0A- Duration: ${calculateDuration(formData.startDate, formData.endDate)}%0D%0A%0D%0AADDITIONAL INFORMATION:%0D%0A${formData.message || 'I am excited about the opportunity to join your community and contribute to the vibrant ecosystem of founders and entrepreneurs.'}%0D%0A%0D%0AI believe ${house.name} would be the perfect environment for me to develop my project while connecting with like-minded individuals. I am committed to being a positive and contributing member of your community.%0D%0A%0D%0AThank you for considering my application. I look forward to hearing from you and would be happy to provide any additional information you may need.%0D%0A%0D%0ABest regards,%0D%0A${formData.name}%0D%0A${formData.email}%0D%0A%0D%0A---%0D%0AApplied via Homeless Founders Platform%0D%0APlatform: https://homeless-founders.vercel.app/`;
+        const body = `Dear ${house.name} team,%0D%0A%0D%0AI am writing to apply for accommodation at ${house.name} through the Homeless Founders platform.%0D%0A%0D%0AABOUT ME:%0D%0A- Name: ${formData.name}%0D%0A- Age: ${formData.age}%0D%0A- Email: ${formData.email}%0D%0A- Current Location: ${formData.location}%0D%0A- Portfolio/SNS: ${formData.portfolio}%0D%0A%0D%0AMY PROJECT:%0D%0A${formData.project}%0D%0A%0D%0AACCOMMODATION DETAILS:%0D%0A- Preferred Start Date: ${formData.startDate}%0D%0A- Preferred End Date: ${formData.endDate}%0D%0A- Duration: ${calculateDuration(formData.startDate, formData.endDate)}%0D%0A%0D%0AADDITIONAL INFORMATION:%0D%0A${formData.message || 'I am excited about the opportunity to join your community and contribute to the vibrant ecosystem of founders and entrepreneurs.'}%0D%0A%0D%0AThank you for considering my application. I look forward to hearing from you.%0D%0A%0D%0ABest regards,%0D%0A${formData.name}%0D%0A${formData.email}%0D%0A%0D%0A---%0D%0AApplied via Homeless Founders Platform%0D%0APlatform: https://homelessfounders.com`;
 
         return { subject, body };
     };
@@ -2013,6 +2013,7 @@ async function submitApplications() {
         project: document.getElementById('appProject').value,
         startDate: document.getElementById('appStartDate').value,
         endDate: document.getElementById('appEndDate').value,
+        portfolio: document.getElementById('appPortfolio').value,
         message: document.getElementById('appMessage').value
     };
 
@@ -2355,6 +2356,75 @@ async function updateHouseInfo() {
     } catch (error) {
         console.error('❌ Error updating house info:', error);
         alert('Error updating house information. Please try again.');
+    }
+}
+
+// Delete house function
+async function deleteHouse() {
+    if (!window.currentEditingHouse) {
+        alert('Error: No house selected for deletion');
+        return;
+    }
+    
+    const houseName = window.currentEditingHouse.name || 'this house';
+    const confirmMessage = `Are you absolutely sure you want to delete "${houseName}"?\n\nThis action cannot be undone and will:\n- Remove your house from the platform\n- Stop all future applications\n- Delete all house data permanently\n\nType "DELETE" to confirm:`;
+    
+    const userInput = prompt(confirmMessage);
+    
+    if (userInput !== 'DELETE') {
+        alert('House deletion cancelled.');
+        return;
+    }
+    
+    try {
+        let deleteSuccess = false;
+        
+        // Try to delete from Supabase database
+        if (typeof SupabaseDB !== 'undefined' && window.currentEditingHouse.id) {
+            console.log('🗑️ Deleting house from Supabase database...');
+            try {
+                await SupabaseDB.deleteHackerHouse(window.currentEditingHouse.id);
+                console.log('✅ House deleted from database');
+                deleteSuccess = true;
+            } catch (dbError) {
+                console.log('⚠️ Database deletion failed:', dbError.message);
+            }
+        }
+        
+        // Delete from localStorage as well
+        const localHouses = JSON.parse(localStorage.getItem('registeredHouses') || '[]');
+        const filteredHouses = localHouses.filter(h => 
+            !(h.email === window.currentEditingHouse.email && h.name === window.currentEditingHouse.name)
+        );
+        
+        if (filteredHouses.length < localHouses.length) {
+            localStorage.setItem('registeredHouses', JSON.stringify(filteredHouses));
+            console.log('✅ House deleted from local storage');
+            deleteSuccess = true;
+        }
+        
+        if (deleteSuccess) {
+            // Show success message
+            document.getElementById('editHouseForm').style.display = 'none';
+            document.getElementById('verificationStatus').style.display = 'block';
+            document.getElementById('verificationStatus').innerHTML = `
+                <div style="text-align: center; padding: 20px;">
+                    <h3 style="color: #dc3545;">🗑️ House Deleted Successfully</h3>
+                    <p>Your house "${houseName}" has been permanently deleted from the platform.</p>
+                    <p style="font-size: 14px; color: #666; margin-top: 10px;">Thank you for being part of the Homeless Founders community.</p>
+                    <button onclick="location.href='/index.html'" style="background: #007bff; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; margin-top: 15px;">
+                        Return to Home
+                    </button>
+                </div>
+            `;
+            console.log('✅ House deleted successfully');
+        } else {
+            alert('Failed to delete house. Please try again or contact support.');
+        }
+        
+    } catch (error) {
+        console.error('❌ Error deleting house:', error);
+        alert('Error deleting house. Please try again.');
     }
 }
 
