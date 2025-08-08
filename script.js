@@ -2143,7 +2143,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
 // Edit House Functions
-function verifyHouseEmail() {
+async function verifyHouseEmail() {
     const email = document.getElementById('verifyEmail').value.trim();
     
     if (!email) {
@@ -2153,71 +2153,124 @@ function verifyHouseEmail() {
     
     console.log('Verifying house email:', email);
     
-    // サンプルハウスのメールアドレスをチェック
-    const sampleHouses = [
-        {
-            email: 'contact@tokyotechhouse.com',
-            name: 'Tokyo Tech House',
-            location: 'Tokyo, Japan',
-            description: 'A vibrant community of tech innovators in the heart of Tokyo',
-            capacity: 20,
-            rent: 800
-        },
-        {
-            email: 'hello@sfstartuphub.com',
-            name: 'SF Startup Hub',
-            location: 'San Francisco, CA',
-            description: 'Silicon Valley\'s premier hacker house for ambitious founders',
-            capacity: 15,
-            rent: 1200
-        },
-        {
-            email: 'info@berlinbuilders.de',
-            name: 'Berlin Builders',
-            location: 'Berlin, Germany',
-            description: 'European tech hub fostering innovation and collaboration',
-            capacity: 18,
-            rent: 600
+    try {
+        let house = null;
+        
+        // Try to find house in Supabase database
+        if (typeof SupabaseDB !== 'undefined') {
+            console.log('🔍 Searching for house in Supabase database...');
+            const houses = await SupabaseDB.getHackerHouses();
+            house = houses.find(h => h.email && h.email.toLowerCase() === email.toLowerCase());
+            
+            if (house) {
+                console.log('✅ House found in database:', house);
+            } else {
+                console.log('⚠️ House not found in database, checking local storage...');
+            }
         }
-    ];
-    
-    const house = sampleHouses.find(h => h.email.toLowerCase() === email.toLowerCase());
-    
-    if (house) {
-        // メール認証成功 - フォームを表示してデータを入力
-        document.getElementById('emailVerification').style.display = 'none';
-        document.getElementById('editHouseForm').style.display = 'block';
         
-        // フォームにデータを入力
-        document.getElementById('editHouseName').value = house.name;
-        document.getElementById('editHouseLocation').value = house.location;
-        document.getElementById('editHouseDescription').value = house.description;
-        document.getElementById('editHouseCapacity').value = house.capacity;
-        document.getElementById('editHouseRent').value = house.rent;
+        // Fallback: check localStorage for registered houses
+        if (!house) {
+            const localHouses = JSON.parse(localStorage.getItem('registeredHouses') || '[]');
+            house = localHouses.find(h => h.email && h.email.toLowerCase() === email.toLowerCase());
+            
+            if (house) {
+                console.log('✅ House found in local storage:', house);
+            } else {
+                console.log('⚠️ House not found in local storage either');
+            }
+        }
         
-        console.log('House data loaded successfully');
-    } else {
-        alert('Email not found. Please make sure you entered the email address you used when registering your house.');
+        if (house) {
+            // Store current house for editing
+            window.currentEditingHouse = house;
+            
+            // メール認証成功 - フォームを表示してデータを入力
+            document.getElementById('emailVerification').style.display = 'none';
+            document.getElementById('editHouseForm').style.display = 'block';
+            
+            // フォームにデータを入力
+            document.getElementById('editHouseName').value = house.name || '';
+            document.getElementById('editHouseLocation').value = house.location || '';
+            document.getElementById('editHouseDescription').value = house.description || '';
+            document.getElementById('editHouseCapacity').value = house.capacity || '';
+            document.getElementById('editHouseRent').value = house.rent || '';
+            
+            console.log('✅ House data loaded successfully for editing');
+        } else {
+            alert('Email not found. Please make sure you entered the email address you used when registering your house.\n\nNote: Only houses registered through this platform can be edited.');
+        }
+        
+    } catch (error) {
+        console.error('❌ Error verifying house email:', error);
+        alert('Error verifying email. Please try again or check your internet connection.');
     }
 }
 
-function updateHouseInfo() {
+async function updateHouseInfo() {
     const formData = {
         name: document.getElementById('editHouseName').value,
         location: document.getElementById('editHouseLocation').value,
         description: document.getElementById('editHouseDescription').value,
-        capacity: document.getElementById('editHouseCapacity').value,
-        rent: document.getElementById('editHouseRent').value
+        capacity: parseInt(document.getElementById('editHouseCapacity').value) || 0,
+        rent: parseInt(document.getElementById('editHouseRent').value) || 0
     };
     
     console.log('Updating house info:', formData);
     
-    // 成功メッセージを表示
-    document.getElementById('editHouseForm').style.display = 'none';
-    document.getElementById('verificationStatus').style.display = 'block';
+    if (!window.currentEditingHouse) {
+        alert('Error: No house selected for editing');
+        return;
+    }
     
-    // 実際のアプリケーションでは、ここでデータベースを更新する
-    console.log('House information updated successfully');
+    try {
+        let updateSuccess = false;
+        
+        // Try to update in Supabase database
+        if (typeof SupabaseDB !== 'undefined') {
+            console.log('🔄 Updating house in Supabase database...');
+            try {
+                const updatedHouse = await SupabaseDB.updateHackerHouse(window.currentEditingHouse.id, formData);
+                console.log('✅ House updated in database:', updatedHouse);
+                updateSuccess = true;
+            } catch (dbError) {
+                console.log('⚠️ Database update failed, updating local storage:', dbError.message);
+            }
+        }
+        
+        // Update in localStorage as fallback or backup
+        const localHouses = JSON.parse(localStorage.getItem('registeredHouses') || '[]');
+        const houseIndex = localHouses.findIndex(h => h.email === window.currentEditingHouse.email);
+        
+        if (houseIndex !== -1) {
+            localHouses[houseIndex] = { ...localHouses[houseIndex], ...formData };
+            localStorage.setItem('registeredHouses', JSON.stringify(localHouses));
+            console.log('✅ House updated in local storage');
+            updateSuccess = true;
+        }
+        
+        if (updateSuccess) {
+            // 成功メッセージを表示
+            document.getElementById('editHouseForm').style.display = 'none';
+            document.getElementById('verificationStatus').style.display = 'block';
+            document.getElementById('verificationStatus').innerHTML = `
+                <div style="text-align: center; padding: 20px;">
+                    <h3 style="color: #28a745;">✅ House Updated Successfully!</h3>
+                    <p>Your house information has been updated and will be reflected on the platform.</p>
+                    <button onclick="location.reload()" style="background: #007bff; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer;">
+                        Edit Another House
+                    </button>
+                </div>
+            `;
+            console.log('✅ House information updated successfully');
+        } else {
+            alert('Failed to update house information. Please try again.');
+        }
+        
+    } catch (error) {
+        console.error('❌ Error updating house info:', error);
+        alert('Error updating house information. Please try again.');
+    }
 }
 
 function cancelEdit() {
