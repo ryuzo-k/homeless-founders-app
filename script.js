@@ -1526,7 +1526,8 @@ function showEmailOptions(house, subject, body) {
         if (gmailBtn) {
             gmailBtn.addEventListener('click', () => {
                 console.log('Gmail button clicked');
-                window.openGmail(house.email, encodeURIComponent(subject), encodeURIComponent(decodedBody));
+                const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=${house.email}&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(decodedBody)}`;
+                window.open(gmailUrl, '_blank');
                 modal.remove();
             });
         }
@@ -1534,7 +1535,8 @@ function showEmailOptions(house, subject, body) {
         if (outlookBtn) {
             outlookBtn.addEventListener('click', () => {
                 console.log('Outlook button clicked');
-                window.openOutlook(house.email, encodeURIComponent(subject), encodeURIComponent(decodedBody));
+                const outlookUrl = `https://outlook.live.com/mail/0/deeplink/compose?to=${house.email}&subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(decodedBody)}`;
+                window.open(outlookUrl, '_blank');
                 modal.remove();
             });
         }
@@ -1542,7 +1544,14 @@ function showEmailOptions(house, subject, body) {
         if (nativeBtn) {
             nativeBtn.addEventListener('click', () => {
                 console.log('Native email button clicked');
-                window.tryNativeMailto(house.email, encodeURIComponent(subject), encodeURIComponent(decodedBody));
+                const mailtoLink = `mailto:${house.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(decodedBody)}`;
+                try {
+                    window.location.href = mailtoLink;
+                    console.log('✅ Native mailto attempted');
+                } catch (e) {
+                    alert('❌ Could not open default email app. Please use one of the other options.');
+                    console.error('Native mailto failed:', e);
+                }
                 modal.remove();
             });
         }
@@ -1550,7 +1559,19 @@ function showEmailOptions(house, subject, body) {
         if (copyBtn) {
             copyBtn.addEventListener('click', () => {
                 console.log('Copy button clicked');
-                window.copyEmailContent(house.email, subject, decodedBody);
+                const content = `To: ${house.email}\nSubject: ${subject}\n\n${decodedBody}`;
+                navigator.clipboard.writeText(content).then(() => {
+                    alert('📋 Email content copied to clipboard!\n\nYou can now paste it into any email client.');
+                }).catch(() => {
+                    // Fallback for older browsers
+                    const textArea = document.createElement('textarea');
+                    textArea.value = content;
+                    document.body.appendChild(textArea);
+                    textArea.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(textArea);
+                    alert('📋 Email content copied to clipboard!');
+                });
                 modal.remove();
             });
         }
