@@ -303,11 +303,12 @@ async function registerHackerHouse(formData) {
                 region: 'other' // Default region for backward compatibility
             };
             
-            console.log('House data:', houseData);
+            console.log('🏠 House data to be saved:', houseData);
+            console.log('🏠 House data fields:', Object.keys(houseData));
             
             // Create house in database
             const newHouse = await SupabaseDB.createHackerHouse(houseData);
-            console.log('House created successfully:', newHouse);
+            console.log('✅ House created successfully:', newHouse);
             
             // Show success message
             document.getElementById('houseForm').style.display = 'none';

@@ -42,16 +42,27 @@ class SupabaseDatabase {
             const client = this.getClient();
             if (!client) throw new Error('Supabase client not initialized');
             
+            console.log('🔍 Supabase createHackerHouse called with:', houseData);
+            console.log('🔍 Data fields:', Object.keys(houseData));
+            
             const { data, error } = await client
                 .from('hacker_houses')
                 .insert([houseData])
                 .select()
                 .single();
             
-            if (error) throw error;
+            if (error) {
+                console.error('❌ Supabase error details:', error);
+                console.error('❌ Error message:', error.message);
+                console.error('❌ Error code:', error.code);
+                console.error('❌ Error details:', error.details);
+                throw error;
+            }
+            
+            console.log('✅ Supabase insert successful:', data);
             return data;
         } catch (error) {
-            console.error('Error creating hacker house:', error);
+            console.error('💥 Error creating hacker house:', error);
             throw error;
         }
     }
