@@ -311,11 +311,21 @@ async function registerHackerHouse(formData) {
                 'other': 'other'
             };
             
+            // Ensure region is never null
+            const mappedRegion = countryToRegion[formData.country] || 'other';
+            console.log(`🗺️ Country "${formData.country}" mapped to region "${mappedRegion}"`);
+            
             const houseData = {
                 ...formData,
                 image: '🏠', // Default house emoji
-                region: countryToRegion[formData.country] || 'other' // Map country to region
+                region: mappedRegion // Ensure region is set
             };
+            
+            // Final validation - ensure region is never null/undefined
+            if (!houseData.region) {
+                houseData.region = 'other';
+                console.log('⚠️ Region was null, defaulted to "other"');
+            }
             
             console.log('🏠 House data to be saved:', houseData);
             console.log('🏠 House data fields:', Object.keys(houseData));
