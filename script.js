@@ -678,15 +678,17 @@ function getRegionEmoji(region) {
 async function displayHouseList(houses = null) {
     let housesToShow = houses || [...hackerHouses, ...registeredHouses];
     
-    // Apply country filter if set
+    // Apply country filter if set (check both DOM element and global variable)
     const countryFilter = document.getElementById('countryFilter');
-    if (countryFilter && countryFilter.value && countryFilter.value !== '' && countryFilter.value !== 'all') {
-        console.log(`🌍 Filtering by country: "${countryFilter.value}"`);
+    const filterValue = window.selectedCountry || (countryFilter ? countryFilter.value : '');
+    
+    if (filterValue && filterValue !== '' && filterValue !== 'all') {
+        console.log(`🌍 Filtering by country: "${filterValue}"`);
         const originalCount = housesToShow.length;
         housesToShow = housesToShow.filter(house => {
             const houseCountry = house.country || 'other';
-            console.log(`🏠 House "${house.name}" country: "${houseCountry}"`);
-            return houseCountry === countryFilter.value;
+            console.log(`🏠 House "${house.name}" country: "${houseCountry}" - matches filter: ${houseCountry === filterValue}`);
+            return houseCountry === filterValue;
         });
         console.log(`🌍 Filtered from ${originalCount} to ${housesToShow.length} houses`);
     } else {
@@ -1179,6 +1181,9 @@ document.getElementById('updateHouseForm')?.addEventListener('submit', async fun
 // Global function for inline onchange event
 function filterByCountry(value) {
     console.log('🌍 Filter by country called with value:', value);
+    
+    // Store the filter value globally
+    window.selectedCountry = value;
     
     // Debug: Show all houses and their countries
     if (window.allHouses) {
