@@ -297,10 +297,24 @@ async function registerHackerHouse(formData) {
         if (typeof SupabaseDB !== 'undefined') {
             console.log('SupabaseDB is available, creating house...');
             
+            // Map country to region for backward compatibility
+            const countryToRegion = {
+                'japan': 'tokyo',
+                'usa': 'sf',
+                'uk': 'london',
+                'singapore': 'singapore',
+                'canada': 'other',
+                'australia': 'other',
+                'germany': 'other',
+                'france': 'other',
+                'netherlands': 'other',
+                'other': 'other'
+            };
+            
             const houseData = {
                 ...formData,
-                image: '🏠', // Default house emoji since region is removed
-                region: 'other' // Default region for backward compatibility
+                image: '🏠', // Default house emoji
+                region: countryToRegion[formData.country] || 'other' // Map country to region
             };
             
             console.log('🏠 House data to be saved:', houseData);
@@ -316,12 +330,27 @@ async function registerHackerHouse(formData) {
             
         } else {
             console.log('SupabaseDB not available, using fallback');
+            
+            // Map country to region for fallback as well
+            const countryToRegion = {
+                'japan': 'tokyo',
+                'usa': 'sf',
+                'uk': 'london',
+                'singapore': 'singapore',
+                'canada': 'other',
+                'australia': 'other',
+                'germany': 'other',
+                'france': 'other',
+                'netherlands': 'other',
+                'other': 'other'
+            };
+            
             // Fallback to local storage
             const newHouse = {
                 ...formData,
                 id: Date.now(),
                 image: '🏠',
-                region: 'other',
+                region: countryToRegion[formData.country] || 'other',
                 created_at: new Date().toISOString()
             };
             
