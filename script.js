@@ -684,6 +684,26 @@ async function displayHouseList(houses = null) {
             const supabaseHouses = await SupabaseDB.getHackerHouses();
             housesToShow = supabaseHouses || [];
             console.log('🏠 Loaded houses from Supabase:', housesToShow.length);
+            
+            // Transform and ensure country field exists
+            housesToShow = housesToShow.map(house => {
+                // Map region to country for backward compatibility if country is missing
+                const regionToCountry = {
+                    'tokyo': 'japan',
+                    'sf': 'usa',
+                    'london': 'uk',
+                    'singapore': 'singapore',
+                    'other': 'other'
+                };
+                
+                return {
+                    ...house,
+                    country: house.country || regionToCountry[house.region] || 'other'
+                };
+            });
+            
+            console.log('🏠 Houses after transformation:', housesToShow.map(h => ({name: h.name, country: h.country})));
+            
         } catch (error) {
             console.error('❌ Failed to load houses from Supabase:', error);
             housesToShow = [...hackerHouses, ...registeredHouses];
