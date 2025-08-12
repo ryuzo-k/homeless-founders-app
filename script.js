@@ -1176,6 +1176,12 @@ document.getElementById('updateHouseForm')?.addEventListener('submit', async fun
         }
     });
 
+// Global function for inline onchange event
+function filterByCountry(value) {
+    console.log('🌍 Filter by country called with value:', value);
+    displayHouseList();
+}
+
     // ...
 
     showPage('home');

@@ -70,7 +70,7 @@
                 <!-- Country Filter -->
                 <div class="mb-6 text-center">
                     <label class="block text-sm font-bold mb-2">Filter by Country</label>
-                    <select id="countryFilter" class="px-3 py-2 simple-input max-w-xs">
+                    <select id="countryFilter" class="px-3 py-2 simple-input max-w-xs" onchange="filterByCountry(this.value)">
                         <option value="">All Countries</option>
                         <option value="japan">Japan</option>
                         <option value="usa">United States</option>
