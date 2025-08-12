@@ -1179,6 +1179,15 @@ document.getElementById('updateHouseForm')?.addEventListener('submit', async fun
 // Global function for inline onchange event
 function filterByCountry(value) {
     console.log('🌍 Filter by country called with value:', value);
+    
+    // Debug: Show all houses and their countries
+    if (window.allHouses) {
+        console.log('🏠 All houses with countries:');
+        window.allHouses.forEach(house => {
+            console.log(`  - ${house.name}: country="${house.country}"`);
+        });
+    }
+    
     displayHouseList();
 }
 
