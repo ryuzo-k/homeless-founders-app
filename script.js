@@ -680,13 +680,17 @@ async function displayHouseList(houses = null) {
     
     // Apply country filter if set
     const countryFilter = document.getElementById('countryFilter');
-    if (countryFilter && countryFilter.value) {
-        console.log(`🌍 Before filtering - Total houses:`, housesToShow.length);
-        console.log(`🌍 Filter value:`, countryFilter.value);
-        console.log(`🌍 Houses with countries:`, housesToShow.map(h => ({name: h.name, country: h.country})));
-        
-        housesToShow = housesToShow.filter(house => house.country === countryFilter.value);
-        console.log(`🌍 After filtering by country "${countryFilter.value}":`, housesToShow.length);
+    if (countryFilter && countryFilter.value && countryFilter.value !== '' && countryFilter.value !== 'all') {
+        console.log(`🌍 Filtering by country: "${countryFilter.value}"`);
+        const originalCount = housesToShow.length;
+        housesToShow = housesToShow.filter(house => {
+            const houseCountry = house.country || 'other';
+            console.log(`🏠 House "${house.name}" country: "${houseCountry}"`);
+            return houseCountry === countryFilter.value;
+        });
+        console.log(`🌍 Filtered from ${originalCount} to ${housesToShow.length} houses`);
+    } else {
+        console.log(`🌍 No filter applied, showing all ${housesToShow.length} houses`);
     }
     
     const houseGrid = document.getElementById('houseGrid');
