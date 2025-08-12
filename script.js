@@ -681,8 +681,12 @@ async function displayHouseList(houses = null) {
     // Apply country filter if set
     const countryFilter = document.getElementById('countryFilter');
     if (countryFilter && countryFilter.value) {
+        console.log(`🌍 Before filtering - Total houses:`, housesToShow.length);
+        console.log(`🌍 Filter value:`, countryFilter.value);
+        console.log(`🌍 Houses with countries:`, housesToShow.map(h => ({name: h.name, country: h.country})));
+        
         housesToShow = housesToShow.filter(house => house.country === countryFilter.value);
-        console.log(`🌍 Filtered houses by country "${countryFilter.value}":`, housesToShow.length);
+        console.log(`🌍 After filtering by country "${countryFilter.value}":`, housesToShow.length);
     }
     
     const houseGrid = document.getElementById('houseGrid');
@@ -2015,6 +2019,15 @@ async function loadHackerHousesList() {
                 }
             }
             
+            // Map region to country for backward compatibility if country is missing
+            const regionToCountry = {
+                'tokyo': 'japan',
+                'sf': 'usa',
+                'london': 'uk',
+                'singapore': 'singapore',
+                'other': 'other'
+            };
+            
             // Debug: Check photo data for each house
             console.log(`🔍 House "${house.name}" raw photos:`, house.photos);
             console.log(`🔍 House "${house.name}" photos type:`, typeof house.photos);
@@ -2026,7 +2039,8 @@ async function loadHackerHousesList() {
                 description: house.description,
                 capacity: house.capacity,
                 features: features,
-                photos: house.photos || []
+                photos: house.photos || [],
+                country: house.country || regionToCountry[house.region] || 'other' // Add country mapping
             };
         });
         
