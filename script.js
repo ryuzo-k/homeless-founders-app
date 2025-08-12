@@ -676,7 +676,21 @@ function getRegionEmoji(region) {
 
 // ハウス一覧表示機能
 async function displayHouseList(houses = null) {
-    let housesToShow = houses || [...hackerHouses, ...registeredHouses];
+    let housesToShow;
+    
+    // Load houses from Supabase if not provided
+    if (!houses) {
+        try {
+            const supabaseHouses = await SupabaseDB.getHackerHouses();
+            housesToShow = supabaseHouses || [];
+            console.log('🏠 Loaded houses from Supabase:', housesToShow.length);
+        } catch (error) {
+            console.error('❌ Failed to load houses from Supabase:', error);
+            housesToShow = [...hackerHouses, ...registeredHouses];
+        }
+    } else {
+        housesToShow = houses;
+    }
     
     // Apply country filter if set (check both DOM element and global variable)
     const countryFilter = document.getElementById('countryFilter');
