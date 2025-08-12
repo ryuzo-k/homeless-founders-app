@@ -1154,11 +1154,27 @@ document.getElementById('updateHouseForm')?.addEventListener('submit', async fun
     // Add country filter event listener
     const countryFilter = document.getElementById('countryFilter');
     if (countryFilter) {
+        console.log('✅ Country filter element found, adding event listener');
         countryFilter.addEventListener('change', function() {
             console.log('🌍 Country filter changed to:', this.value);
             displayHouseList();
         });
+    } else {
+        console.log('❌ Country filter element not found');
     }
+    
+    // Also add immediate setup for when page loads
+    document.addEventListener('DOMContentLoaded', function() {
+        const filter = document.getElementById('countryFilter');
+        if (filter && !filter.hasAttribute('data-listener-added')) {
+            console.log('🔄 Adding country filter listener on DOMContentLoaded');
+            filter.addEventListener('change', function() {
+                console.log('🌍 Country filter changed to:', this.value);
+                displayHouseList();
+            });
+            filter.setAttribute('data-listener-added', 'true');
+        }
+    });
 
     // ...
 
