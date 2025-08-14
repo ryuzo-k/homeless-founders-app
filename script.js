@@ -317,7 +317,7 @@ async function registerHackerHouse(formData) {
             
             const houseData = {
                 ...formData,
-                image: '🏠', // Default house emoji
+                image: getRegionEmoji(mappedRegion), // Use the mapped region for emoji
                 region: mappedRegion // Ensure region is set
             };
             
@@ -359,7 +359,7 @@ async function registerHackerHouse(formData) {
             const newHouse = {
                 ...formData,
                 id: Date.now(),
-                image: '🏠',
+                image: getRegionEmoji(countryToRegion[formData.country] || 'other'),
                 region: countryToRegion[formData.country] || 'other',
                 created_at: new Date().toISOString()
             };
@@ -590,7 +590,7 @@ async function registerHackerHouse(houseData) {
             registeredHouses.push(newHouse);
             
             // ハウス一覧を更新
-            if (document.getElementById('houseGrid')) {
+            if (document.getElementById('housesList')) {
                 displayHouseList();
             }
             
@@ -712,44 +712,39 @@ async function displayHouseList(houses = null) {
         housesToShow = houses;
     }
     
-    // Apply country filter if set (check both DOM element and global variable)
-    const countryFilter = document.getElementById('countryFilter');
-    const filterValue = window.selectedCountry || (countryFilter ? countryFilter.value : '');
+    // Apply country filter if set
+    const filterValue = window.selectedCountry || '';
     
     if (filterValue && filterValue !== '' && filterValue !== 'all') {
         console.log(`🌍 Filtering by country: "${filterValue}"`);
         const originalCount = housesToShow.length;
         housesToShow = housesToShow.filter(house => {
             const houseCountry = house.country || 'other';
-            console.log(`🏠 House "${house.name}" country: "${houseCountry}" - matches filter: ${houseCountry === filterValue}`);
             return houseCountry === filterValue;
         });
         console.log(`🌍 Filtered from ${originalCount} to ${housesToShow.length} houses`);
     } else {
-        console.log(`🌍 No filter applied, showing all ${housesToShow.length} houses`);
+        console.log(`🌍 No country filter applied, showing all ${housesToShow.length} houses`);
     }
     
-    const houseGrid = document.getElementById('houseGrid');
+    const housesList = document.getElementById('housesList');
     const emptyState = document.getElementById('emptyState');
     
-    // Debug: Check photo data in display function
-    console.log('🖼️ Debug - Houses to display:', housesToShow.length);
-    const housesWithPhotos = housesToShow.filter(h => h.photos && h.photos.length > 0);
-    console.log('🖼️ Debug - Houses with photos in display:', housesWithPhotos.length);
-    if (housesWithPhotos.length > 0) {
-        console.log('🖼️ Debug - Sample house with photos in display:', housesWithPhotos[0].name, housesWithPhotos[0].photos.length);
-    }
-    
-    if (housesToShow.length === 0) {
-        houseGrid.classList.add('hidden');
-        emptyState.classList.remove('hidden');
+    if (!housesList) {
+        console.error('❌ housesList element not found');
         return;
     }
     
-    houseGrid.classList.remove('hidden');
-    emptyState.classList.add('hidden');
+    if (housesToShow.length === 0) {
+        housesList.classList.add('hidden');
+        if (emptyState) emptyState.classList.remove('hidden');
+        return;
+    }
     
-    houseGrid.innerHTML = housesToShow.map(house => `
+    housesList.classList.remove('hidden');
+    if (emptyState) emptyState.classList.add('hidden');
+    
+    housesList.innerHTML = housesToShow.map(house => `
         <div class="simple-card p-6">
             ${house.photos && Array.isArray(house.photos) && house.photos.length > 0 ? `
                 <div class="mb-4">
@@ -767,13 +762,11 @@ async function displayHouseList(houses = null) {
                     </div>
                 </div>
                 <span class="border border-black px-2 py-1 text-xs font-mono">
-                    ${getRegionName(house.region)}
+                    ${getCountryName(house.country)}
                 </span>
             </div>
             
             <p class="text-sm mb-4">${house.description}</p>
-            
-
             
             <div class="space-y-2">
                 <div class="flex justify-between items-center text-sm">
@@ -796,14 +789,14 @@ async function displayHouseList(houses = null) {
 
 // フィルタリング機能
 function filterHouses() {
-    const regionFilter = document.getElementById('filterRegion').value;
+    const countryFilter = document.getElementById('countryFilter').value;
     const capacityFilter = document.getElementById('filterCapacity').value;
     const facilityFilter = document.getElementById('filterFacility').value;
     
     let filteredHouses = [...hackerHouses, ...registeredHouses];
     
-    if (regionFilter) {
-        filteredHouses = filteredHouses.filter(house => house.region === regionFilter);
+    if (countryFilter) {
+        filteredHouses = filteredHouses.filter(house => house.country === countryFilter);
     }
     
     if (capacityFilter) {
@@ -817,10 +810,20 @@ function filterHouses() {
 
 // フィルターをクリア
 function clearFilters() {
-    document.getElementById('filterRegion').value = '';
+    document.getElementById('countryFilter').value = '';
     document.getElementById('filterCapacity').value = '';
     document.getElementById('filterFacility').value = '';
     displayHouseList();
+}
+
+// Country filterをクリア
+function clearCountryFilter() {
+    window.selectedCountry = '';
+    const countryFilter = document.getElementById('countryFilter');
+    if (countryFilter) {
+        countryFilter.value = '';
+    }
+    loadHackerHousesList();
 }
 
 // 統計情報を更新
@@ -861,7 +864,7 @@ function contactHouse(houseName) {
                 <div>
                     <h3 class="text-xl font-bold">${house.name}</h3>
                     <p class="text-sm">${house.location}</p>
-                    <span class="border border-black px-2 py-1 text-xs font-mono">${getRegionName(house.region)}</span>
+                    <span class="border border-black px-2 py-1 text-xs font-mono">${getCountryName(house.country)}</span>
                 </div>
             </div>
             
@@ -920,6 +923,23 @@ function getRegionName(region) {
         'other': 'その他'
     };
     return regionMap[region] || region;
+}
+
+// Get country display name
+function getCountryName(country) {
+    const countryMap = {
+        'japan': 'Japan',
+        'usa': 'USA',
+        'uk': 'UK',
+        'singapore': 'Singapore',
+        'canada': 'Canada',
+        'australia': 'Australia',
+        'germany': 'Germany',
+        'france': 'France',
+        'netherlands': 'Netherlands',
+        'other': 'Other'
+    };
+    return countryMap[country] || country;
 }
 
 // 設備名を取得
@@ -982,6 +1002,11 @@ async function displayHouseList(houses = null) {
     try {
         let housesToShow;
         
+        const housesList = document.getElementById('housesList');
+        const emptyState = document.getElementById('emptyState');
+        
+        if (!housesList) return; // ハウス一覧ページでない場合
+        
         if (houses) {
             housesToShow = houses;
         } else if (typeof SupabaseDB !== 'undefined') {
@@ -993,21 +1018,33 @@ async function displayHouseList(houses = null) {
             housesToShow = [...hackerHouses, ...registeredHouses];
         }
         
-        const houseGrid = document.getElementById('houseGrid');
-        const emptyState = document.getElementById('emptyState');
+        // Filter houses by selected country
+        if (window.selectedCountry) {
+            housesToShow = housesToShow.filter(house => house.country === window.selectedCountry);
+        }
         
-        if (!houseGrid) return; // ハウス一覧ページでない場合
+        // Filter houses by selected capacity
+        if (window.selectedCapacity) {
+            housesToShow = housesToShow.filter(house => house.capacity === parseInt(window.selectedCapacity));
+        }
+        
+        // Filter houses by selected facility
+        if (window.selectedFacility) {
+            housesToShow = housesToShow.filter(house => 
+                house.features && house.features.includes(window.selectedFacility)
+            );
+        }
         
         if (housesToShow.length === 0) {
-            houseGrid.classList.add('hidden');
+            housesList.classList.add('hidden');
             if (emptyState) emptyState.classList.remove('hidden');
             return;
         }
         
-        houseGrid.classList.remove('hidden');
+        housesList.classList.remove('hidden');
         if (emptyState) emptyState.classList.add('hidden');
         
-        houseGrid.innerHTML = housesToShow.map(house => `
+        housesList.innerHTML = housesToShow.map(house => `
             <div class="simple-card p-6">
                 <div class="flex items-start justify-between mb-4">
                     <div class="flex items-center">
@@ -1018,19 +1055,22 @@ async function displayHouseList(houses = null) {
                         </div>
                     </div>
                     <span class="border border-black px-2 py-1 text-xs font-mono">
-                        ${getRegionName(house.region)}
+                        ${getCountryName(house.country)}
                     </span>
                 </div>
                 
                 <p class="text-sm mb-4">${house.description}</p>
                 
-
-                
-                <div class="flex justify-between items-center">
-                    <div class="text-sm">
-
+                <div class="space-y-2">
+                    <div class="flex justify-between items-center text-sm">
+                        <div>
+                            <!-- Capacity info removed -->
+                        </div>
+                        <div class="font-mono">
+                            <!-- Availability status removed -->
+                        </div>
                     </div>
-                    <button onclick="contactHouse('${house.name}')" class="simple-button px-4 py-2 text-sm font-mono">
+                    <button onclick="contactHouse('${house.name}')" class="w-full simple-button px-4 py-2 text-sm font-mono">
                         View Details
                     </button>
                 </div>
@@ -1131,11 +1171,30 @@ document.getElementById('updateHouseForm')?.addEventListener('submit', async fun
         return;
     }
     
+    const updatedCountry = document.getElementById('editHouseCountry').value;
+    
+    // Map country to region for backward compatibility
+    const countryToRegion = {
+        'japan': 'tokyo',
+        'usa': 'sf',
+        'uk': 'london',
+        'singapore': 'singapore',
+        'canada': 'other',
+        'australia': 'other',
+        'germany': 'other',
+        'france': 'other',
+        'netherlands': 'other',
+        'other': 'other'
+    };
+    
+    const updatedRegion = countryToRegion[updatedCountry] || 'other';
+    
     const updatedData = {
         name: document.getElementById('editHouseName').value,
         location: document.getElementById('editHouseLocation').value,
         sns: document.getElementById('editHouseSNS').value,
-        country: document.getElementById('editHouseCountry').value,
+        country: updatedCountry,
+        region: updatedRegion, // Ensure region is also updated
         description: document.getElementById('editHouseDescription').value
     };
     
@@ -1206,7 +1265,7 @@ document.getElementById('updateHouseForm')?.addEventListener('submit', async fun
             console.log('🔄 Adding country filter listener on DOMContentLoaded');
             filter.addEventListener('change', function() {
                 console.log('🌍 Country filter changed to:', this.value);
-                displayHouseList();
+                loadHackerHousesList();
             });
             filter.setAttribute('data-listener-added', 'true');
         }
@@ -1219,15 +1278,8 @@ function filterByCountry(value) {
     // Store the filter value globally
     window.selectedCountry = value;
     
-    // Debug: Show all houses and their countries
-    if (window.allHouses) {
-        console.log('🏠 All houses with countries:');
-        window.allHouses.forEach(house => {
-            console.log(`  - ${house.name}: country="${house.country}"`);
-        });
-    }
-    
-    displayHouseList();
+    // Load houses with the new filter
+    loadHackerHousesList();
 }
 
     // ...
@@ -2066,13 +2118,6 @@ async function loadHackerHousesList() {
         console.log('Loaded houses from database:', houses);
         console.log('Number of houses loaded:', houses.length);
         
-        // Debug: Check if any houses have photos
-        const housesWithPhotos = houses.filter(h => h.photos && h.photos.length > 0);
-        console.log('Houses with photos:', housesWithPhotos.length);
-        if (housesWithPhotos.length > 0) {
-            console.log('Sample house with photos:', housesWithPhotos[0]);
-        }
-        
         // Transform database data to match expected format
         houses = houses.map(house => {
             let features = [];
@@ -2102,11 +2147,6 @@ async function loadHackerHousesList() {
                 'other': 'other'
             };
             
-            // Debug: Check photo data for each house
-            console.log(`🔍 House "${house.name}" raw photos:`, house.photos);
-            console.log(`🔍 House "${house.name}" photos type:`, typeof house.photos);
-            console.log(`🔍 House "${house.name}" photos array:`, Array.isArray(house.photos));
-            
             return {
                 ...house,
                 image: getRegionEmoji(house.region),
@@ -2130,7 +2170,7 @@ async function loadHackerHousesList() {
                 email: "hello@tokyotech.house",
                 description: "AI/ML focused hacker house in Shibuya. Perfect for tech founders building innovative products.",
                 capacity: 8,
-
+                country: "japan"
             },
             {
                 name: "SF Startup Hub",
@@ -2138,7 +2178,7 @@ async function loadHackerHousesList() {
                 email: "apply@sfhub.co",
                 description: "YC-style accelerator environment in the heart of Silicon Valley. Connect with investors and fellow founders.",
                 capacity: 12,
-
+                country: "usa"
             },
             {
                 name: "Berlin Builders",
@@ -2146,28 +2186,80 @@ async function loadHackerHousesList() {
                 email: "team@berlinbuilders.com",
                 description: "European startup community focused on sustainable tech and social impact ventures.",
                 capacity: 6,
-
+                country: "germany"
             }
         ];
     }
     
+    // Apply country filter if set
+    const filterValue = window.selectedCountry || '';
+    
+    if (filterValue && filterValue !== '' && filterValue !== 'all') {
+        console.log(`🌍 Filtering by country: "${filterValue}"`);
+        const originalCount = houses.length;
+        houses = houses.filter(house => {
+            const houseCountry = house.country || 'other';
+            return houseCountry === filterValue;
+        });
+        console.log(`🌍 Filtered from ${originalCount} to ${houses.length} houses`);
+    } else {
+        console.log(`🌍 No country filter applied, showing all ${houses.length} houses`);
+    }
+    
     // Browse Houses ページの一覧
     const browseContainer = document.getElementById('housesList');
-    if (browseContainer) {
-        browseContainer.innerHTML = houses.map(house => `
-            <div class="simple-card p-6">
-                <h3 class="text-xl font-bold mb-2">${house.name}</h3>
-                <p class="text-sm text-gray-600 mb-3">${house.location}</p>
-                <p class="text-sm mb-4">${house.description}</p>
-                <div class="flex justify-between items-center">
-
-                    <button onclick="showDirectApplicationForm('${house.name}', '${house.email}')" class="simple-button px-4 py-2 text-sm">
-                        Apply to This House
-                    </button>
-                </div>
-            </div>
-        `).join('');
+    const emptyState = document.getElementById('emptyState');
+    
+    if (!browseContainer) return;
+    
+    if (houses.length === 0) {
+        browseContainer.classList.add('hidden');
+        if (emptyState) emptyState.classList.remove('hidden');
+        return;
     }
+    
+    browseContainer.classList.remove('hidden');
+    if (emptyState) emptyState.classList.add('hidden');
+    
+    browseContainer.innerHTML = houses.map(house => `
+        <div class="simple-card p-6">
+            ${house.photos && Array.isArray(house.photos) && house.photos.length > 0 ? `
+                <div class="mb-4">
+                    <img src="${house.photos[0]}" alt="${house.name}" class="w-full h-48 object-cover border border-black" onerror="this.style.display='none'">
+                    ${house.photos.length > 1 ? `<p class="text-xs text-gray-600 mt-1">+${house.photos.length - 1} more photos</p>` : ''}
+                </div>
+            ` : ''}
+            
+            <div class="flex items-start justify-between mb-4">
+                <div class="flex items-center">
+                    <span class="text-3xl mr-3">${house.image}</span>
+                    <div>
+                        <h3 class="text-lg font-bold">${house.name}</h3>
+                        <p class="text-sm">${house.location}</p>
+                    </div>
+                </div>
+                <span class="border border-black px-2 py-1 text-xs font-mono">
+                    ${getCountryName(house.country)}
+                </span>
+            </div>
+            
+            <p class="text-sm mb-4">${house.description}</p>
+            
+            <div class="space-y-2">
+                <div class="flex justify-between items-center text-sm">
+                    <div>
+                        <!-- Capacity info removed -->
+                    </div>
+                    <div class="font-mono">
+                        <!-- Availability status removed -->
+                    </div>
+                </div>
+                <button onclick="showDirectApplicationForm('${house.name}', '${house.email}')" class="w-full simple-button px-4 py-2 text-sm font-mono">
+                    Apply to This House
+                </button>
+            </div>
+        </div>
+    `).join('');
     
     // Apply ページの選択リスト
     const applyContainer = document.getElementById('applyHousesList');

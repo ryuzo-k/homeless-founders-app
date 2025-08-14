@@ -441,6 +441,7 @@ const SupabaseTest = {
 };
 
 // Export for use in other files
+window.supabaseClient = supabaseClient;
 window.SupabaseDB = SupabaseDB;
 window.SupabaseAuth = SupabaseAuth;
 window.SupabaseTest = SupabaseTest;

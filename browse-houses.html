@@ -73,8 +73,8 @@
                     <select id="countryFilter" class="px-3 py-2 simple-input max-w-xs" onchange="filterByCountry(this.value)">
                         <option value="">All Countries</option>
                         <option value="japan">Japan</option>
-                        <option value="usa">United States</option>
-                        <option value="uk">United Kingdom</option>
+                        <option value="usa">USA</option>
+                        <option value="uk">UK</option>
                         <option value="singapore">Singapore</option>
                         <option value="canada">Canada</option>
                         <option value="australia">Australia</option>
@@ -157,6 +157,12 @@
                 <!-- Houses List -->
                 <div id="housesList" class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                     <!-- Houses will be loaded here -->
+                </div>
+                
+                <!-- Empty State Message -->
+                <div id="emptyState" class="text-center py-12 hidden">
+                    <p class="text-lg">No hacker houses found for the selected country.</p>
+                    <button onclick="clearCountryFilter()" class="simple-button px-4 py-2 mt-4">Show All Houses</button>
                 </div>
             </div>
         </div>

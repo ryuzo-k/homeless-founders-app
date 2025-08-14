@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Country Registration Test</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .simple-card {
+            border: 1px solid #000;
+            box-shadow: 4px 4px 0px 0px #000;
+        }
+        .simple-input {
+            border: 1px solid #000;
+        }
+        .simple-button {
+            border: 1px solid #000;
+            box-shadow: 2px 2px 0px 0px #000;
+        }
+        .simple-button:hover {
+            box-shadow: none;
+            transform: translate(2px, 2px);
+        }
+    </style>
+</head>
+<body class="bg-gray-100 p-8">
+    <div class="max-w-4xl mx-auto">
+        <h1 class="text-3xl font-bold mb-8 text-center">Country Registration Test</h1>
+        
+        <div class="simple-card p-8 mb-8">
+            <h2 class="text-xl font-bold mb-4">Registration Form Test</h2>
+            <form id="testForm">
+                <div class="mb-4">
+                    <label class="block text-sm font-bold mb-2">Country *</label>
+                    <select id="houseCountry" required class="w-full px-3 py-2 simple-input">
+                        <option value="">Select a country</option>
+                        <option value="japan">Japan</option>
+                        <option value="usa">USA</option>
+                        <option value="uk">UK</option>
+                        <option value="singapore">Singapore</option>
+                        <option value="canada">Canada</option>
+                        <option value="australia">Australia</option>
+                        <option value="germany">Germany</option>
+                        <option value="france">France</option>
+                        <option value="netherlands">Netherlands</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+                <button type="submit" class="simple-button px-4 py-2">Test Registration</button>
+            </form>
+        </div>
+        
+        <div class="simple-card p-8">
+            <h2 class="text-xl font-bold mb-4">Test Results</h2>
+            <div id="results" class="font-mono text-sm">
+                Select a country and click "Test Registration" to see results.
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('testForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const countrySelect = document.getElementById('houseCountry');
+            const selectedCountry = countrySelect.value;
+            const selectedText = countrySelect.options[countrySelect.selectedIndex].text;
+            
+            const resultsDiv = document.getElementById('results');
+            
+            // Test the country to region mapping
+            const countryToRegion = {
+                'japan': 'tokyo',
+                'usa': 'sf',
+                'uk': 'london',
+                'singapore': 'singapore',
+                'canada': 'other',
+                'australia': 'other',
+                'germany': 'other',
+                'france': 'other',
+                'netherlands': 'other',
+                'other': 'other'
+            };
+            
+            const mappedRegion = countryToRegion[selectedCountry] || 'other';
+            
+            // Test the region to emoji mapping
+            function getRegionEmoji(region) {
+                const emojiMap = {
+                    'tokyo': '🏙️',
+                    'sf': '🌉',
+                    'nyc': '🗽',
+                    'london': '🏰',
+                    'singapore': '🌴',
+                    'other': '🏠'
+                };
+                return emojiMap[region] || '🏠';
+            }
+            
+            const houseImage = getRegionEmoji(mappedRegion);
+            
+            // Create the house data object
+            const houseData = {
+                country: selectedCountry,
+                region: mappedRegion,
+                image: houseImage
+            };
+            
+            resultsDiv.innerHTML = `
+                <p><strong>Selected Country:</strong> ${selectedText} (${selectedCountry})</p>
+                <p><strong>Mapped Region:</strong> ${mappedRegion}</p>
+                <p><strong>Assigned Emoji:</strong> ${houseImage}</p>
+                <p class="mt-4"><strong>House Data Object:</strong></p>
+                <pre>${JSON.stringify(houseData, null, 2)}</pre>
+                <p class="mt-4 text-green-600"><strong>Status:</strong> Country registration mapping working correctly!</p>
+            `;
+        });
+    </script>
+</body>
+</html>

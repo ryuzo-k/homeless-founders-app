@@ -20,7 +20,7 @@ class SupabaseDatabase {
             
             const { data, error } = await client
                 .from('hacker_houses')
-                .select('*')
+                .select('id, name, location, region, country, description, capacity, email, preferences, facilities, image, created_at, updated_at')
                 .order('created_at', { ascending: false });
             
             if (error) throw error;
@@ -45,9 +45,21 @@ class SupabaseDatabase {
             console.log('🔍 Supabase createHackerHouse called with:', houseData);
             console.log('🔍 Data fields:', Object.keys(houseData));
             
+            // Ensure country field is included in the insert
             const { data, error } = await client
                 .from('hacker_houses')
-                .insert([houseData])
+                .insert([{
+                    name: houseData.name,
+                    location: houseData.location,
+                    region: houseData.region,
+                    country: houseData.country,
+                    description: houseData.description,
+                    capacity: houseData.capacity,
+                    email: houseData.email,
+                    preferences: houseData.preferences,
+                    facilities: houseData.facilities,
+                    image: houseData.image
+                }])
                 .select()
                 .single();
             
@@ -68,15 +80,27 @@ class SupabaseDatabase {
     }
 
     // Update hacker house
-    async updateHackerHouse(id, updateData) {
+    async updateHackerHouse(email, updateData) {
         try {
             const client = this.getClient();
             if (!client) throw new Error('Supabase client not initialized');
             
+            // Ensure country field is included in the update
             const { data, error } = await client
                 .from('hacker_houses')
-                .update(updateData)
-                .eq('id', id)
+                .update({
+                    name: updateData.name,
+                    location: updateData.location,
+                    region: updateData.region,
+                    country: updateData.country,
+                    description: updateData.description,
+                    capacity: updateData.capacity,
+                    email: updateData.email,
+                    preferences: updateData.preferences,
+                    facilities: updateData.facilities,
+                    image: updateData.image
+                })
+                .eq('email', email)
                 .select()
                 .single();
             
@@ -115,7 +139,7 @@ class SupabaseDatabase {
             
             const { data, error } = await client
                 .from('hacker_houses')
-                .select('*')
+                .select('id, name, location, region, country, description, capacity, email, preferences, facilities, image, created_at, updated_at')
                 .eq('id', id)
                 .single();
             

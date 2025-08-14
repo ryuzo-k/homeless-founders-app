@@ -23,6 +23,7 @@ CREATE TABLE IF NOT EXISTS hacker_houses (
     name VARCHAR(255) NOT NULL,
     location VARCHAR(255) NOT NULL,
     region VARCHAR(50) NOT NULL,
+    country VARCHAR(50),
     description TEXT NOT NULL,
     capacity VARCHAR(50),
     email VARCHAR(255) NOT NULL,
