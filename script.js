@@ -1016,7 +1016,7 @@ async function displayHouseList(houses = null) {
             housesToShow = houses;
         } else if (typeof SupabaseDB !== 'undefined') {
             // Supabaseからデータを取得
-            const dbHouses = await SupabaseDB.getHackerHouses();
+            const dbHouses = await SupabaseDB.getAllHackerHouses();
             housesToShow = [...hackerHouses, ...dbHouses];
         } else {
             // ローカルデータを使用
