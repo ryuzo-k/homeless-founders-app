@@ -2505,6 +2505,8 @@ document.addEventListener('DOMContentLoaded', function() {
     // ハウス一覧を読み込む
     setTimeout(async () => {
         await loadHackerHousesList();
+        // ホームページの統計も更新
+        await updateHomeStats();
     }, 100);
     
     // 応募ボタンのイベントリスナー
