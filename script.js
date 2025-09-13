@@ -1017,6 +1017,8 @@ async function displayHouseList(houses = null) {
         } else if (typeof SupabaseDB !== 'undefined') {
             // Supabaseからデータを取得
             const dbHouses = await SupabaseDB.getAllHackerHouses();
+            console.log('🏠 Loaded houses from database:', dbHouses);
+            console.log('🔍 First house SNS field:', dbHouses[0]?.sns);
             housesToShow = [...hackerHouses, ...dbHouses];
         } else {
             // ローカルデータを使用
@@ -1049,7 +1051,9 @@ async function displayHouseList(houses = null) {
         housesList.classList.remove('hidden');
         if (emptyState) emptyState.classList.add('hidden');
         
-        housesList.innerHTML = housesToShow.map(house => `
+        housesList.innerHTML = housesToShow.map(house => {
+            console.log('🏠 Rendering house:', house.name, 'SNS:', house.sns);
+            return `
             <div class="simple-card p-6">
                 <div class="flex items-start justify-between mb-4">
                     <div class="flex items-center">
@@ -1066,7 +1070,7 @@ async function displayHouseList(houses = null) {
                 
                 <p class="text-sm mb-4">${house.description}</p>
                 
-                ${house.sns ? `
+                ${house.sns && house.sns.trim() !== '' ? `
                 <div class="mb-4">
                     <a href="${house.sns}" target="_blank" class="inline-flex items-center text-sm text-blue-600 hover:text-blue-800 underline">
                         🔗 Visit SNS/Website
@@ -1088,7 +1092,7 @@ async function displayHouseList(houses = null) {
                     </button>
                 </div>
             </div>
-        `).join('');
+        `}).join('');
         
         updateStats(housesToShow);
         
