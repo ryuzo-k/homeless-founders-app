@@ -32,7 +32,10 @@ const CONFIG = {
     FALLBACK_FEATURES: ['WiFi', 'Shared Kitchen', 'Coworking Space'],
     
     // Production mode
-    DEV_MODE: false
+    DEV_MODE: false,
+    
+    // Logging configuration
+    ENABLE_CONSOLE_LOGS: false
 };
 
 // Initialize OpenAI service with API key if available
