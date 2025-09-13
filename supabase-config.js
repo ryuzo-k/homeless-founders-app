@@ -146,6 +146,7 @@ const SupabaseDB = {
             preferences: houseData.preferences || null,
             facilities: houseData.facilities || [],
             image: houseData.image,
+            sns: houseData.sns,
             created_at: new Date().toISOString()
         };
         
