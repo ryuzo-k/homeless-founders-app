@@ -188,6 +188,8 @@
             // Load houses list
             if (typeof loadHackerHousesList === 'function') {
                 loadHackerHousesList();
+            } else if (typeof displayHouseList === 'function') {
+                displayHouseList();
             }
             
             // Add back to houses list functionality
