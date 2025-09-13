@@ -951,9 +951,14 @@ function getFacilityName(facility) {
 // ホームページの統計情報を更新
 async function updateHomeStats() {
     try {
+        console.log('🔄 updateHomeStats called');
+        console.log('🔧 SupabaseDB available:', typeof SupabaseDB !== 'undefined');
+        
         if (typeof SupabaseDB !== 'undefined') {
+            console.log('📡 Fetching houses from Supabase...');
             // Supabaseからデータを取得
             const houses = await SupabaseDB.getHackerHouses();
+            console.log('🏠 Houses fetched:', houses);
             
             const totalHouses = houses.length;
             
@@ -961,14 +966,25 @@ async function updateHomeStats() {
             const allRegions = new Set(houses.map(h => h.country).filter(country => country));
             const activeRegions = allRegions.size;
             
+            console.log('📊 Calculated stats - Houses:', totalHouses, 'Regions:', activeRegions);
+            
             const homeHousesEl = document.getElementById('homeRegisteredHouses');
             const homeRegionsEl = document.getElementById('homeActiveRegions');
             
-            if (homeHousesEl) homeHousesEl.textContent = totalHouses;
-            if (homeRegionsEl) homeRegionsEl.textContent = activeRegions;
+            console.log('🎯 DOM elements found - Houses:', !!homeHousesEl, 'Regions:', !!homeRegionsEl);
+            
+            if (homeHousesEl) {
+                homeHousesEl.textContent = totalHouses;
+                console.log('✅ Updated houses display to:', totalHouses);
+            }
+            if (homeRegionsEl) {
+                homeRegionsEl.textContent = activeRegions;
+                console.log('✅ Updated regions display to:', activeRegions);
+            }
             
             console.log('📊 Stats updated - Houses:', totalHouses, 'Regions:', activeRegions);
         } else {
+            console.log('⚠️ SupabaseDB not available, using fallback');
             // Supabaseが利用できない場合はローカルデータを使用
             const totalHouses = registeredHouses.length + hackerHouses.length;
             const activeRegions = new Set([...registeredHouses.map(h => h.region), ...hackerHouses.map(h => h.region)]).size;
@@ -978,9 +994,17 @@ async function updateHomeStats() {
             
             if (homeHousesEl) homeHousesEl.textContent = totalHouses;
             if (homeRegionsEl) homeRegionsEl.textContent = activeRegions;
+            
+            console.log('📊 Fallback stats - Houses:', totalHouses, 'Regions:', activeRegions);
         }
     } catch (error) {
-        console.error('統計情報の更新エラー:', error);
+        console.error('❌ 統計情報の更新エラー:', error);
+        // エラーの場合はデフォルト値を表示
+        const homeHousesEl = document.getElementById('homeRegisteredHouses');
+        const homeRegionsEl = document.getElementById('homeActiveRegions');
+        
+        if (homeHousesEl) homeHousesEl.textContent = '0';
+        if (homeRegionsEl) homeRegionsEl.textContent = '0';
     }
 }
 
