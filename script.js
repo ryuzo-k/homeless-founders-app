@@ -1714,6 +1714,10 @@ function showEmailOptions(house, subject, body) {
         </div>
         
         <div style="padding: 30px;">
+            <div style="background: #fff3cd; border: 1px solid #ffeaa7; padding: 15px; margin-bottom: 20px; font-size: 12px; font-family: 'Space Mono', monospace;">
+                <strong>⚠️ Note:</strong> Your browser may show a security warning when opening your email app. If this happens, please click "Continue" or "Allow" to proceed with sending your application.
+            </div>
+            
             <div style="margin-bottom: 30px;">
                 <button id="primary-email-btn" 
                         style="display: block; width: 100%; padding: 15px; background: black; color: white; border: none; cursor: pointer; font-size: 16px; font-family: 'Space Mono', monospace; margin-bottom: 15px; transition: background-color 0.2s;">
@@ -1758,12 +1762,30 @@ function showEmailOptions(house, subject, body) {
             primaryEmailBtn.addEventListener('click', () => {
                 console.log('Primary email button clicked');
                 const mailtoLink = `mailto:${house.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(decodedBody)}`;
+                
+                // Try multiple methods to ensure email opens
                 try {
-                    window.location.href = mailtoLink;
-                    console.log('✅ Native mailto attempted');
+                    // Method 1: Try window.open first (works better with some browsers)
+                    const emailWindow = window.open(mailtoLink, '_self');
+                    if (!emailWindow) {
+                        // Method 2: Fallback to location.href
+                        window.location.href = mailtoLink;
+                    }
+                    console.log('✅ Email client opening attempted');
                 } catch (e) {
-                    alert('❌ Could not open default email app. Please use one of the other options.');
-                    console.error('Native mailto failed:', e);
+                    // Method 3: Create and click a temporary link element
+                    try {
+                        const tempLink = document.createElement('a');
+                        tempLink.href = mailtoLink;
+                        tempLink.style.display = 'none';
+                        document.body.appendChild(tempLink);
+                        tempLink.click();
+                        document.body.removeChild(tempLink);
+                        console.log('✅ Email client opened via temporary link');
+                    } catch (e2) {
+                        alert('❌ Could not open default email app. Please use the copy option to manually paste into your email client.');
+                        console.error('All mailto methods failed:', e, e2);
+                    }
                 }
                 modal.remove();
             });
@@ -1925,12 +1947,30 @@ function showParentalConsentEmailOptions(house, subject, body) {
             primaryEmailBtn.addEventListener('click', () => {
                 console.log('Primary email button clicked (parental consent)');
                 const mailtoLink = `mailto:${house.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+                
+                // Try multiple methods to ensure email opens
                 try {
-                    window.location.href = mailtoLink;
-                    console.log('✅ Native mailto attempted (parental consent)');
+                    // Method 1: Try window.open first (works better with some browsers)
+                    const emailWindow = window.open(mailtoLink, '_self');
+                    if (!emailWindow) {
+                        // Method 2: Fallback to location.href
+                        window.location.href = mailtoLink;
+                    }
+                    console.log('✅ Email client opening attempted (parental consent)');
                 } catch (e) {
-                    alert('❌ Could not open default email app. Please use the copy option to manually paste into your email client.');
-                    console.error('Native mailto failed (parental consent):', e);
+                    // Method 3: Create and click a temporary link element
+                    try {
+                        const tempLink = document.createElement('a');
+                        tempLink.href = mailtoLink;
+                        tempLink.style.display = 'none';
+                        document.body.appendChild(tempLink);
+                        tempLink.click();
+                        document.body.removeChild(tempLink);
+                        console.log('✅ Email client opened via temporary link (parental consent)');
+                    } catch (e2) {
+                        alert('❌ Could not open default email app. Please use the copy option to manually paste into your email client.');
+                        console.error('All mailto methods failed (parental consent):', e, e2);
+                    }
                 }
                 modal.remove();
             });
