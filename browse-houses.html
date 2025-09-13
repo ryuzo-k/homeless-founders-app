@@ -186,10 +186,18 @@
             console.log('SupabaseDB:', typeof SupabaseDB !== 'undefined' ? 'LOADED' : 'NOT LOADED');
             
             // Load houses list
-            if (typeof loadHackerHousesList === 'function') {
-                loadHackerHousesList();
-            } else if (typeof displayHouseList === 'function') {
+            console.log('🔍 Checking functions...');
+            console.log('loadHackerHousesList:', typeof loadHackerHousesList);
+            console.log('displayHouseList:', typeof displayHouseList);
+            
+            if (typeof displayHouseList === 'function') {
+                console.log('🚀 Calling displayHouseList...');
                 displayHouseList();
+            } else if (typeof loadHackerHousesList === 'function') {
+                console.log('🚀 Calling loadHackerHousesList...');
+                loadHackerHousesList();
+            } else {
+                console.error('❌ No house loading function found!');
             }
             
             // Add back to houses list functionality
