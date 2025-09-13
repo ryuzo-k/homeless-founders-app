@@ -2255,7 +2255,8 @@ async function loadHackerHousesList() {
                 capacity: house.capacity,
                 features: features,
                 photos: house.photos || [],
-                country: house.country || regionToCountry[house.region] || 'other' // Add country mapping
+                country: house.country || regionToCountry[house.region] || 'other', // Add country mapping
+                sns: house.sns // Ensure sns field is preserved
             };
         });
         
