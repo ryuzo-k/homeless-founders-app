@@ -184,17 +184,19 @@ const SupabaseDB = {
         return data;
     },
 
-    async updateHackerHouse(email, updatedData) {
+    async updateHackerHouse(houseId, updatedData) {
         const { data, error } = await supabaseClient
             .from(TABLES.HACKER_HOUSES)
             .update({
                 name: updatedData.name,
                 location: updatedData.location,
                 description: updatedData.description,
+                sns: updatedData.sns,
+                country: updatedData.country,
                 capacity: updatedData.capacity,
                 updated_at: new Date().toISOString()
             })
-            .eq('email', email)
+            .eq('id', houseId)
             .select();
         
         if (error) {
