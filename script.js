@@ -1684,61 +1684,65 @@ function showEmailOptions(house, subject, body) {
     const existingModals = document.querySelectorAll('.email-modal');
     existingModals.forEach(modal => modal.remove());
     
-    // Create a modal with multiple options
+    // Detect if user is on mobile
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    
+    // Create a modal with website-consistent design
     const modal = document.createElement('div');
     modal.className = 'email-modal';
     modal.style.cssText = `
         position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-        background: rgba(0,0,0,0.9); z-index: 10000; display: flex; 
+        background: rgba(0,0,0,0.8); z-index: 10000; display: flex; 
         align-items: center; justify-content: center; padding: 20px;
-        animation: fadeIn 0.3s ease-in;
+        font-family: 'Space Mono', monospace;
     `;
     
     const modalContent = document.createElement('div');
-    modalContent.style.cssText = 'background: white; padding: 30px; border-radius: 15px; max-width: 500px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 10px 30px rgba(0,0,0,0.3);';
+    modalContent.style.cssText = `
+        background: white; 
+        border: 2px solid black; 
+        max-width: 500px; 
+        width: 100%; 
+        max-height: 90vh; 
+        overflow-y: auto;
+        font-family: 'Space Mono', monospace;
+    `;
     
     modalContent.innerHTML = `
-        <h2 style="margin-top: 0; color: #333; text-align: center;">📧 Send Application to ${house.name}</h2>
-        <p style="color: #666; text-align: center; margin-bottom: 25px;">Choose your preferred email method:</p>
-        
-        <div style="margin: 20px 0;">
-            <button id="gmail-btn" 
-                    style="display: block; width: 100%; padding: 18px; margin: 12px 0; background: linear-gradient(135deg, #ea4335, #d33b2c); color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 16px; font-weight: 600; transition: transform 0.2s;">
-                📧 Open in Gmail
-            </button>
-            
-            <button id="outlook-btn" 
-                    style="display: block; width: 100%; padding: 18px; margin: 12px 0; background: linear-gradient(135deg, #0078d4, #106ebe); color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 16px; font-weight: 600; transition: transform 0.2s;">
-                📧 Open in Outlook
-            </button>
-            
-            <button id="native-btn" 
-                    style="display: block; width: 100%; padding: 18px; margin: 12px 0; background: linear-gradient(135deg, #007AFF, #0051D5); color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 16px; font-weight: 600; transition: transform 0.2s;">
-                📱 Open Default Email App
-            </button>
-            
-            <button id="copy-btn" 
-                    style="display: block; width: 100%; padding: 18px; margin: 12px 0; background: linear-gradient(135deg, #28a745, #20963d); color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 16px; font-weight: 600; transition: transform 0.2s;">
-                📋 Copy Email Content
-            </button>
+        <div style="background: black; color: white; padding: 20px; text-align: center;">
+            <h2 style="margin: 0; font-size: 18px; font-weight: normal;">Send Application to ${house.name}</h2>
         </div>
         
-        <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin-top: 20px;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                <strong style="color: #333;">Email Details:</strong>
-                <button id="close-btn" 
-                        style="background: #dc3545; color: white; border: none; border-radius: 5px; padding: 8px 12px; cursor: pointer; font-size: 14px;">
-                    ✕ Close
+        <div style="padding: 30px;">
+            <div style="margin-bottom: 30px;">
+                <button id="primary-email-btn" 
+                        style="display: block; width: 100%; padding: 15px; background: black; color: white; border: none; cursor: pointer; font-size: 16px; font-family: 'Space Mono', monospace; margin-bottom: 15px; transition: background-color 0.2s;">
+                    ${isMobile ? '📱 Open Email App' : '📧 Open Email'}
+                </button>
+                
+                <button id="copy-btn" 
+                        style="display: block; width: 100%; padding: 15px; background: white; color: black; border: 2px solid black; cursor: pointer; font-size: 16px; font-family: 'Space Mono', monospace; transition: all 0.2s;">
+                    📋 Copy Email Content
                 </button>
             </div>
-            <div style="font-size: 14px; color: #666;">
-                <strong>To:</strong> ${house.email}<br>
-                <strong>Subject:</strong> ${subject}
+            
+            <div style="border-top: 1px solid #ccc; padding-top: 20px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                    <strong style="font-size: 14px;">Email Details:</strong>
+                    <button id="close-btn" 
+                            style="background: white; color: black; border: 1px solid black; padding: 8px 12px; cursor: pointer; font-size: 12px; font-family: 'Space Mono', monospace;">
+                        ✕ Close
+                    </button>
+                </div>
+                <div style="font-size: 12px; margin-bottom: 15px;">
+                    <strong>To:</strong> ${house.email}<br>
+                    <strong>Subject:</strong> ${subject}
+                </div>
+                <details>
+                    <summary style="cursor: pointer; font-size: 12px; margin-bottom: 10px;">📄 Preview Email Content</summary>
+                    <div style="white-space: pre-wrap; font-size: 11px; background: #f5f5f5; padding: 15px; border: 1px solid #ddd; max-height: 200px; overflow-y: auto; font-family: 'JetBrains Mono', monospace;">${decodedBody}</div>
+                </details>
             </div>
-            <details style="margin-top: 15px;">
-                <summary style="cursor: pointer; color: #007AFF; font-weight: 600;">📄 Preview Email Content</summary>
-                <div style="white-space: pre-wrap; font-size: 12px; margin-top: 10px; background: white; padding: 15px; border-radius: 5px; border: 1px solid #ddd; max-height: 200px; overflow-y: auto;">${decodedBody}</div>
-            </details>
         </div>
     `;
     
@@ -1746,33 +1750,13 @@ function showEmailOptions(house, subject, body) {
     
     // Add event listeners after DOM is created
     setTimeout(() => {
-        const gmailBtn = modal.querySelector('#gmail-btn');
-        const outlookBtn = modal.querySelector('#outlook-btn');
-        const nativeBtn = modal.querySelector('#native-btn');
+        const primaryEmailBtn = modal.querySelector('#primary-email-btn');
         const copyBtn = modal.querySelector('#copy-btn');
         const closeBtn = modal.querySelector('#close-btn');
         
-        if (gmailBtn) {
-            gmailBtn.addEventListener('click', () => {
-                console.log('Gmail button clicked');
-                const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=${house.email}&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(decodedBody)}`;
-                window.open(gmailUrl, '_blank');
-                modal.remove();
-            });
-        }
-        
-        if (outlookBtn) {
-            outlookBtn.addEventListener('click', () => {
-                console.log('Outlook button clicked');
-                const outlookUrl = `https://outlook.live.com/mail/0/deeplink/compose?to=${house.email}&subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(decodedBody)}`;
-                window.open(outlookUrl, '_blank');
-                modal.remove();
-            });
-        }
-        
-        if (nativeBtn) {
-            nativeBtn.addEventListener('click', () => {
-                console.log('Native email button clicked');
+        if (primaryEmailBtn) {
+            primaryEmailBtn.addEventListener('click', () => {
+                console.log('Primary email button clicked');
                 const mailtoLink = `mailto:${house.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(decodedBody)}`;
                 try {
                     window.location.href = mailtoLink;
@@ -1790,7 +1774,17 @@ function showEmailOptions(house, subject, body) {
                 console.log('Copy button clicked');
                 const content = `To: ${house.email}\nSubject: ${subject}\n\n${decodedBody}`;
                 navigator.clipboard.writeText(content).then(() => {
-                    alert('📋 Email content copied to clipboard!\n\nYou can now paste it into any email client.');
+                    // Show success message in website style
+                    const successDiv = document.createElement('div');
+                    successDiv.style.cssText = `
+                        position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+                        background: black; color: white; padding: 20px; 
+                        font-family: 'Space Mono', monospace; font-size: 14px;
+                        z-index: 10001; border: 2px solid white;
+                    `;
+                    successDiv.textContent = '📋 Email content copied to clipboard!';
+                    document.body.appendChild(successDiv);
+                    setTimeout(() => successDiv.remove(), 2000);
                 }).catch(() => {
                     // Fallback for older browsers
                     const textArea = document.createElement('textarea');
@@ -1799,7 +1793,17 @@ function showEmailOptions(house, subject, body) {
                     textArea.select();
                     document.execCommand('copy');
                     document.body.removeChild(textArea);
-                    alert('📋 Email content copied to clipboard!');
+                    
+                    const successDiv = document.createElement('div');
+                    successDiv.style.cssText = `
+                        position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+                        background: black; color: white; padding: 20px; 
+                        font-family: 'Space Mono', monospace; font-size: 14px;
+                        z-index: 10001; border: 2px solid white;
+                    `;
+                    successDiv.textContent = '📋 Email content copied to clipboard!';
+                    document.body.appendChild(successDiv);
+                    setTimeout(() => successDiv.remove(), 2000);
                 });
                 modal.remove();
             });
@@ -1812,6 +1816,23 @@ function showEmailOptions(house, subject, body) {
             });
         }
         
+        // Add hover effects
+        primaryEmailBtn.addEventListener('mouseenter', () => {
+            primaryEmailBtn.style.background = '#333';
+        });
+        primaryEmailBtn.addEventListener('mouseleave', () => {
+            primaryEmailBtn.style.background = 'black';
+        });
+        
+        copyBtn.addEventListener('mouseenter', () => {
+            copyBtn.style.background = 'black';
+            copyBtn.style.color = 'white';
+        });
+        copyBtn.addEventListener('mouseleave', () => {
+            copyBtn.style.background = 'white';
+            copyBtn.style.color = 'black';
+        });
+        
         // Close modal when clicking outside
         modal.addEventListener('click', (e) => {
             if (e.target === modal) {
@@ -1819,19 +1840,6 @@ function showEmailOptions(house, subject, body) {
             }
         });
     }, 10);
-    
-    // Add CSS animation
-    const style = document.createElement('style');
-    style.textContent = `
-        @keyframes fadeIn {
-            from { opacity: 0; transform: scale(0.9); }
-            to { opacity: 1; transform: scale(1); }
-        }
-        .email-modal button:hover {
-            transform: translateY(-2px);
-        }
-    `;
-    document.head.appendChild(style);
     
     document.body.appendChild(modal);
 }
@@ -1842,61 +1850,66 @@ function showParentalConsentEmailOptions(house, subject, body) {
     const existingModals = document.querySelectorAll('.email-modal');
     existingModals.forEach(modal => modal.remove());
     
-    // Create a modal with multiple options
+    // Detect if user is on mobile
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    
+    // Create a modal with website-consistent design
     const modal = document.createElement('div');
     modal.className = 'email-modal';
     modal.style.cssText = `
         position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-        background: rgba(0,0,0,0.9); z-index: 10000; display: flex; 
+        background: rgba(0,0,0,0.8); z-index: 10000; display: flex; 
         align-items: center; justify-content: center; padding: 20px;
-        animation: fadeIn 0.3s ease-in;
+        font-family: 'Space Mono', monospace;
     `;
     
     const modalContent = document.createElement('div');
-    modalContent.style.cssText = 'background: white; padding: 30px; border-radius: 15px; max-width: 500px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 10px 30px rgba(0,0,0,0.3);';
+    modalContent.style.cssText = `
+        background: white; 
+        border: 2px solid black; 
+        max-width: 500px; 
+        width: 100%; 
+        max-height: 90vh; 
+        overflow-y: auto;
+        font-family: 'Space Mono', monospace;
+    `;
     
     modalContent.innerHTML = `
-        <h2 style="margin-top: 0; color: #333; text-align: center;">📧 Send Parental Consent Application to ${house.name}</h2>
-        <p style="color: #666; text-align: center; margin-bottom: 25px;">⚠️ This application includes parental consent information</p>
-        
-        <div style="margin: 20px 0;">
-            <button id="gmail-btn" 
-                    style="display: block; width: 100%; padding: 18px; margin: 12px 0; background: linear-gradient(135deg, #ea4335, #d33b2c); color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 16px; font-weight: 600; transition: transform 0.2s;">
-                📧 Open in Gmail
-            </button>
-            
-            <button id="outlook-btn" 
-                    style="display: block; width: 100%; padding: 18px; margin: 12px 0; background: linear-gradient(135deg, #0078d4, #106ebe); color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 16px; font-weight: 600; transition: transform 0.2s;">
-                📧 Open in Outlook
-            </button>
-            
-            <button id="native-btn" 
-                    style="display: block; width: 100%; padding: 18px; margin: 12px 0; background: linear-gradient(135deg, #007AFF, #0051D5); color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 16px; font-weight: 600; transition: transform 0.2s;">
-                📱 Open Default Email App
-            </button>
-            
-            <button id="copy-btn" 
-                    style="display: block; width: 100%; padding: 18px; margin: 12px 0; background: linear-gradient(135deg, #28a745, #20963d); color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 16px; font-weight: 600; transition: transform 0.2s;">
-                📋 Copy Email Content
-            </button>
+        <div style="background: black; color: white; padding: 20px; text-align: center;">
+            <h2 style="margin: 0; font-size: 18px; font-weight: normal;">Send Parental Consent Application to ${house.name}</h2>
+            <p style="margin: 10px 0 0 0; font-size: 14px; color: #ffeb3b;">⚠️ This application includes parental consent information</p>
         </div>
         
-        <div style="background: #fff3cd; padding: 20px; border-radius: 8px; margin-top: 20px; border: 1px solid #ffeaa7;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                <strong style="color: #856404;">⚠️ Parental Consent Application</strong>
-                <button id="close-btn" 
-                        style="background: #dc3545; color: white; border: none; border-radius: 5px; padding: 8px 12px; cursor: pointer; font-size: 14px;">
-                    ✕ Close
+        <div style="padding: 30px;">
+            <div style="margin-bottom: 30px;">
+                <button id="primary-email-btn" 
+                        style="display: block; width: 100%; padding: 15px; background: black; color: white; border: none; cursor: pointer; font-size: 16px; font-family: 'Space Mono', monospace; margin-bottom: 15px; transition: background-color 0.2s;">
+                    ${isMobile ? '📱 Open Email App' : '📧 Open Email'}
+                </button>
+                
+                <button id="copy-btn" 
+                        style="display: block; width: 100%; padding: 15px; background: white; color: black; border: 2px solid black; cursor: pointer; font-size: 16px; font-family: 'Space Mono', monospace; transition: all 0.2s;">
+                    📋 Copy Email Content
                 </button>
             </div>
-            <div style="font-size: 14px; color: #856404;">
-                <strong>To:</strong> ${house.email}<br>
-                <strong>Subject:</strong> ${subject}
+            
+            <div style="border-top: 1px solid #ccc; padding-top: 20px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                    <strong style="font-size: 14px; color: #ff9800;">⚠️ Parental Consent Application</strong>
+                    <button id="close-btn" 
+                            style="background: white; color: black; border: 1px solid black; padding: 8px 12px; cursor: pointer; font-size: 12px; font-family: 'Space Mono', monospace;">
+                        ✕ Close
+                    </button>
+                </div>
+                <div style="font-size: 12px; margin-bottom: 15px;">
+                    <strong>To:</strong> ${house.email}<br>
+                    <strong>Subject:</strong> ${subject}
+                </div>
+                <details>
+                    <summary style="cursor: pointer; font-size: 12px; margin-bottom: 10px;">📄 Preview Email Content</summary>
+                    <div style="white-space: pre-wrap; font-size: 11px; background: #f5f5f5; padding: 15px; border: 1px solid #ddd; max-height: 200px; overflow-y: auto; font-family: 'JetBrains Mono', monospace;">${body}</div>
+                </details>
             </div>
-            <details style="margin-top: 15px;">
-                <summary style="cursor: pointer; color: #007AFF; font-weight: 600;">📄 Preview Email Content</summary>
-                <div style="white-space: pre-wrap; font-size: 12px; margin-top: 10px; background: white; padding: 15px; border-radius: 5px; border: 1px solid #ddd; max-height: 200px; overflow-y: auto;">${body}</div>
-            </details>
         </div>
     `;
     
@@ -1904,40 +1917,20 @@ function showParentalConsentEmailOptions(house, subject, body) {
     
     // Add event listeners after DOM is created
     setTimeout(() => {
-        const gmailBtn = modal.querySelector('#gmail-btn');
-        const outlookBtn = modal.querySelector('#outlook-btn');
-        const nativeBtn = modal.querySelector('#native-btn');
+        const primaryEmailBtn = modal.querySelector('#primary-email-btn');
         const copyBtn = modal.querySelector('#copy-btn');
         const closeBtn = modal.querySelector('#close-btn');
         
-        if (gmailBtn) {
-            gmailBtn.addEventListener('click', () => {
-                console.log('Gmail button clicked (parental consent)');
-                const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=${house.email}&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-                window.open(gmailUrl, '_blank');
-                modal.remove();
-            });
-        }
-        
-        if (outlookBtn) {
-            outlookBtn.addEventListener('click', () => {
-                console.log('Outlook button clicked (parental consent)');
-                const outlookUrl = `https://outlook.live.com/mail/0/deeplink/compose?to=${house.email}&subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-                window.open(outlookUrl, '_blank');
-                modal.remove();
-            });
-        }
-        
-        if (nativeBtn) {
-            nativeBtn.addEventListener('click', () => {
-                console.log('Native email button clicked (parental consent)');
+        if (primaryEmailBtn) {
+            primaryEmailBtn.addEventListener('click', () => {
+                console.log('Primary email button clicked (parental consent)');
                 const mailtoLink = `mailto:${house.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
                 try {
                     window.location.href = mailtoLink;
                     console.log('✅ Native mailto attempted (parental consent)');
                 } catch (e) {
-                    alert('❌ Could not open default email app. Please use one of the other options.');
-                    console.error('Native mailto failed:', e);
+                    alert('❌ Could not open default email app. Please use the copy option to manually paste into your email client.');
+                    console.error('Native mailto failed (parental consent):', e);
                 }
                 modal.remove();
             });
@@ -1948,7 +1941,17 @@ function showParentalConsentEmailOptions(house, subject, body) {
                 console.log('Copy button clicked (parental consent)');
                 const content = `To: ${house.email}\nSubject: ${subject}\n\n${body}`;
                 navigator.clipboard.writeText(content).then(() => {
-                    alert('📋 Parental consent email content copied to clipboard!\n\nYou can now paste it into any email client.');
+                    // Show success message in website style
+                    const successDiv = document.createElement('div');
+                    successDiv.style.cssText = `
+                        position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+                        background: black; color: white; padding: 20px; 
+                        font-family: 'Space Mono', monospace; font-size: 14px;
+                        z-index: 10001; border: 2px solid white;
+                    `;
+                    successDiv.textContent = '📋 Email content copied to clipboard!';
+                    document.body.appendChild(successDiv);
+                    setTimeout(() => successDiv.remove(), 2000);
                 }).catch(() => {
                     // Fallback for older browsers
                     const textArea = document.createElement('textarea');
@@ -1957,7 +1960,17 @@ function showParentalConsentEmailOptions(house, subject, body) {
                     textArea.select();
                     document.execCommand('copy');
                     document.body.removeChild(textArea);
-                    alert('📋 Parental consent email content copied to clipboard!');
+                    
+                    const successDiv = document.createElement('div');
+                    successDiv.style.cssText = `
+                        position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+                        background: black; color: white; padding: 20px; 
+                        font-family: 'Space Mono', monospace; font-size: 14px;
+                        z-index: 10001; border: 2px solid white;
+                    `;
+                    successDiv.textContent = '📋 Email content copied to clipboard!';
+                    document.body.appendChild(successDiv);
+                    setTimeout(() => successDiv.remove(), 2000);
                 });
                 modal.remove();
             });
@@ -1969,6 +1982,23 @@ function showParentalConsentEmailOptions(house, subject, body) {
                 modal.remove();
             });
         }
+        
+        // Add hover effects
+        primaryEmailBtn.addEventListener('mouseenter', () => {
+            primaryEmailBtn.style.background = '#333';
+        });
+        primaryEmailBtn.addEventListener('mouseleave', () => {
+            primaryEmailBtn.style.background = 'black';
+        });
+        
+        copyBtn.addEventListener('mouseenter', () => {
+            copyBtn.style.background = 'black';
+            copyBtn.style.color = 'white';
+        });
+        copyBtn.addEventListener('mouseleave', () => {
+            copyBtn.style.background = 'white';
+            copyBtn.style.color = 'black';
+        });
         
         // Close modal when clicking outside
         modal.addEventListener('click', (e) => {
