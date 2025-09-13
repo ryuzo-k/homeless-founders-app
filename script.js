@@ -1105,46 +1105,7 @@ function checkAge() {
 // ハウス編集機能
 let currentEditingHouse = null;
 
-// メール認証でハウス情報を取得
-async function verifyHouseEmail() {
-    const email = document.getElementById('verifyEmail').value.trim();
-    if (!email) {
-        alert('Please enter your email address');
-        return;
-    }
-    
-    try {
-        let house = null;
-        
-        // まずSupabaseから検索
-        if (typeof SupabaseDB !== 'undefined') {
-            const dbHouses = await SupabaseDB.getHackerHouses();
-            house = dbHouses.find(h => h.email === email);
-        }
-        
-        // Supabaseにない場合はローカル配列から検索
-        if (!house) {
-            house = hackerHouses.find(h => h.email === email);
-        }
-        
-        if (!house) {
-            alert('No house found with this email address. Please check your email or register your house first.');
-            return;
-        }
-        
-        // ハウス情報をフォームに読み込み
-        currentEditingHouse = house;
-        loadHouseForEdit(house);
-        
-        // UI切り替え
-        document.getElementById('emailVerification').classList.add('hidden');
-        document.getElementById('editHouseForm').classList.remove('hidden');
-        
-    } catch (error) {
-        console.error('Error verifying house email:', error);
-        alert('Error loading house information. Please try again.');
-    }
-}
+// Remove duplicate function - using the more comprehensive one below
 
 // ハウス情報をフォームに読み込み
 function loadHouseForEdit(house) {
