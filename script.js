@@ -7,28 +7,34 @@ let registeredFounders = [];
 // Sample hacker house data
 const hackerHouses = [
     {
-        name: "Tokyo Innovation Hub",
-        location: "Shibuya, Tokyo",
-        description: "A cutting-edge hacker house in the heart of Tokyo's startup district",
-
-        image: "🏙️",
-        region: "tokyo"
+        name: "LocalHost Japan House",
+        location: "Yotsuya, Shinjuku",
+        description: "Hi",
+        image: "🏠",
+        region: "tokyo",
+        country: "japan",
+        email: "contact@localhost-japan.com",
+        sns: "https://x.com/localhostjapan"
     },
     {
         name: "SF Tech House",
         location: "SOMA, San Francisco",
         description: "Premier tech house in the heart of Silicon Valley",
-
         image: "🌉",
-        region: "sf"
+        region: "sf",
+        country: "usa",
+        email: "contact@sftechhouse.com",
+        sns: "https://twitter.com/sftechhouse"
     },
     {
         name: "NYC Creative Collective",
         location: "Brooklyn, New York",
         description: "Where creative founders gather to build the future",
-
         image: "🗽",
-        region: "nyc"
+        region: "nyc",
+        country: "usa",
+        email: "contact@nyccreative.com",
+        sns: "https://instagram.com/nyccreative"
     }
 ];
 
