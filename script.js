@@ -335,6 +335,7 @@ async function registerHackerHouse(formData) {
             
             console.log('🏠 House data to be saved:', houseData);
             console.log('🏠 House data fields:', Object.keys(houseData));
+            console.log('🔍 DEBUG: SNS field in houseData:', houseData.sns);
             
             // Create house in database
             const newHouse = await SupabaseDB.createHackerHouse(houseData);
@@ -578,7 +579,9 @@ async function registerHackerHouse(houseData) {
             };
             
             console.log('House data with image:', houseWithImage);
+            console.log('🔍 DEBUG: SNS field in houseWithImage:', houseWithImage.sns);
             const newHouse = await SupabaseDB.createHackerHouse(houseWithImage);
+            console.log('✅ Created house result:', newHouse);
             
             // Update local stats only
             await updateHomeStats();
