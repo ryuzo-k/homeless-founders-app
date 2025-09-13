@@ -1058,6 +1058,14 @@ async function displayHouseList(houses = null) {
                 
                 <p class="text-sm mb-4">${house.description}</p>
                 
+                ${house.sns ? `
+                <div class="mb-4">
+                    <a href="${house.sns}" target="_blank" class="inline-flex items-center text-sm text-blue-600 hover:text-blue-800 underline">
+                        🔗 Visit SNS/Website
+                    </a>
+                </div>
+                ` : ''}
+                
                 <div class="space-y-2">
                     <div class="flex justify-between items-center text-sm">
                         <div>
@@ -1068,7 +1076,7 @@ async function displayHouseList(houses = null) {
                         </div>
                     </div>
                     <button onclick="contactHouse('${house.name}')" class="w-full simple-button px-4 py-2 text-sm font-mono">
-                        View Details
+                        Apply to This House
                     </button>
                 </div>
             </div>
