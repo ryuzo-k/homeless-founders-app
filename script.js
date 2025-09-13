@@ -1525,8 +1525,16 @@ async function continueApplicationSubmission(founderData, selectedHouses, parent
         localStorage.setItem('applications', JSON.stringify(existingApplications));
         console.log('💾 Application saved locally for reference:', applicationRecord);
         
+        // Collect parent data before hiding forms
+        const parentData = {
+            parentName: document.getElementById('inlineParentName')?.value || 'Not provided',
+            parentEmail: document.getElementById('inlineParentEmail')?.value || 'Not provided',
+            parentPhone: document.getElementById('inlineParentPhone')?.value || 'Not provided',
+            relationship: document.getElementById('inlineRelationship')?.value || 'Not provided'
+        };
+        
         // Use mailto approach for parental consent applications
-        sendViaMailtoWithParentalConsent(founderData, selectedHouses, parentalConsentId);
+        sendViaMailtoWithParentalConsent(founderData, selectedHouses, parentalConsentId, parentData);
         
         // Hide forms
         const container = document.getElementById('parentalConsentContainer');
@@ -2112,7 +2120,7 @@ window.copyEmailContent = function(email, subject, body) {
 };
 
 // Send application via mailto with parental consent
-function sendViaMailtoWithParentalConsent(formData, selectedHouses, parentalConsentId) {
+function sendViaMailtoWithParentalConsent(formData, selectedHouses, parentalConsentId, parentData) {
     if (selectedHouses.length === 0) {
         alert('Please select at least one house to apply to.');
         return;
@@ -2122,11 +2130,11 @@ function sendViaMailtoWithParentalConsent(formData, selectedHouses, parentalCons
     const generateEmailContent = (house) => {
         const subject = `🏠 Founder Application (Minor with Parental Consent): ${formData.name} - ${formData.project}`;
         
-        // Get parent information from the consent form
-        const parentName = document.getElementById('inlineParentName')?.value || 'Not provided';
-        const parentEmail = document.getElementById('inlineParentEmail')?.value || 'Not provided';
-        const parentPhone = document.getElementById('inlineParentPhone')?.value || 'Not provided';
-        const relationship = document.getElementById('inlineRelationship')?.value || 'Not provided';
+        // Use parent information passed as parameter
+        const parentName = parentData?.parentName || 'Not provided';
+        const parentEmail = parentData?.parentEmail || 'Not provided';
+        const parentPhone = parentData?.parentPhone || 'Not provided';
+        const relationship = parentData?.relationship || 'Not provided';
         
         const body = `Dear ${house.name} team,%0D%0A%0D%0AI hope this email finds you well. I am writing to apply for accommodation at ${house.name} through the Homeless Founders platform.%0D%0A%0D%0A⚠️ IMPORTANT: This application is for a minor (under 18) with verified parental consent.%0D%0A%0D%0AMINOR INFORMATION:%0D%0A- Name: ${formData.name}%0D%0A- Age: ${formData.age} (Minor - under 18)%0D%0A- Email: ${formData.email}%0D%0A- Portfolio: ${formData.portfolio || 'Not provided'}%0D%0A%0D%0APARENT/GUARDIAN CONTACT INFORMATION:%0D%0A- Parent/Guardian Name: ${parentName}%0D%0A- Relationship: ${relationship}%0D%0A- Email: ${parentEmail}%0D%0A- Phone: ${parentPhone}%0D%0A- Consent Date: ${new Date().toLocaleDateString()}%0D%0A- Consent ID: ${parentalConsentId}%0D%0A%0D%0AMY PROJECT:%0D%0A${formData.project}%0D%0A%0D%0AACCOMMODATION DETAILS:%0D%0A- Preferred Start Date: ${formData.startDate}%0D%0A- Preferred End Date: ${formData.endDate}%0D%0A- Duration: ${calculateDuration(formData.startDate, formData.endDate)}%0D%0A%0D%0ALEGAL COMPLIANCE NOTICE:%0D%0A- Parental consent has been obtained and digitally signed%0D%0A- Parent/Guardian has acknowledged all risks and responsibilities%0D%0A- Parent/Guardian takes full responsibility for minor's safety and welfare%0D%0A- All legal requirements for minor accommodation have been addressed%0D%0A- Parent/Guardian contact information provided above for direct communication%0D%0A%0D%0AADDITIONAL INFORMATION:%0D%0AI am excited about the opportunity to join your community and contribute to the vibrant ecosystem of founders and entrepreneurs, with full parental support.%0D%0A%0D%0AI believe ${house.name} would be the perfect environment for me to develop my project while connecting with like-minded individuals. My parents/guardians fully support this opportunity and I am committed to being a positive and contributing member of your community.%0D%0A%0D%0APlease feel free to contact my parent/guardian directly at ${parentEmail} or ${parentPhone} for any questions or verification.%0D%0A%0D%0AThank you for considering my application. I look forward to hearing from you soon.%0D%0A%0D%0ABest regards,%0D%0A${formData.name}%0D%0A%0D%0A----%0D%0AThis application was submitted through the Homeless Founders platform with verified parental consent.%0D%0AParental Consent ID: ${parentalConsentId}%0D%0ASubmission Date: ${new Date().toLocaleDateString()}`;
 
