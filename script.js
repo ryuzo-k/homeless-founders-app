@@ -1558,7 +1558,7 @@ function sendViaMailto(formData, selectedHouses) {
 
     // Generate perfect application email content
     const generateEmailContent = (house) => {
-        const subject = `新しい応募が来ました`;
+        const subject = `🏠 New Founder Application: ${formData.name} - ${formData.project}`;
         
         const body = `Dear ${house.name} team,%0D%0A%0D%0AI am writing to apply for accommodation at ${house.name} through the Homeless Founders platform.%0D%0A%0D%0AABOUT ME:%0D%0A- Name: ${formData.name}%0D%0A- Age: ${formData.age}%0D%0A- Email: ${formData.email}%0D%0A- Current Location: ${formData.location}%0D%0A- Portfolio/SNS: ${formData.portfolio}%0D%0A%0D%0AMY PROJECT:%0D%0A${formData.project}%0D%0A%0D%0AACCOMMODATION DETAILS:%0D%0A- Preferred Start Date: ${formData.startDate}%0D%0A- Preferred End Date: ${formData.endDate}%0D%0A- Duration: ${calculateDuration(formData.startDate, formData.endDate)}%0D%0A%0D%0AADDITIONAL INFORMATION:%0D%0A${formData.message || 'I am excited about the opportunity to join your community and contribute to the vibrant ecosystem of founders and entrepreneurs.'}%0D%0A%0D%0AThank you for considering my application. I look forward to hearing from you.%0D%0A%0D%0ABest regards,%0D%0A${formData.name}%0D%0A${formData.email}%0D%0A%0D%0A---%0D%0AApplied via Homeless Founders Platform%0D%0APlatform: https://homelessfounders.com`;
 
