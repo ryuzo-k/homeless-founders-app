@@ -1070,7 +1070,7 @@ async function displayHouseList(houses = null) {
                         🔗 Visit SNS/Website
                     </a>
                 </div>
-                ` : ''}
+                ` : `<div class="mb-4 text-xs text-gray-400">DEBUG: No SNS field for ${house.name}</div>`}
                 
                 <div class="space-y-2">
                     <div class="flex justify-between items-center text-sm">
@@ -2218,6 +2218,8 @@ async function loadHackerHousesList() {
         houses = await SupabaseDB.getAllHackerHouses();
         console.log('Loaded houses from database:', houses);
         console.log('Number of houses loaded:', houses.length);
+        console.log('🔍 DEBUG: First house sns field:', houses[0]?.sns);
+        console.log('🔍 DEBUG: All houses with sns:', houses.map(h => ({ name: h.name, sns: h.sns })));
         
         // Transform database data to match expected format
         houses = houses.map(house => {
