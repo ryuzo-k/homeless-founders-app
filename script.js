@@ -971,11 +971,9 @@ async function updateHomeStats() {
             const activeRegions = new Set([...houses.map(h => h.region), ...hackerHouses.map(h => h.region)]).size;
             
             // ホームページの統計を更新
-            const homeFoundersEl = document.getElementById('homeRegisteredFounders');
             const homeHousesEl = document.getElementById('homeRegisteredHouses');
             const homeRegionsEl = document.getElementById('homeActiveRegions');
             
-            if (homeFoundersEl) homeFoundersEl.textContent = totalFounders;
             if (homeHousesEl) homeHousesEl.textContent = totalHouses;
             if (homeRegionsEl) homeRegionsEl.textContent = activeRegions;
             
@@ -985,11 +983,9 @@ async function updateHomeStats() {
             const totalHouses = registeredHouses.length + hackerHouses.length;
             const activeRegions = new Set([...registeredHouses.map(h => h.region), ...hackerHouses.map(h => h.region)]).size;
             
-            const homeFoundersEl = document.getElementById('homeRegisteredFounders');
             const homeHousesEl = document.getElementById('homeRegisteredHouses');
             const homeRegionsEl = document.getElementById('homeActiveRegions');
             
-            if (homeFoundersEl) homeFoundersEl.textContent = totalFounders;
             if (homeHousesEl) homeHousesEl.textContent = totalHouses;
             if (homeRegionsEl) homeRegionsEl.textContent = activeRegions;
         }
