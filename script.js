@@ -2725,12 +2725,29 @@ async function updateHouseInfo() {
             const hackerHouseIndex = hackerHouses.findIndex(h => h.email === window.currentEditingHouse.email);
             if (hackerHouseIndex !== -1) {
                 hackerHouses[hackerHouseIndex] = { ...hackerHouses[hackerHouseIndex], ...formData };
+                console.log('✅ Updated hackerHouses array');
             }
             
             // Update registeredHouses array if the house exists there
             const registeredHouseIndex = registeredHouses.findIndex(h => h.email === window.currentEditingHouse.email);
             if (registeredHouseIndex !== -1) {
                 registeredHouses[registeredHouseIndex] = { ...registeredHouses[registeredHouseIndex], ...formData };
+                console.log('✅ Updated registeredHouses array');
+            }
+            
+            // Force refresh the Browse Houses page if it exists
+            if (typeof displayHouseList === 'function') {
+                console.log('🔄 Refreshing house list display...');
+                // Clear any cached data and force fresh load
+                setTimeout(() => {
+                    displayHouseList();
+                }, 100);
+            }
+            
+            // Also clear any browser cache for house data
+            if (typeof localStorage !== 'undefined') {
+                // Force a timestamp update to invalidate any cache
+                localStorage.setItem('lastHouseUpdate', Date.now().toString());
             }
             
             // 成功メッセージを表示
