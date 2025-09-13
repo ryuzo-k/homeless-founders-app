@@ -953,25 +953,23 @@ async function updateHomeStats() {
     try {
         if (typeof SupabaseDB !== 'undefined') {
             // Supabaseからデータを取得
-            const [founders, houses] = await Promise.all([
-                SupabaseDB.getFounders(),
-                SupabaseDB.getHackerHouses()
-            ]);
+            const houses = await SupabaseDB.getHackerHouses();
             
-            const totalFounders = founders.length;
-            const totalHouses = houses.length + hackerHouses.length; // サンプルデータも含める
-            const activeRegions = new Set([...houses.map(h => h.region), ...hackerHouses.map(h => h.region)]).size;
+            const totalHouses = houses.length;
             
-            // ホームページの統計を更新
+            // ユニークな地域数を計算（countryフィールドを使用）
+            const allRegions = new Set(houses.map(h => h.country).filter(country => country));
+            const activeRegions = allRegions.size;
+            
             const homeHousesEl = document.getElementById('homeRegisteredHouses');
             const homeRegionsEl = document.getElementById('homeActiveRegions');
             
             if (homeHousesEl) homeHousesEl.textContent = totalHouses;
             if (homeRegionsEl) homeRegionsEl.textContent = activeRegions;
             
+            console.log('📊 Stats updated - Houses:', totalHouses, 'Regions:', activeRegions);
         } else {
-            // ローカルデータを使用
-            const totalFounders = registeredFounders.length;
+            // Supabaseが利用できない場合はローカルデータを使用
             const totalHouses = registeredHouses.length + hackerHouses.length;
             const activeRegions = new Set([...registeredHouses.map(h => h.region), ...hackerHouses.map(h => h.region)]).size;
             
