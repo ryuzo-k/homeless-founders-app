@@ -1103,7 +1103,7 @@ async function displayHouseList(houses = null) {
                             <!-- Availability status removed -->
                         </div>
                     </div>
-                    <button onclick="contactHouse('${house.name}')" class="w-full simple-button px-4 py-2 text-sm font-mono">
+                    <button onclick="showDirectApplicationForm('${house.name}')" class="w-full simple-button px-4 py-2 text-sm font-mono">
                         Apply to This House
                     </button>
                 </div>
@@ -2200,11 +2200,35 @@ function calculateDuration(startDate, endDate) {
 }
 
 // 直接応募フォームを表示する
-function showDirectApplicationForm(houseName, houseEmail) {
+async function showDirectApplicationForm(houseName) {
+    console.log('🚀 showDirectApplicationForm called with:', houseName);
+    
+    // Find the house details from all sources
+    let allHouses = [...hackerHouses, ...registeredHouses];
+    
+    // Also try to get from Supabase if available
+    if (typeof SupabaseDB !== 'undefined') {
+        try {
+            const dbHouses = await SupabaseDB.getAllHackerHouses();
+            allHouses = [...allHouses, ...dbHouses];
+            console.log('🏠 Total houses available for form:', allHouses.length);
+        } catch (error) {
+            console.error('Error loading houses from database:', error);
+        }
+    }
+    
+    const house = allHouses.find(h => h.name === houseName);
+    console.log('🏠 Found house for form:', house);
+    
+    if (!house) {
+        alert('House not found');
+        return;
+    }
+    
     // 選択されたハッカーハウス情報を保存
     window.selectedHouse = {
         name: houseName,
-        email: houseEmail
+        email: house.email
     };
     
     // フォームタイトルを更新
@@ -2220,6 +2244,9 @@ function showDirectApplicationForm(houseName, houseEmail) {
     if (formContainer && housesContainer) {
         formContainer.classList.remove('hidden');
         housesContainer.classList.add('hidden');
+        console.log('✅ Application form displayed for:', houseName);
+    } else {
+        console.error('❌ Form containers not found');
     }
 }
 
