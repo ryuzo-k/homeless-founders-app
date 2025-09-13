@@ -1763,21 +1763,11 @@ function showEmailOptions(house, subject, body) {
         const copyBtn = modal.querySelector('#copy-btn');
         const closeBtn = modal.querySelector('#close-btn');
         
-        const gmailBtn = modal.querySelector('#gmail-btn');
         const mailtoBtn = modal.querySelector('#mailto-btn');
-        
-        if (gmailBtn) {
-            gmailBtn.addEventListener('click', () => {
-                console.log('Gmail button clicked');
-                const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=${house.email}&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(decodedBody)}`;
-                window.open(gmailUrl, '_blank');
-                modal.remove();
-            });
-        }
         
         if (mailtoBtn) {
             mailtoBtn.addEventListener('click', () => {
-                console.log('Mailto button clicked');
+                console.log('Email button clicked');
                 const mailtoLink = `mailto:${house.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(decodedBody)}`;
                 window.location.href = mailtoLink;
                 modal.remove();
@@ -1945,21 +1935,11 @@ function showParentalConsentEmailOptions(house, subject, body) {
         const copyBtn = modal.querySelector('#copy-btn');
         const closeBtn = modal.querySelector('#close-btn');
         
-        const gmailBtn = modal.querySelector('#gmail-btn');
         const mailtoBtn = modal.querySelector('#mailto-btn');
-        
-        if (gmailBtn) {
-            gmailBtn.addEventListener('click', () => {
-                console.log('Gmail button clicked (parental consent)');
-                const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=${house.email}&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-                window.open(gmailUrl, '_blank');
-                modal.remove();
-            });
-        }
         
         if (mailtoBtn) {
             mailtoBtn.addEventListener('click', () => {
-                console.log('Mailto button clicked (parental consent)');
+                console.log('Email button clicked (parental consent)');
                 const mailtoLink = `mailto:${house.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
                 window.location.href = mailtoLink;
                 modal.remove();
