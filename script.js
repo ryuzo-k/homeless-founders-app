@@ -1715,7 +1715,7 @@ function showEmailOptions(house, subject, body) {
         
         <div style="padding: 30px;">
             <div style="background: #fff3cd; border: 1px solid #ffeaa7; padding: 15px; margin-bottom: 20px; font-size: 12px; font-family: 'Space Mono', monospace;">
-                <strong>⚠️ Note:</strong> Choose your preferred email method below. Gmail users can use the first option, others should use the default email app option.
+                <strong>⚠️ Note:</strong> Choose your preferred email service below. Your browser may show a security warning - please click "Continue" or "Allow" to proceed.
             </div>
             
             <div style="margin-bottom: 30px;">
@@ -1724,9 +1724,14 @@ function showEmailOptions(house, subject, body) {
                     📧 Open in Gmail
                 </button>
                 
+                <button id="outlook-btn" 
+                        style="display: block; width: 100%; padding: 15px; background: white; color: black; border: 2px solid black; cursor: pointer; font-size: 16px; font-family: 'Space Mono', monospace; margin-bottom: 10px; transition: all 0.2s;">
+                    📨 Open in Outlook
+                </button>
+                
                 <button id="mailto-btn" 
                         style="display: block; width: 100%; padding: 15px; background: white; color: black; border: 2px solid black; cursor: pointer; font-size: 16px; font-family: 'Space Mono', monospace; margin-bottom: 15px; transition: all 0.2s;">
-                    📱 Open Default Email App
+                    ${isMobile ? '📱 Default Email App' : '💻 Default Email App'}
                 </button>
                 
                 <button id="copy-btn" 
@@ -1763,11 +1768,31 @@ function showEmailOptions(house, subject, body) {
         const copyBtn = modal.querySelector('#copy-btn');
         const closeBtn = modal.querySelector('#close-btn');
         
+        const gmailBtn = modal.querySelector('#gmail-btn');
+        const outlookBtn = modal.querySelector('#outlook-btn');
         const mailtoBtn = modal.querySelector('#mailto-btn');
+        
+        if (gmailBtn) {
+            gmailBtn.addEventListener('click', () => {
+                console.log('Gmail button clicked');
+                const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=${house.email}&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(decodedBody)}`;
+                window.open(gmailUrl, '_blank');
+                modal.remove();
+            });
+        }
+        
+        if (outlookBtn) {
+            outlookBtn.addEventListener('click', () => {
+                console.log('Outlook button clicked');
+                const outlookUrl = `https://outlook.live.com/mail/0/deeplink/compose?to=${house.email}&subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(decodedBody)}`;
+                window.open(outlookUrl, '_blank');
+                modal.remove();
+            });
+        }
         
         if (mailtoBtn) {
             mailtoBtn.addEventListener('click', () => {
-                console.log('Email button clicked');
+                console.log('Default email app button clicked');
                 const mailtoLink = `mailto:${house.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(decodedBody)}`;
                 window.location.href = mailtoLink;
                 modal.remove();
@@ -1887,7 +1912,7 @@ function showParentalConsentEmailOptions(house, subject, body) {
         
         <div style="padding: 30px;">
             <div style="background: #fff3cd; border: 1px solid #ffeaa7; padding: 15px; margin-bottom: 20px; font-size: 12px; font-family: 'Space Mono', monospace;">
-                <strong>⚠️ Note:</strong> Choose your preferred email method below. Gmail users can use the first option, others should use the default email app option.
+                <strong>⚠️ Note:</strong> Choose your preferred email service below. Your browser may show a security warning - please click "Continue" or "Allow" to proceed.
             </div>
             
             <div style="margin-bottom: 30px;">
@@ -1896,9 +1921,14 @@ function showParentalConsentEmailOptions(house, subject, body) {
                     📧 Open in Gmail
                 </button>
                 
+                <button id="outlook-btn" 
+                        style="display: block; width: 100%; padding: 15px; background: white; color: black; border: 2px solid black; cursor: pointer; font-size: 16px; font-family: 'Space Mono', monospace; margin-bottom: 10px; transition: all 0.2s;">
+                    📨 Open in Outlook
+                </button>
+                
                 <button id="mailto-btn" 
                         style="display: block; width: 100%; padding: 15px; background: white; color: black; border: 2px solid black; cursor: pointer; font-size: 16px; font-family: 'Space Mono', monospace; margin-bottom: 15px; transition: all 0.2s;">
-                    📱 Open Default Email App
+                    ${isMobile ? '📱 Default Email App' : '💻 Default Email App'}
                 </button>
                 
                 <button id="copy-btn" 
@@ -1935,11 +1965,31 @@ function showParentalConsentEmailOptions(house, subject, body) {
         const copyBtn = modal.querySelector('#copy-btn');
         const closeBtn = modal.querySelector('#close-btn');
         
+        const gmailBtn = modal.querySelector('#gmail-btn');
+        const outlookBtn = modal.querySelector('#outlook-btn');
         const mailtoBtn = modal.querySelector('#mailto-btn');
+        
+        if (gmailBtn) {
+            gmailBtn.addEventListener('click', () => {
+                console.log('Gmail button clicked (parental consent)');
+                const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=${house.email}&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+                window.open(gmailUrl, '_blank');
+                modal.remove();
+            });
+        }
+        
+        if (outlookBtn) {
+            outlookBtn.addEventListener('click', () => {
+                console.log('Outlook button clicked (parental consent)');
+                const outlookUrl = `https://outlook.live.com/mail/0/deeplink/compose?to=${house.email}&subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+                window.open(outlookUrl, '_blank');
+                modal.remove();
+            });
+        }
         
         if (mailtoBtn) {
             mailtoBtn.addEventListener('click', () => {
-                console.log('Email button clicked (parental consent)');
+                console.log('Default email app button clicked (parental consent)');
                 const mailtoLink = `mailto:${house.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
                 window.location.href = mailtoLink;
                 modal.remove();
