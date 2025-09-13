@@ -1715,13 +1715,18 @@ function showEmailOptions(house, subject, body) {
         
         <div style="padding: 30px;">
             <div style="background: #fff3cd; border: 1px solid #ffeaa7; padding: 15px; margin-bottom: 20px; font-size: 12px; font-family: 'Space Mono', monospace;">
-                <strong>⚠️ Note:</strong> Your browser may show a security warning when opening Gmail. If this happens, please click "Continue" or "Allow" to proceed with sending your application.
+                <strong>⚠️ Note:</strong> Choose your preferred email method below. Gmail users can use the first option, others should use the default email app option.
             </div>
             
             <div style="margin-bottom: 30px;">
-                <button id="primary-email-btn" 
-                        style="display: block; width: 100%; padding: 15px; background: black; color: white; border: none; cursor: pointer; font-size: 16px; font-family: 'Space Mono', monospace; margin-bottom: 15px; transition: background-color 0.2s;">
-                    ${isMobile ? '📱 Open Email App' : '📧 Open Email'}
+                <button id="gmail-btn" 
+                        style="display: block; width: 100%; padding: 15px; background: black; color: white; border: none; cursor: pointer; font-size: 16px; font-family: 'Space Mono', monospace; margin-bottom: 10px; transition: background-color 0.2s;">
+                    📧 Open in Gmail
+                </button>
+                
+                <button id="mailto-btn" 
+                        style="display: block; width: 100%; padding: 15px; background: white; color: black; border: 2px solid black; cursor: pointer; font-size: 16px; font-family: 'Space Mono', monospace; margin-bottom: 15px; transition: all 0.2s;">
+                    📱 Open Default Email App
                 </button>
                 
                 <button id="copy-btn" 
@@ -1758,11 +1763,23 @@ function showEmailOptions(house, subject, body) {
         const copyBtn = modal.querySelector('#copy-btn');
         const closeBtn = modal.querySelector('#close-btn');
         
-        if (primaryEmailBtn) {
-            primaryEmailBtn.addEventListener('click', () => {
-                console.log('Primary email button clicked');
+        const gmailBtn = modal.querySelector('#gmail-btn');
+        const mailtoBtn = modal.querySelector('#mailto-btn');
+        
+        if (gmailBtn) {
+            gmailBtn.addEventListener('click', () => {
+                console.log('Gmail button clicked');
                 const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=${house.email}&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(decodedBody)}`;
                 window.open(gmailUrl, '_blank');
+                modal.remove();
+            });
+        }
+        
+        if (mailtoBtn) {
+            mailtoBtn.addEventListener('click', () => {
+                console.log('Mailto button clicked');
+                const mailtoLink = `mailto:${house.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(decodedBody)}`;
+                window.location.href = mailtoLink;
                 modal.remove();
             });
         }
@@ -1879,10 +1896,19 @@ function showParentalConsentEmailOptions(house, subject, body) {
         </div>
         
         <div style="padding: 30px;">
+            <div style="background: #fff3cd; border: 1px solid #ffeaa7; padding: 15px; margin-bottom: 20px; font-size: 12px; font-family: 'Space Mono', monospace;">
+                <strong>⚠️ Note:</strong> Choose your preferred email method below. Gmail users can use the first option, others should use the default email app option.
+            </div>
+            
             <div style="margin-bottom: 30px;">
-                <button id="primary-email-btn" 
-                        style="display: block; width: 100%; padding: 15px; background: black; color: white; border: none; cursor: pointer; font-size: 16px; font-family: 'Space Mono', monospace; margin-bottom: 15px; transition: background-color 0.2s;">
-                    ${isMobile ? '📱 Open Email App' : '📧 Open Email'}
+                <button id="gmail-btn" 
+                        style="display: block; width: 100%; padding: 15px; background: black; color: white; border: none; cursor: pointer; font-size: 16px; font-family: 'Space Mono', monospace; margin-bottom: 10px; transition: background-color 0.2s;">
+                    📧 Open in Gmail
+                </button>
+                
+                <button id="mailto-btn" 
+                        style="display: block; width: 100%; padding: 15px; background: white; color: black; border: 2px solid black; cursor: pointer; font-size: 16px; font-family: 'Space Mono', monospace; margin-bottom: 15px; transition: all 0.2s;">
+                    📱 Open Default Email App
                 </button>
                 
                 <button id="copy-btn" 
@@ -1919,11 +1945,23 @@ function showParentalConsentEmailOptions(house, subject, body) {
         const copyBtn = modal.querySelector('#copy-btn');
         const closeBtn = modal.querySelector('#close-btn');
         
-        if (primaryEmailBtn) {
-            primaryEmailBtn.addEventListener('click', () => {
-                console.log('Primary email button clicked (parental consent)');
+        const gmailBtn = modal.querySelector('#gmail-btn');
+        const mailtoBtn = modal.querySelector('#mailto-btn');
+        
+        if (gmailBtn) {
+            gmailBtn.addEventListener('click', () => {
+                console.log('Gmail button clicked (parental consent)');
                 const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=${house.email}&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
                 window.open(gmailUrl, '_blank');
+                modal.remove();
+            });
+        }
+        
+        if (mailtoBtn) {
+            mailtoBtn.addEventListener('click', () => {
+                console.log('Mailto button clicked (parental consent)');
+                const mailtoLink = `mailto:${house.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+                window.location.href = mailtoLink;
                 modal.remove();
             });
         }
