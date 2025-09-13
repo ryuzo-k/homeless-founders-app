@@ -1019,6 +1019,7 @@ async function displayHouseList(houses = null) {
             const dbHouses = await SupabaseDB.getAllHackerHouses();
             console.log('🏠 Loaded houses from database:', dbHouses);
             console.log('🔍 First house SNS field:', dbHouses[0]?.sns);
+            console.log('🔍 First house full object:', dbHouses[0]);
             housesToShow = [...hackerHouses, ...dbHouses];
         } else {
             // ローカルデータを使用
@@ -1070,13 +1071,13 @@ async function displayHouseList(houses = null) {
                 
                 <p class="text-sm mb-4">${house.description}</p>
                 
-                ${house.sns && house.sns.trim() !== '' ? `
+                ${house.sns && house.sns.trim() !== '' && house.sns !== 'null' ? `
                 <div class="mb-4">
                     <a href="${house.sns}" target="_blank" class="inline-flex items-center text-sm text-blue-600 hover:text-blue-800 underline">
                         🔗 Visit SNS/Website
                     </a>
                 </div>
-                ` : ''}
+                ` : `<!-- No SNS: ${house.sns} -->`}
                 
                 <div class="space-y-2">
                     <div class="flex justify-between items-center text-sm">
