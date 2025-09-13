@@ -139,6 +139,7 @@ const SupabaseDB = {
             name: houseData.name,
             location: houseData.location,
             region: houseData.region,
+            country: houseData.country,
             description: houseData.description,
             capacity: houseData.capacity,
             email: houseData.email,
