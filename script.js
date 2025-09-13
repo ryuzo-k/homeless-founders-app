@@ -2697,8 +2697,9 @@ function selectHouseForEditing(house) {
     // Fill form with house data
     document.getElementById('editHouseName').value = house.name || '';
     document.getElementById('editHouseLocation').value = house.location || '';
+    document.getElementById('editHouseSNS').value = house.sns || '';
+    document.getElementById('editHouseCountry').value = house.country || '';
     document.getElementById('editHouseDescription').value = house.description || '';
-    // Note: capacity and rent fields don't exist in the actual form
     
     console.log('✅ House data loaded successfully for editing');
 }
@@ -2717,8 +2718,9 @@ async function updateHouseInfo() {
     const formData = {
         name: document.getElementById('editHouseName').value,
         location: document.getElementById('editHouseLocation').value,
+        sns: document.getElementById('editHouseSNS').value,
+        country: document.getElementById('editHouseCountry').value,
         description: document.getElementById('editHouseDescription').value
-        // Note: Only updating fields that actually exist in the form
     };
     
     console.log('Updating house info:', formData);
@@ -2755,6 +2757,21 @@ async function updateHouseInfo() {
         }
         
         if (updateSuccess) {
+            // Update the current editing house object with new data
+            window.currentEditingHouse = { ...window.currentEditingHouse, ...formData };
+            
+            // Also update the hackerHouses array if the house exists there
+            const hackerHouseIndex = hackerHouses.findIndex(h => h.email === window.currentEditingHouse.email);
+            if (hackerHouseIndex !== -1) {
+                hackerHouses[hackerHouseIndex] = { ...hackerHouses[hackerHouseIndex], ...formData };
+            }
+            
+            // Update registeredHouses array if the house exists there
+            const registeredHouseIndex = registeredHouses.findIndex(h => h.email === window.currentEditingHouse.email);
+            if (registeredHouseIndex !== -1) {
+                registeredHouses[registeredHouseIndex] = { ...registeredHouses[registeredHouseIndex], ...formData };
+            }
+            
             // 成功メッセージを表示
             document.getElementById('editHouseForm').style.display = 'none';
             document.getElementById('verificationStatus').style.display = 'block';
