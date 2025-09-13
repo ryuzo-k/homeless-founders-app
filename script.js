@@ -255,8 +255,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 description: document.getElementById('houseDescription').value
             };
             
-            console.log('🔍 DEBUG: Form data SNS field:', formData.sns);
-            console.log('🔍 DEBUG: houseSNS element value:', document.getElementById('houseSNS').value);
             
             if (!formData.name || !formData.location || !formData.email || !formData.sns || !formData.country || !formData.description) {
                 alert('Please fill in all required fields');
@@ -338,7 +336,6 @@ async function registerHackerHouse(formData) {
             
             console.log('🏠 House data to be saved:', houseData);
             console.log('🏠 House data fields:', Object.keys(houseData));
-            console.log('🔍 DEBUG: SNS field in houseData:', houseData.sns);
             
             // Create house in database
             const newHouse = await SupabaseDB.createHackerHouse(houseData);
@@ -582,7 +579,6 @@ async function registerHackerHouse(houseData) {
             };
             
             console.log('House data with image:', houseWithImage);
-            console.log('🔍 DEBUG: SNS field in houseWithImage:', houseWithImage.sns);
             const newHouse = await SupabaseDB.createHackerHouse(houseWithImage);
             console.log('✅ Created house result:', newHouse);
             
@@ -1076,7 +1072,7 @@ async function displayHouseList(houses = null) {
                         🔗 Visit SNS/Website
                     </a>
                 </div>
-                ` : `<div class="mb-4 text-xs text-gray-400">DEBUG: No SNS field for ${house.name}</div>`}
+                ` : ''}
                 
                 <div class="space-y-2">
                     <div class="flex justify-between items-center text-sm">
@@ -2224,8 +2220,6 @@ async function loadHackerHousesList() {
         houses = await SupabaseDB.getAllHackerHouses();
         console.log('Loaded houses from database:', houses);
         console.log('Number of houses loaded:', houses.length);
-        console.log('🔍 DEBUG: First house sns field:', houses[0]?.sns);
-        console.log('🔍 DEBUG: All houses with sns:', houses.map(h => ({ name: h.name, sns: h.sns })));
         
         // Transform database data to match expected format
         houses = houses.map(house => {
