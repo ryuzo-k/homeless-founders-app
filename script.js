@@ -4,39 +4,8 @@ let registeredHouses = [];
 // 登録された創設者のデータ
 let registeredFounders = [];
 
-// Sample hacker house data
-const hackerHouses = [
-    {
-        name: "LocalHost Japan House",
-        location: "Yotsuya, Shinjuku",
-        description: "Hi",
-        image: "🏠",
-        region: "tokyo",
-        country: "japan",
-        email: "contact@localhost-japan.com",
-        sns: "https://x.com/localhostjapan"
-    },
-    {
-        name: "SF Tech House",
-        location: "SOMA, San Francisco",
-        description: "Premier tech house in the heart of Silicon Valley",
-        image: "🌉",
-        region: "sf",
-        country: "usa",
-        email: "contact@sftechhouse.com",
-        sns: "https://twitter.com/sftechhouse"
-    },
-    {
-        name: "NYC Creative Collective",
-        location: "Brooklyn, New York",
-        description: "Where creative founders gather to build the future",
-        image: "🗽",
-        region: "nyc",
-        country: "usa",
-        email: "contact@nyccreative.com",
-        sns: "https://instagram.com/nyccreative"
-    }
-];
+// Sample hacker house data (empty - all data comes from Supabase)
+const hackerHouses = [];
 
 // AIマッチングのシミュレーション
 function simulateAIMatching(formData) {
