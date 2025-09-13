@@ -853,10 +853,25 @@ function updateStats(houses) {
 }
 
 // ハウスに連絡
-function contactHouse(houseName) {
-    // Find the house details
-    const allHouses = [...hackerHouses, ...registeredHouses];
+async function contactHouse(houseName) {
+    console.log('🏠 contactHouse called with:', houseName);
+    
+    // Find the house details from all sources
+    let allHouses = [...hackerHouses, ...registeredHouses];
+    
+    // Also try to get from Supabase if available
+    if (typeof SupabaseDB !== 'undefined') {
+        try {
+            const dbHouses = await SupabaseDB.getAllHackerHouses();
+            allHouses = [...allHouses, ...dbHouses];
+            console.log('🏠 Total houses available:', allHouses.length);
+        } catch (error) {
+            console.error('Error loading houses from database:', error);
+        }
+    }
+    
     const house = allHouses.find(h => h.name === houseName);
+    console.log('🏠 Found house:', house);
     
     if (!house) {
         alert('House not found');
