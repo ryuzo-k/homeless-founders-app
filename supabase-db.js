@@ -20,7 +20,7 @@ class SupabaseDatabase {
             
             const { data, error } = await client
                 .from('hacker_houses')
-                .select('id, name, location, region, country, description, capacity, email, preferences, facilities, image, created_at, updated_at')
+                .select('id, name, location, region, country, description, capacity, email, preferences, facilities, image, sns, created_at, updated_at')
                 .order('created_at', { ascending: false });
             
             if (error) throw error;
@@ -58,7 +58,8 @@ class SupabaseDatabase {
                     email: houseData.email,
                     preferences: houseData.preferences,
                     facilities: houseData.facilities,
-                    image: houseData.image
+                    image: houseData.image,
+                    sns: houseData.sns
                 }])
                 .select()
                 .single();
@@ -98,7 +99,8 @@ class SupabaseDatabase {
                     email: updateData.email,
                     preferences: updateData.preferences,
                     facilities: updateData.facilities,
-                    image: updateData.image
+                    image: updateData.image,
+                    sns: updateData.sns
                 })
                 .eq('email', email)
                 .select()
@@ -139,7 +141,7 @@ class SupabaseDatabase {
             
             const { data, error } = await client
                 .from('hacker_houses')
-                .select('id, name, location, region, country, description, capacity, email, preferences, facilities, image, created_at, updated_at')
+                .select('id, name, location, region, country, description, capacity, email, preferences, facilities, image, sns, created_at, updated_at')
                 .eq('id', id)
                 .single();
             
