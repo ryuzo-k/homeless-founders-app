@@ -255,6 +255,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 description: document.getElementById('houseDescription').value
             };
             
+            console.log('🔍 DEBUG: Form data SNS field:', formData.sns);
+            console.log('🔍 DEBUG: houseSNS element value:', document.getElementById('houseSNS').value);
+            
             if (!formData.name || !formData.location || !formData.email || !formData.sns || !formData.country || !formData.description) {
                 alert('Please fill in all required fields');
                 return;
