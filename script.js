@@ -341,7 +341,7 @@ async function registerHackerHouse(formData) {
         } else {
             console.log('SupabaseDB not available, using fallback');
             
-            // Map country to region for fallback as well
+            // Map country to region for backward compatibility
             const countryToRegion = {
                 'japan': 'tokyo',
                 'usa': 'sf',
@@ -355,16 +355,17 @@ async function registerHackerHouse(formData) {
                 'other': 'other'
             };
             
-            // Fallback to local storage
-            const newHouse = {
-                ...formData,
-                id: Date.now(),
-                image: getRegionEmoji(countryToRegion[formData.country] || 'other'),
-                region: countryToRegion[formData.country] || 'other',
-                created_at: new Date().toISOString()
-            };
+            const region = countryToRegion[formData.country] || 'other';
             
-            registeredHouses.push(newHouse);
+            const houseWithRegion = {
+                ...formData,
+                region: region,
+                country: formData.country, // Ensure country is preserved
+                image: getRegionEmoji(region)
+            };
+
+            registeredHouses.push(houseWithRegion);
+            console.log('House registered locally:', houseWithRegion);
             console.log('House registered locally:', newHouse);
             
             // Show success message
