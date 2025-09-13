@@ -1350,7 +1350,8 @@ function createParentalConsentForm() {
                         </div>
                         <div>
                             <label class="block text-sm font-bold mb-1">Phone Number *</label>
-                            <input type="tel" id="inlineParentPhone" required class="w-full px-2 py-1 simple-input">
+                            <input type="tel" id="inlineParentPhone" required class="w-full px-2 py-1 simple-input" placeholder="+1-555-123-4567">
+                            <p class="text-xs text-gray-600 mt-1">Please include country code (e.g., +1 for US, +81 for Japan, +44 for UK)</p>
                         </div>
                         <div>
                             <label class="block text-sm font-bold mb-1">Relationship *</label>
